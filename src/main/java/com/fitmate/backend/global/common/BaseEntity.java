@@ -11,14 +11,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Getter
-@MappedSuperclass
+@MappedSuperclass // 자식 클래스에게 필드 매핑 정보 상속
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
     @CreatedDate
-    @Column(updatable = false, precision = 6) // 생성 시간은 update 방지
+    @Column(nullable = false, updatable = false) // 생성 시간은 update 방지
     private LocalDateTime createdAt;
 
     @LastModifiedDate // 데이터 수정될 떄 마다 자동으로 시간 갱신
-    @Column(precision = 6)
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 }
