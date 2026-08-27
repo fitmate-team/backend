@@ -1,4 +1,7 @@
 package com.fitmate.backend.member.domain;
 
-public class ExerciseGoal {
+public enum ExerciseGoal {
+    WEIGHT_LOSS,
+    MUSCLE_GAIN,
+    FITNESS
 }

@@ -1,4 +1,6 @@
 package com.fitmate.backend.member.domain;
 
-public class Gender {
+public enum Gender {
+    MALE,
+    FEMALE
 }
