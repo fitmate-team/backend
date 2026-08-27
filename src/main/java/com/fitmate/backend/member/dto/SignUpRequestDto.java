@@ -5,7 +5,6 @@ import com.fitmate.backend.member.domain.ExerciseLevel;
 import com.fitmate.backend.member.domain.Gender;
 import com.fitmate.backend.member.domain.Member;
 import jakarta.validation.constraints.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
