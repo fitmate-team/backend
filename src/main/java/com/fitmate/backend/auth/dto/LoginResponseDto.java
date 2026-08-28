@@ -10,8 +10,12 @@ public class LoginResponseDto {
     private Long id;
     private String loginId;
     private String nickname;
+    private String accessToken;
 
-    public static LoginResponseDto from(Member member) {
-        return new LoginResponseDto(member.getId(), member.getLoginId(), member.getNickname());
+    public static LoginResponseDto of(Member member, String accessToken) {
+        return new LoginResponseDto(member.getId(),
+                                    member.getLoginId(),
+                                    member.getNickname(),
+                                    accessToken);
     }
 }
