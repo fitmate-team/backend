@@ -12,7 +12,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
 
 springdoc:
@@ -21,3 +21,7 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: method
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: 1800000
