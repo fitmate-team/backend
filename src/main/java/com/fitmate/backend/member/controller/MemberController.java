@@ -23,7 +23,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @Operation(summary = "회원 생성")
-    @PostMapping
+    @PostMapping("/signup")
     public ResponseEntity<SignUpResponseDto> createMember(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
         SignUpResponseDto responseDto = memberService.createMember(signUpRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
