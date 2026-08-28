@@ -17,5 +17,5 @@ public class SignUpResponseDto {
                 member.getLoginId(),
                 member.getNickname()
         );
-    }
+     }
 }
