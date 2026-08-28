@@ -1,0 +1,17 @@
+package com.fitmate.backend.auth.dto;
+
+import com.fitmate.backend.member.domain.Member;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class LoginResponseDto {
+    private Long id;
+    private String loginId;
+    private String nickname;
+
+    public static LoginResponseDto from(Member member) {
+        return new LoginResponseDto(member.getId(), member.getLoginId(), member.getNickname());
+    }
+}
