@@ -24,8 +24,8 @@ public class MemberService {
             throw new CustomException(ErrorCode.DUPLICATE_LOGIN_ID);
         }
         Member member = requestDto.toEntity(passwordEncoder.encode(requestDto.getPassword()));
-        memberRepository.save(member);
-        return SignUpResponseDto.from(member);
+        Member savedMember = memberRepository.save(member);
+        return SignUpResponseDto.from(savedMember);
     }
 
 //    public SignUpResponseDto getMember() {
