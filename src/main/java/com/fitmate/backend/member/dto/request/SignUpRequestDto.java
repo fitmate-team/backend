@@ -1,4 +1,4 @@
-package com.fitmate.backend.member.dto;
+package com.fitmate.backend.member.dto.request;
 
 import com.fitmate.backend.member.domain.ExerciseGoal;
 import com.fitmate.backend.member.domain.ExerciseLevel;

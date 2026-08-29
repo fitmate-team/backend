@@ -1,4 +1,4 @@
-package com.fitmate.backend.member.dto;
+package com.fitmate.backend.member.dto.response;
 
 public class MemberResponseDto {
 //    id

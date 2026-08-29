@@ -22,14 +22,15 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS))
+                        SessionCreationPolicy.STATELESS)) // 세션 기록 중지
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/api-docs/**",
                                 "/v3/api-docs/**",
                                 "/api/members/signup",
-                                "/api/auth/login")
+                                "/api/auth/login",
+                                "/api/members/id-check")
                         .permitAll()
                         .anyRequest()
                         .authenticated());

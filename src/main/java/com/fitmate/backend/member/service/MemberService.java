@@ -3,8 +3,9 @@ package com.fitmate.backend.member.service;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.Member;
-import com.fitmate.backend.member.dto.SignUpRequestDto;
-import com.fitmate.backend.member.dto.SignUpResponseDto;
+import com.fitmate.backend.member.dto.request.SignUpRequestDto;
+import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
+import com.fitmate.backend.member.dto.response.SignUpResponseDto;
 import com.fitmate.backend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,11 @@ public class MemberService {
         Member member = requestDto.toEntity(passwordEncoder.encode(requestDto.getPassword()));
         Member savedMember = memberRepository.save(member);
         return SignUpResponseDto.from(savedMember);
+    }
+
+    public LoginIdCheckResponseDto checkLoginId(String loginId) {
+        boolean exists = memberRepository.existsByLoginId(loginId);
+        return new LoginIdCheckResponseDto(!exists);
     }
 
 //    public SignUpResponseDto getMember() {
