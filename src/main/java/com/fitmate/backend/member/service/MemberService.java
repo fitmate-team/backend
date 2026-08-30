@@ -5,6 +5,7 @@ import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.Member;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
+import com.fitmate.backend.member.dto.response.MemberResponseDto;
 import com.fitmate.backend.member.dto.response.SignUpResponseDto;
 import com.fitmate.backend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +35,12 @@ public class MemberService {
         return new LoginIdCheckResponseDto(!exists);
     }
 
-//    public SignUpResponseDto getMember() {
-//
-//    }
+    public MemberResponseDto getMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return MemberResponseDto.from(member);
+    }
 //
 //    public SignUpResponseDto updateMember(SignUpRequestDto requestDto) {
 //    }
