@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = header.substring(7);
 
         try {
-            Claims claims = jwtTokenProvider.parseClaims(token); // 검증
+            Claims claims = jwtTokenProvider.parseClaims(token); // 직접 호출 및 검증
             Long memberId = jwtTokenProvider.getMemberId(claims);
 
             // Authentication 객체 생성
