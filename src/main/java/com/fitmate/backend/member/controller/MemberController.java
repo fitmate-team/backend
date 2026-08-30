@@ -6,6 +6,7 @@ import com.fitmate.backend.member.dto.response.MemberResponseDto;
 import com.fitmate.backend.member.dto.response.SignUpResponseDto;
 import com.fitmate.backend.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class MemberController {
 
     @Operation(summary = "회원 생성")
     @PostMapping("/signup")
+    @SecurityRequirements()
     public ResponseEntity<SignUpResponseDto> createMember(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
         SignUpResponseDto responseDto = memberService.createMember(signUpRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -32,6 +34,7 @@ public class MemberController {
 
     @Operation(summary = "ID 중복 확인")
     @GetMapping("/id-check")
+    @SecurityRequirements()
     public ResponseEntity<LoginIdCheckResponseDto> checkLoginId(@RequestParam String loginId) {
         return ResponseEntity.ok(memberService.checkLoginId(loginId));
     }
