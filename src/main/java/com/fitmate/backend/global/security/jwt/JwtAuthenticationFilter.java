@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = header.substring(7);
 
         try {
-            Claims claims = jwtTokenProvider.parseClaims(token);
+            Claims claims = jwtTokenProvider.parseClaims(token); // 검증
             Long memberId = jwtTokenProvider.getMemberId(claims);
 
             // Authentication 객체 생성
@@ -51,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             null,
                             Collections.emptyList());
 
-            // SecurityContext에 저장
+            // 객체 SecurityContext에 저장
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         } catch (ExpiredJwtException e) {

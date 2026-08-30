@@ -19,14 +19,26 @@ public class JwtTokenProvider {
     @Value("${jwt.access-token-expiration}")
     private long accessTokenExpiration;
 
-    // 토큰 생성
+    @Value("${jwt.refresh-token-expiration}")
+    private long refreshTokenExpiration;
+
+    // access 생성
     public String generateAccessToken(Long memberId) {
+        return generateToken(memberId, accessTokenExpiration);
+    }
+
+    // refresh 생성
+    public String generateRefreshToken(Long memberId) {
+        return generateToken(memberId, refreshTokenExpiration);
+    }
+
+    private String generateToken(Long memberId, long expirationTime) {
         // 현재 시간
         long now = System.currentTimeMillis();
         Date issuedAt = new Date(now);
 
         // 만료 시간
-        Date expiration = new Date(now + accessTokenExpiration);
+        Date expiration = new Date(now + expirationTime);
 
         // SecretKey 만들기
         SecretKey key = getSigningKey();
