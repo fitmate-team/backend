@@ -1,4 +1,4 @@
-package com.fitmate.backend.auth.dto;
+package com.fitmate.backend.auth.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
