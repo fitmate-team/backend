@@ -16,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.attribute.UserPrincipal;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
@@ -54,7 +52,7 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 탈퇴")
-    @DeleteMapping("/delete")
+    @DeleteMapping("/my-info")
     public ResponseEntity<Void> deleteMember(@AuthenticationPrincipal Long memberId) {
         memberService.deleteMember(memberId);
         return ResponseEntity.noContent().build();

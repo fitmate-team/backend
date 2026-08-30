@@ -70,6 +70,7 @@ public class MemberService {
 
     }
 
+    @Transactional
     public void deleteMember(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
