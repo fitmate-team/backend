@@ -1,5 +1,6 @@
 package com.fitmate.backend.member.controller;
 
+import com.fitmate.backend.member.dto.request.MemberUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
 import com.fitmate.backend.member.dto.response.MemberResponseDto;
@@ -20,11 +21,11 @@ import java.nio.file.attribute.UserPrincipal;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
-@Tag(name = "회원 API", description = "회원 생성, 정보조회, 수정, 삭제")
+@Tag(name = "회원 API", description = "회원 가입, 정보조회, 수정, 탈퇴")
 public class MemberController {
     private final MemberService memberService;
 
-    @Operation(summary = "회원 생성")
+    @Operation(summary = "회원 가입")
     @PostMapping("/signup")
     @SecurityRequirements()
     public ResponseEntity<SignUpResponseDto> createMember(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
@@ -43,6 +44,20 @@ public class MemberController {
     @GetMapping("/my-info")
     public ResponseEntity<MemberResponseDto> getMyInfo(@AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok(memberService.getMember(memberId));
+    }
+
+    @Operation(summary = "내 정보 수정")
+    @PutMapping("/my-info")
+    public ResponseEntity<MemberResponseDto> updateMyInfo(@AuthenticationPrincipal Long memberId,
+                                                          @Valid @RequestBody MemberUpdateRequestDto requestDto) {
+        return ResponseEntity.ok(memberService.updateMember(memberId, requestDto));
+    }
+
+    @Operation(summary = "회원 탈퇴")
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteMember(@AuthenticationPrincipal Long memberId) {
+        memberService.deleteMember(memberId);
+        return ResponseEntity.noContent().build();
     }
 
 }
