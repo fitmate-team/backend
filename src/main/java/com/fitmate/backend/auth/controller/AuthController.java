@@ -1,7 +1,7 @@
 package com.fitmate.backend.auth.controller;
 
-import com.fitmate.backend.auth.dto.LoginRequestDto;
-import com.fitmate.backend.auth.dto.LoginResponseDto;
+import com.fitmate.backend.auth.dto.request.LoginRequestDto;
+import com.fitmate.backend.auth.dto.response.LoginResponseDto;
 import com.fitmate.backend.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
