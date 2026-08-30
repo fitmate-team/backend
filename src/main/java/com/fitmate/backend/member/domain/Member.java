@@ -66,4 +66,20 @@ public class Member extends BaseEntity {
         this.targetWeight = targetWeight;
     }
 
+    public void updateMember(String nickname,
+                             Gender gender,
+                             Double height,
+                             Double weight,
+                             ExerciseLevel exerciseLevel,
+                             ExerciseGoal exerciseGoal,
+                             Double targetWeight){
+        this.nickname = nickname;
+        this.gender = gender;
+        this.height = height;
+        this.weight = weight;
+        this.exerciseLevel = exerciseLevel;
+        this.exerciseGoal = exerciseGoal;
+        this.targetWeight = targetWeight;
+    }
+
 }
