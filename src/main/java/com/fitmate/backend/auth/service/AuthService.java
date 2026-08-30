@@ -88,4 +88,9 @@ public class AuthService {
         return TokenReissueResponseDto.from(newAccessToken);
 
     }
+
+    @Transactional
+    public void logout(Long memberId) {
+        refreshTokenRepository.deleteByMemberId(memberId);
+    }
 }
