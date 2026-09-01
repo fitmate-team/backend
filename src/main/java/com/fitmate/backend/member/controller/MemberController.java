@@ -1,0 +1,61 @@
+package com.fitmate.backend.member.controller;
+
+import com.fitmate.backend.member.dto.request.MemberUpdateRequestDto;
+import com.fitmate.backend.member.dto.request.SignUpRequestDto;
+import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
+import com.fitmate.backend.member.dto.response.MemberResponseDto;
+import com.fitmate.backend.member.dto.response.SignUpResponseDto;
+import com.fitmate.backend.member.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/members")
+@Tag(name = "회원 API", description = "회원 가입, 정보조회, 수정, 탈퇴")
+public class MemberController {
+    private final MemberService memberService;
+
+    @Operation(summary = "회원 가입")
+    @PostMapping("/signup")
+    @SecurityRequirements()
+    public ResponseEntity<SignUpResponseDto> createMember(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
+        SignUpResponseDto responseDto = memberService.createMember(signUpRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
+    @Operation(summary = "ID 중복 확인")
+    @GetMapping("/id-check")
+    @SecurityRequirements()
+    public ResponseEntity<LoginIdCheckResponseDto> checkLoginId(@RequestParam String loginId) {
+        return ResponseEntity.ok(memberService.checkLoginId(loginId));
+    }
+
+    @Operation(summary = "내 정보 조회")
+    @GetMapping("/my-info")
+    public ResponseEntity<MemberResponseDto> getMyInfo(@AuthenticationPrincipal Long memberId) {
+        return ResponseEntity.ok(memberService.getMember(memberId));
+    }
+
+    @Operation(summary = "내 정보 수정")
+    @PutMapping("/my-info")
+    public ResponseEntity<MemberResponseDto> updateMyInfo(@AuthenticationPrincipal Long memberId,
+                                                          @Valid @RequestBody MemberUpdateRequestDto requestDto) {
+        return ResponseEntity.ok(memberService.updateMember(memberId, requestDto));
+    }
+
+    @Operation(summary = "회원 탈퇴")
+    @DeleteMapping("/my-info")
+    public ResponseEntity<Void> deleteMember(@AuthenticationPrincipal Long memberId) {
+        memberService.deleteMember(memberId);
+        return ResponseEntity.noContent().build();
+    }
+
+}
