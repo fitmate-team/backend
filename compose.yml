@@ -1,0 +1,66 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: fitmate-mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_DATABASE: fitmate
+      MYSQL_USER: fitmate
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      TZ: Asia/Seoul
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    command:
+      - --innodb-buffer-pool-size=256M
+      - --max-connections=50
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: fitmate-app
+    restart: unless-stopped
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: fitmate
+      DB_USERNAME: fitmate
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      JWT_SECRET: ${JWT_SECRET}
+
+      TZ: Asia/Seoul
+
+      JAVA_TOOL_OPTIONS: "-Xms256m -Xmx512m"
+
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
