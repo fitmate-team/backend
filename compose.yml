@@ -33,9 +33,13 @@ services:
       start_period: 30s
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # 수동 배포 시 EC2에서 이미지를 직접 빌드하던 방식
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+
+    # CD에서는 GitHub Actions가 빌드한 이미지를 ECR에서 가져옴
+    image: 987540640742.dkr.ecr.ap-northeast-2.amazonaws.com/fitmate-backend:latest
 
     container_name: fitmate-app
     restart: unless-stopped

@@ -1,0 +1,116 @@
+name: FitMate CD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: fitmate-production
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ap-northeast-2
+  AWS_ACCOUNT_ID: '987540640742'
+  ECR_REPOSITORY: fitmate-backend
+  ECR_REGISTRY: 987540640742.dkr.ecr.ap-northeast-2.amazonaws.com
+  EC2_INSTANCE_ID: i-0cc56394c873cf769
+  AWS_ROLE_ARN: arn:aws:iam::987540640742:role/fitmate-github-actions-role
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Build Spring Boot JAR
+        run: ./gradlew clean bootJar
+
+      - name: Prepare Docker build context
+        run: cp build/libs/app.jar app.jar
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.2.3
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          allowed-account-ids: ${{ env.AWS_ACCOUNT_ID }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push ARM64 Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+
+      - name: Deploy to EC2 via SSM
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --region "$AWS_REGION" \
+            --instance-ids "$EC2_INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --comment "FitMate deploy ${GITHUB_SHA}" \
+            --parameters "commands=[
+              \"set -e\",
+              \"curl -fsSL https://raw.githubusercontent.com/fitmate-team/backend/${GITHUB_SHA}/compose.yml -o /opt/fitmate/compose.yml\",
+              \"chown ubuntu:ubuntu /opt/fitmate/compose.yml\",
+              \"cd /opt/fitmate\",
+              \"aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY\",
+              \"docker compose pull app\",
+              \"docker compose up -d --no-deps app\",
+              \"timeout 60 bash -c 'until curl -fsS -o /dev/null http://127.0.0.1:8080/swagger-ui.html; do sleep 2; done'\",
+              \"docker image prune -f\",
+              \"docker ps --filter name=fitmate-app\"
+            ]" \
+            --query 'Command.CommandId' \
+            --output text)
+
+          echo "SSM Command ID: $COMMAND_ID"
+
+          aws ssm wait command-executed \
+            --region "$AWS_REGION" \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$EC2_INSTANCE_ID"
+
+          aws ssm get-command-invocation \
+            --region "$AWS_REGION" \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$EC2_INSTANCE_ID"
+
+      - name: Verify production HTTPS
+        run: |
+          curl \
+            --retry 10 \
+            --retry-delay 3 \
+            --retry-all-errors \
+            -fsI \
+            https://52.78.23.206/swagger-ui.html
