@@ -16,7 +16,7 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // DB가 자동으로 id 지정해줌
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 15) // DB 레벨 제약
+    @Column(nullable = false, unique = true, length = 16) // DB 레벨 제약
     private String loginId;
 
     @Column(nullable = false)
@@ -25,61 +25,13 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 10)
     private String nickname;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
-    @Column(nullable = false)
-    private Double height;
-
-    @Column(nullable = false)
-    private Double weight;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ExerciseLevel exerciseLevel;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ExerciseGoal exerciseGoal;
-
-    private Double targetWeight;
-
     @Builder
     public Member(String loginId,
                   String password,
-                  String nickname,
-                  Gender gender,
-                  Double height,
-                  Double weight,
-                  ExerciseLevel exerciseLevel,
-                  ExerciseGoal exerciseGoal,
-                  Double targetWeight) {
+                  String nickname) {
         this.loginId = loginId;
         this.password = password;
         this.nickname = nickname;
-        this.gender = gender;
-        this.height = height;
-        this.weight = weight;
-        this.exerciseLevel = exerciseLevel;
-        this.exerciseGoal = exerciseGoal;
-        this.targetWeight = targetWeight;
-    }
-
-    public void updateMember(String nickname,
-                             Gender gender,
-                             Double height,
-                             Double weight,
-                             ExerciseLevel exerciseLevel,
-                             ExerciseGoal exerciseGoal,
-                             Double targetWeight){
-        this.nickname = nickname;
-        this.gender = gender;
-        this.height = height;
-        this.weight = weight;
-        this.exerciseLevel = exerciseLevel;
-        this.exerciseGoal = exerciseGoal;
-        this.targetWeight = targetWeight;
     }
 
 }
