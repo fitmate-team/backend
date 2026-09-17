@@ -3,6 +3,7 @@ package com.fitmate.backend.member.domain;
 import com.fitmate.backend.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -72,5 +73,35 @@ public class MemberProfile extends BaseEntity {
     @Column(name = "body_area", nullable = false)
     @Enumerated(EnumType.STRING)
     private Set<BodyArea> avoidBodyAreas = new HashSet<>();
+
+    @Builder
+    public MemberProfile(Member member,
+                         Gender gender,
+                         Integer age,
+                         Double height,
+                         ExerciseLevel exerciseLevel,
+                         CurrentExerciseStatus currentExerciseStatus,
+                         PrimaryGoal primaryGoal,
+                         GoalStrategy goalStrategy,
+                         Integer weeklyFrequency,
+                         Integer sessionMinutes,
+                         ExerciseLocation exerciseLocation,
+                         Set<DayOfWeek> availableDays,
+                         Set<BodyArea> avoidBodyAreas
+    ) {
+        this.member = member;
+        this.gender = gender;
+        this.age = age;
+        this.height = height;
+        this.exerciseLevel = exerciseLevel;
+        this.currentExerciseStatus = currentExerciseStatus;
+        this.primaryGoal = primaryGoal;
+        this.goalStrategy = goalStrategy;
+        this.weeklyFrequency = weeklyFrequency;
+        this.sessionMinutes = sessionMinutes;
+        this.exerciseLocation = exerciseLocation;
+        this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
+        this.avoidBodyAreas = avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
+    }
 
 }
