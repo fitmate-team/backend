@@ -1,11 +1,15 @@
 package com.fitmate.backend.member.service;
 
 import com.fitmate.backend.auth.token.RefreshTokenRepository;
+import com.fitmate.backend.equipment.domain.Equipment;
+import com.fitmate.backend.equipment.repository.EquipmentRepository;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.BodyWeight;
 import com.fitmate.backend.member.domain.Member;
 import com.fitmate.backend.member.domain.MemberProfile;
+import com.fitmate.backend.member.domain.WorkoutEnvironment;
+import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import com.fitmate.backend.member.dto.request.BodyMetricsUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
@@ -15,10 +19,13 @@ import com.fitmate.backend.member.dto.response.SignUpResponseDto;
 import com.fitmate.backend.member.repository.BodyWeightRepository;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.MemberRepository;
+import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +36,8 @@ public class MemberService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberProfileRepository memberProfileRepository;
     private final BodyWeightRepository bodyWeightRepository;
+    private final EquipmentRepository equipmentRepository;
+    private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
 
     @Transactional
     public SignUpResponseDto signUp(SignUpRequestDto requestDto) {
@@ -41,6 +50,18 @@ public class MemberService {
         memberProfileRepository.save(requestDto.toMemberProfile(savedMember));
         bodyWeightRepository.save(requestDto.toBodyWeight(savedMember));
 
+        Set<Equipment> equipmentSet = // 운동 기구 ID 조회
+                equipmentRepository.findAllByEquipmentCodeIn(requestDto.getEquipmentCodes());
+
+        if (requestDto.getEquipmentCodes().size() != equipmentSet.size()) {
+            throw new CustomException(ErrorCode.INVALID_EQUIPMENT_CODE); // 유효 코드 검증
+        }
+
+        boolean defaultGym = requestDto.getExerciseLocation() == ExerciseLocation.GYM;
+
+        workoutEnvironmentRepository.save(requestDto.toWorkoutEnvironment(savedMember,
+                                                                          defaultGym,
+                                                                          equipmentSet));
         return SignUpResponseDto.from(savedMember);
     }
 

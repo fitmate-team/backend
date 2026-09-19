@@ -84,8 +84,8 @@ public class SignUpRequestDto {
     @Schema(description = "헬스장 주소 (운동 장소가 GYM인 경우 사용)", example = "서울특별시 노원구 동일로 123")
     private String gymAddress;
 
-    @Schema(description = "선택한 운동기구 코드 목록", example = "[\"EQ_DUMBBELL\", \"EQ_BARBELL\", " +
-            "\"EQ_FLAT_BENCH\"]")
+    @Schema(description = "선택한 운동기구 코드 목록", example = "[\"EQ_DUMBBELL\", \"EQ_BARBELL\"]")
+    @NotNull(message = "운동기구 목록은 null일 수 없습니다.")
     private Set<String> equipmentCodes = new HashSet<>();
 
     @Schema(description = "운동 가능한 요일", example = "[\"MONDAY\", \"WEDNESDAY\", \"FRIDAY\"]")

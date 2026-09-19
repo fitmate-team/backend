@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface WorkoutEnvironmentRepository extends JpaRepository<Member, Long> {
+public interface WorkoutEnvironmentRepository extends JpaRepository<WorkoutEnvironment, Long> {
     List<WorkoutEnvironment> findAllByMemberId(Long memberId);
 }
