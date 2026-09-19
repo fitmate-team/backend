@@ -9,13 +9,11 @@ import lombok.Getter;
 public class SignUpResponseDto {
     private Long id;
     private String loginId;
-    private String nickname;
 
     public static SignUpResponseDto from(Member member) {
         return new SignUpResponseDto(
                 member.getId(),
-                member.getLoginId(),
-                member.getNickname()
+                member.getLoginId()
         );
      }
 }

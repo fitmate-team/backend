@@ -3,13 +3,17 @@ package com.fitmate.backend.member.service;
 import com.fitmate.backend.auth.token.RefreshTokenRepository;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
+import com.fitmate.backend.member.domain.BodyMeasurement;
 import com.fitmate.backend.member.domain.ExerciseGoal;
 import com.fitmate.backend.member.domain.Member;
+import com.fitmate.backend.member.domain.MemberProfile;
 import com.fitmate.backend.member.dto.request.MemberUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
 import com.fitmate.backend.member.dto.response.MemberResponseDto;
 import com.fitmate.backend.member.dto.response.SignUpResponseDto;
+import com.fitmate.backend.member.repository.BodyMeasurementRepository;
+import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,14 +27,20 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final MemberProfileRepository memberProfileRepository;
+    private final BodyMeasurementRepository bodyMeasurementRepository;
 
     @Transactional
-    public SignUpResponseDto createMember(SignUpRequestDto requestDto) {
+    public SignUpResponseDto signUp(SignUpRequestDto requestDto) {
         if (memberRepository.existsByLoginId(requestDto.getLoginId())) {
             throw new CustomException(ErrorCode.DUPLICATE_LOGIN_ID);
         }
-        Member member = requestDto.toEntity(passwordEncoder.encode(requestDto.getPassword()));
+        Member member = requestDto.toMember(passwordEncoder.encode(requestDto.getPassword()));
         Member savedMember = memberRepository.save(member);
+
+        memberProfileRepository.save(requestDto.toMemberProfile(savedMember));
+        bodyMeasurementRepository.save(requestDto.toBodyMeasurement(savedMember));
+
         return SignUpResponseDto.from(savedMember);
     }
 

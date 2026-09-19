@@ -27,7 +27,7 @@ public class MemberController {
     @PostMapping("/signup")
     @SecurityRequirements()
     public ResponseEntity<SignUpResponseDto> createMember(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
-        SignUpResponseDto responseDto = memberService.createMember(signUpRequestDto);
+        SignUpResponseDto responseDto = memberService.signUp(signUpRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 

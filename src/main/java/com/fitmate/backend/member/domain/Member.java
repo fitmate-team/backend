@@ -22,16 +22,10 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 10)
-    private String nickname;
-
     @Builder
-    public Member(String loginId,
-                  String password,
-                  String nickname) {
+    public Member(String loginId, String password) {
         this.loginId = loginId;
         this.password = password;
-        this.nickname = nickname;
     }
 
 }
