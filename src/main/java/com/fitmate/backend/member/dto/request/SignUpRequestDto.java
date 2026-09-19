@@ -4,12 +4,15 @@ import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.member.domain.*;
 import com.fitmate.backend.member.domain.enums.*;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Schema(description = "회원가입 요청 DTO")
@@ -119,6 +122,12 @@ public class SignUpRequestDto {
     @NotNull(message = "몸무게를 입력해주세요.")
     @Positive(message = "몸무게는 양수여야 합니다.")
     private Double weight;
+
+    // ExerciseBaseline
+
+    @Schema(description = "최근 운동 기록 목록")
+    @Valid
+    private List<RecentExerciseRecordRequestDto> recentExerciseRecords = new ArrayList<>();
 
     public Member toMember(String encodedPassword) {
         return Member.builder().loginId(this.loginId).password(encodedPassword).build();
