@@ -1,6 +1,6 @@
 package com.fitmate.backend.member.dto.request;
 
-import com.fitmate.backend.member.domain.*;
+import com.fitmate.backend.member.domain.enums.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Getter;

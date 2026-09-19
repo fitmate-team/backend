@@ -1,6 +1,7 @@
 package com.fitmate.backend.member.domain;
 
 import com.fitmate.backend.global.common.BaseEntity;
+import com.fitmate.backend.member.domain.enums.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

@@ -1,6 +1,7 @@
 package com.fitmate.backend.member.dto.response;
 
 import com.fitmate.backend.member.domain.*;
+import com.fitmate.backend.member.domain.enums.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

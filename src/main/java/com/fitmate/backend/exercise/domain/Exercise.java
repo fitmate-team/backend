@@ -1,9 +1,9 @@
 package com.fitmate.backend.exercise.domain;
 
 import com.fitmate.backend.equipment.domain.Equipment;
-import com.fitmate.backend.member.domain.BodyArea;
-import com.fitmate.backend.member.domain.ExerciseLevel;
-import com.fitmate.backend.member.domain.ExerciseLocation;
+import com.fitmate.backend.member.domain.enums.BodyArea;
+import com.fitmate.backend.member.domain.enums.ExerciseLevel;
+import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

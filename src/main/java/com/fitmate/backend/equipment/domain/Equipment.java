@@ -1,8 +1,7 @@
 package com.fitmate.backend.equipment.domain;
 
-import com.fitmate.backend.member.domain.ExerciseLocation;
+import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import jakarta.persistence.*;
-import jdk.jfr.Category;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
