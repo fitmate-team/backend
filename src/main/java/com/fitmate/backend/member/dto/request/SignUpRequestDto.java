@@ -93,14 +93,6 @@ public class SignUpRequestDto {
     )
     private Set<BodyArea> avoidBodyAreas = new HashSet<>();
 
-
-    // BodyMeasurement
-
-    @Schema(description = "몸무게(kg)", example = "55.4")
-    @NotNull(message = "몸무게를 입력해주세요.")
-    @Positive(message = "몸무게는 양수여야 합니다.")
-    private Double weight;
-
     @Schema(description = "골격근량(kg), 선택값", example = "23.5")
     @Positive(message = "골격근량은 양수여야 합니다.")
     private Double skeletalMuscleMass;
@@ -112,6 +104,14 @@ public class SignUpRequestDto {
     @Schema(description = "체지방량(kg), 선택값", example = "12.4")
     @Positive(message = "체지방량은 양수여야 합니다.")
     private Double bodyFatMass;
+
+
+    // BodyWeight
+
+    @Schema(description = "몸무게(kg)", example = "55.4")
+    @NotNull(message = "몸무게를 입력해주세요.")
+    @Positive(message = "몸무게는 양수여야 합니다.")
+    private Double weight;
 
     public Member toMember(String encodedPassword) {
         return Member.builder()
@@ -135,16 +135,16 @@ public class SignUpRequestDto {
                 .exerciseLocation(this.exerciseLocation)
                 .availableDays(this.availableDays)
                 .avoidBodyAreas(this.avoidBodyAreas)
-                .build();
-    }
-
-    public BodyMeasurement toBodyMeasurement(Member member) {
-        return BodyMeasurement.builder()
-                .member(member)
-                .weight(this.weight)
                 .skeletalMuscleMass(this.skeletalMuscleMass)
                 .bodyFatPercentage(this.bodyFatPercentage)
                 .bodyFatMass(this.bodyFatMass)
+                .build();
+    }
+
+    public BodyWeight toBodyWeight(Member member) {
+        return BodyWeight.builder()
+                .member(member)
+                .weight(this.weight)
                 .build();
     }
 }

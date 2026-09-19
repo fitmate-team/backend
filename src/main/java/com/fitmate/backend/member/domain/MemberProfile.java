@@ -74,6 +74,10 @@ public class MemberProfile extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Set<BodyArea> avoidBodyAreas = new HashSet<>();
 
+    private Double skeletalMuscleMass;
+    private Double bodyFatPercentage;
+    private Double bodyFatMass;
+
     @Builder
     public MemberProfile(Member member,
                          Gender gender,
@@ -87,8 +91,10 @@ public class MemberProfile extends BaseEntity {
                          Integer sessionMinutes,
                          ExerciseLocation exerciseLocation,
                          Set<DayOfWeek> availableDays,
-                         Set<BodyArea> avoidBodyAreas
-    ) {
+                         Set<BodyArea> avoidBodyAreas,
+                         Double skeletalMuscleMass,
+                         Double bodyFatPercentage,
+                         Double bodyFatMass) {
         this.member = member;
         this.gender = gender;
         this.age = age;
@@ -102,6 +108,9 @@ public class MemberProfile extends BaseEntity {
         this.exerciseLocation = exerciseLocation;
         this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
         this.avoidBodyAreas = avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
+        this.skeletalMuscleMass = skeletalMuscleMass;
+        this.bodyFatPercentage = bodyFatPercentage;
+        this.bodyFatMass = bodyFatMass;
     }
 
     public void updateMemberProfile(Gender gender,
@@ -127,7 +136,8 @@ public class MemberProfile extends BaseEntity {
         this.sessionMinutes = sessionMinutes;
         this.exerciseLocation = exerciseLocation;
         this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
-        this.avoidBodyAreas = avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
+        this.avoidBodyAreas =
+                avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
 
     }
 

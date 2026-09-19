@@ -28,18 +28,17 @@ public class MemberResponseDto {
     private ExerciseLocation exerciseLocation;
     private Set<DayOfWeek> availableDays;
     private Set<BodyArea> avoidBodyAreas;
-
-    // BodyMeasurement
-    private Double weight;
     private Double skeletalMuscleMass;
     private Double bodyFatPercentage;
     private Double bodyFatMass;
 
+    // BodyWeight
+    private Double weight;
 
     public static MemberResponseDto from(
             Member member,
             MemberProfile profile,
-            BodyMeasurement measurement
+            BodyWeight bodyWeight
     ) {
         return new MemberResponseDto(
                 member.getId(),
@@ -57,11 +56,12 @@ public class MemberResponseDto {
                 profile.getExerciseLocation(),
                 new HashSet<>(profile.getAvailableDays()), // LazyInitializationException 방지
                 new HashSet<>(profile.getAvoidBodyAreas()),
+                profile.getSkeletalMuscleMass(),
+                profile.getBodyFatPercentage(),
+                profile.getBodyFatMass(),
 
-                measurement.getWeight(),
-                measurement.getSkeletalMuscleMass(),
-                measurement.getBodyFatPercentage(),
-                measurement.getBodyFatMass()
+                bodyWeight.getWeight()
+
         );
     }
 }

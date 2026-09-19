@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BodyMeasurement extends BaseEntity {
+public class BodyWeight extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,20 +21,11 @@ public class BodyMeasurement extends BaseEntity {
 
     @Column(nullable = false)
     private Double weight;
-    private Double skeletalMuscleMass;
-    private Double bodyFatPercentage;
-    private Double bodyFatMass;
+
 
     @Builder
-    public BodyMeasurement(Member member,
-                           Double weight,
-                           Double skeletalMuscleMass,
-                           Double bodyFatPercentage,
-                           Double bodyFatMass) {
+    public BodyWeight(Member member, Double weight) {
         this.member = member;
         this.weight = weight;
-        this.skeletalMuscleMass = skeletalMuscleMass;
-        this.bodyFatPercentage = bodyFatPercentage;
-        this.bodyFatMass = bodyFatMass;
     }
 }

@@ -48,7 +48,7 @@ public class MemberController {
     @PutMapping("/my-info")
     public ResponseEntity<MemberResponseDto> updateMyInfo(@AuthenticationPrincipal Long memberId,
                                                           @Valid @RequestBody MemberProfileUpdateRequestDto requestDto) {
-        return ResponseEntity.ok(memberService.updateMember(memberId, requestDto));
+        return ResponseEntity.ok(memberService.updateMemberProfile(memberId, requestDto));
     }
 
     @Operation(summary = "회원 탈퇴")
