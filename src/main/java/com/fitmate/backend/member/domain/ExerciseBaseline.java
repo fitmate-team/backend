@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ExerciseBaseline {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,20 +31,20 @@ public class ExerciseBaseline {
 
     private Integer sets;
 
-    private Integer durationMinutes;
+    private Integer durationSeconds;
 
     @Builder
-    ExerciseBaseline(Member member,
-                     Exercise exercise,
-                     Integer weight,
-                     Integer reps,
-                     Integer sets,
-                     Integer durationMinutes) {
+    public ExerciseBaseline(Member member,
+                            Exercise exercise,
+                            Integer weight,
+                            Integer reps,
+                            Integer sets,
+                            Integer durationSeconds) {
         this.member = member;
         this.exercise = exercise;
         this.weight = weight;
         this.reps = reps;
         this.sets = sets;
-        this.durationMinutes = durationMinutes;
+        this.durationSeconds = durationSeconds;
     }
 }

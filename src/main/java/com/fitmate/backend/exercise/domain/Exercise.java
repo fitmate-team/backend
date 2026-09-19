@@ -6,6 +6,7 @@ import com.fitmate.backend.member.domain.enums.ExerciseLevel;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Exercise {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -47,7 +49,7 @@ public class Exercise {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private BaselineRecordType baselineRecordType;
+    private ExerciseBaselineType baselineRecordType;
 
     @Column(nullable = false)
     @Lob
@@ -74,4 +76,39 @@ public class Exercise {
     @Column(name = "location_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private Set<ExerciseLocation> availableLocations = new HashSet<>();
+
+    @Builder
+    public Exercise(String exerciseCode,
+                    String nameKo,
+                    String nameEn,
+                    ExerciseType exerciseType,
+                    PrimaryMuscle primaryMuscle,
+                    MovementPattern movementPattern,
+                    ExerciseLevel minimumExperienceLevel,
+                    ExerciseBaselineType baselineRecordType,
+                    String guide,
+                    String videoUrl,
+                    Set<BodyArea> relatedBodyAreas,
+                    Set<Equipment> equipment,
+                    Set<ExerciseLocation> availableLocations) {
+
+        this.exerciseCode = exerciseCode;
+        this.nameKo = nameKo;
+        this.nameEn = nameEn;
+        this.exerciseType = exerciseType;
+        this.primaryMuscle = primaryMuscle;
+        this.movementPattern = movementPattern;
+        this.minimumExperienceLevel = minimumExperienceLevel;
+        this.baselineRecordType = baselineRecordType;
+        this.guide = guide;
+        this.videoUrl = videoUrl;
+
+        this.relatedBodyAreas =
+                relatedBodyAreas != null ? new HashSet<>(relatedBodyAreas) : new HashSet<>();
+
+        this.equipment = equipment != null ? new HashSet<>(equipment) : new HashSet<>();
+
+        this.availableLocations =
+                availableLocations != null ? new HashSet<>(availableLocations) : new HashSet<>();
+    }
 }
