@@ -104,4 +104,31 @@ public class MemberProfile extends BaseEntity {
         this.avoidBodyAreas = avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
     }
 
+    public void updateMemberProfile(Gender gender,
+                                    Integer age,
+                                    Double height,
+                                    ExerciseLevel exerciseLevel,
+                                    CurrentExerciseStatus currentExerciseStatus,
+                                    PrimaryGoal primaryGoal,
+                                    GoalStrategy goalStrategy,
+                                    Integer weeklyFrequency,
+                                    Integer sessionMinutes,
+                                    ExerciseLocation exerciseLocation,
+                                    Set<DayOfWeek> availableDays,
+                                    Set<BodyArea> avoidBodyAreas) {
+        this.gender = gender;
+        this.age = age;
+        this.height = height;
+        this.exerciseLevel = exerciseLevel;
+        this.currentExerciseStatus = currentExerciseStatus;
+        this.primaryGoal = primaryGoal;
+        this.goalStrategy = goalStrategy;
+        this.weeklyFrequency = weeklyFrequency;
+        this.sessionMinutes = sessionMinutes;
+        this.exerciseLocation = exerciseLocation;
+        this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
+        this.avoidBodyAreas = avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
+
+    }
+
 }

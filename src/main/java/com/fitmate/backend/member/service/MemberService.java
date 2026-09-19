@@ -4,10 +4,9 @@ import com.fitmate.backend.auth.token.RefreshTokenRepository;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.BodyMeasurement;
-import com.fitmate.backend.member.domain.ExerciseGoal;
 import com.fitmate.backend.member.domain.Member;
 import com.fitmate.backend.member.domain.MemberProfile;
-import com.fitmate.backend.member.dto.request.MemberUpdateRequestDto;
+import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
 import com.fitmate.backend.member.dto.response.MemberResponseDto;
@@ -53,30 +52,43 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        return MemberResponseDto.from(member);
+        MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        BodyMeasurement bodyMeasurement =
+                bodyMeasurementRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return MemberResponseDto.from(member, memberProfile, bodyMeasurement);
     }
 
     @Transactional
-    public MemberResponseDto updateMember(Long memberId, MemberUpdateRequestDto requestDto) {
-        Member member = memberRepository.findById(memberId)
+    public MemberResponseDto updateMember(Long memberId, MemberProfileUpdateRequestDto requestDto) {
+        MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if (requestDto.getExerciseGoal() == ExerciseGoal.DIET &&
-                requestDto.getTargetWeight() == null) {
-            throw new CustomException(ErrorCode.TARGET_WEIGHT_REQUIRED);
-        }
+        memberProfile.updateMemberProfile(
+                requestDto.getGender(),
+                requestDto.getAge(),
+                requestDto.getHeight(),
+                requestDto.getExerciseLevel(),
+                requestDto.getCurrentExerciseStatus(),
+                requestDto.getPrimaryGoal(),
+                requestDto.getGoalStrategy(),
+                requestDto.getWeeklyFrequency(),
+                requestDto.getSessionMinutes(),
+                requestDto.getExerciseLocation(),
+                requestDto.getAvailableDays(),
+                requestDto.getAvoidBodyAreas()
+        );
 
-        member.updateMember
-                (requestDto.getNickname(),
-                 requestDto.getGender(),
-                 requestDto.getHeight(),
-                 requestDto.getWeight(),
-                 requestDto.getExerciseLevel(),
-                 requestDto.getExerciseGoal(),
-                 requestDto.getTargetWeight()
-                );
+        Member member = memberProfile.getMember();
 
-        return MemberResponseDto.from(member);
+        BodyMeasurement bodyMeasurement =
+                bodyMeasurementRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return MemberResponseDto.from(member, memberProfile, bodyMeasurement);
 
     }
 

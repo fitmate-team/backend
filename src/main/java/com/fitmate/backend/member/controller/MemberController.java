@@ -1,6 +1,6 @@
 package com.fitmate.backend.member.controller;
 
-import com.fitmate.backend.member.dto.request.MemberUpdateRequestDto;
+import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
 import com.fitmate.backend.member.dto.response.MemberResponseDto;
@@ -47,7 +47,7 @@ public class MemberController {
     @Operation(summary = "내 정보 수정")
     @PutMapping("/my-info")
     public ResponseEntity<MemberResponseDto> updateMyInfo(@AuthenticationPrincipal Long memberId,
-                                                          @Valid @RequestBody MemberUpdateRequestDto requestDto) {
+                                                          @Valid @RequestBody MemberProfileUpdateRequestDto requestDto) {
         return ResponseEntity.ok(memberService.updateMember(memberId, requestDto));
     }
 
