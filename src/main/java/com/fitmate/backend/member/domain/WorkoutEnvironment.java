@@ -5,6 +5,7 @@ import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import com.fitmate.backend.member.domain.enums.Gender;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,6 +30,9 @@ public class WorkoutEnvironment {
     private String gymAddress;
 
     @Column(nullable = false)
+    private boolean defaultGym;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ExerciseLocation locationType;
 
@@ -36,4 +40,19 @@ public class WorkoutEnvironment {
     @JoinTable(name = "workout_environment_equipment", joinColumns = @JoinColumn(name =
             "workout_environment_id"), inverseJoinColumns = @JoinColumn(name = "equipment_id"))
     private Set<Equipment> equipment = new HashSet<>();
+
+    @Builder
+    public WorkoutEnvironment(Member member,
+                              String gymName,
+                              String gymAddress,
+                              boolean defaultGym,
+                              ExerciseLocation locationType,
+                              Set<Equipment> equipment) {
+        this.member = member;
+        this.gymName = gymName;
+        this.gymAddress = gymAddress;
+        this.defaultGym = defaultGym;
+        this.locationType = locationType;
+        this.equipment = equipment != null ? new HashSet<>(equipment) : new HashSet<>();
+    }
 }

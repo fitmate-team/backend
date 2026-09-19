@@ -108,8 +108,7 @@ public class MemberProfile extends BaseEntity {
         this.sessionMinutes = sessionMinutes;
         this.exerciseLocation = exerciseLocation;
         this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
-        this.avoidBodyAreas =
-                avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
+        this.avoidBodyAreas = avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
         this.skeletalMuscleMass = skeletalMuscleMass;
         this.bodyFatPercentage = bodyFatPercentage;
         this.bodyFatMass = bodyFatMass;
