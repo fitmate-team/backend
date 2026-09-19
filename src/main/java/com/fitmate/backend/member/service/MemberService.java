@@ -3,6 +3,8 @@ package com.fitmate.backend.member.service;
 import com.fitmate.backend.auth.token.RefreshTokenRepository;
 import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.equipment.repository.EquipmentRepository;
+import com.fitmate.backend.exercise.domain.Exercise;
+import com.fitmate.backend.exercise.repository.ExerciseRepository;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.BodyWeight;
@@ -38,6 +40,7 @@ public class MemberService {
     private final BodyWeightRepository bodyWeightRepository;
     private final EquipmentRepository equipmentRepository;
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
+    private final ExerciseRepository exerciseRepository;
 
     @Transactional
     public SignUpResponseDto signUp(SignUpRequestDto requestDto) {
@@ -50,18 +53,23 @@ public class MemberService {
         memberProfileRepository.save(requestDto.toMemberProfile(savedMember));
         bodyWeightRepository.save(requestDto.toBodyWeight(savedMember));
 
-        Set<Equipment> equipmentSet = // 운동 기구 ID 조회
+        Set<Equipment> equipmentSet = // 운동 기구 코드로 ID 조회
                 equipmentRepository.findAllByEquipmentCodeIn(requestDto.getEquipmentCodes());
-
         if (requestDto.getEquipmentCodes().size() != equipmentSet.size()) {
             throw new CustomException(ErrorCode.INVALID_EQUIPMENT_CODE); // 유효 코드 검증
         }
-
         boolean defaultGym = requestDto.getExerciseLocation() == ExerciseLocation.GYM;
-
         workoutEnvironmentRepository.save(requestDto.toWorkoutEnvironment(savedMember,
                                                                           defaultGym,
                                                                           equipmentSet));
+
+        Set<Exercise> excludedExerciseSet = // 운동 코드로 ID 조회
+                exerciseRepository.findAllByExerciseCodeIn(requestDto.getExcludedExerciseCodes());
+        if (requestDto.getExcludedExerciseCodes().size() != excludedExerciseSet.size()) {
+            throw new CustomException(ErrorCode.INVALID_EXERCISE_CODE);
+        }
+        savedMember.updateExcludedExercises(excludedExerciseSet);
+
         return SignUpResponseDto.from(savedMember);
     }
 

@@ -95,6 +95,11 @@ public class SignUpRequestDto {
     @Schema(description = "운동 시 피하고 싶은 신체 부위", example = "[\"KNEE\", \"LOWER_BACK\"]")
     private Set<BodyArea> avoidBodyAreas = new HashSet<>();
 
+    @Schema(description = "피하고 싶은 운동 코드 목록", example = "[\"EX_CHEST_BB_BENCH_PRESS\", " +
+            "\"EX_LEGS_BB_BACK_SQUAT\"]")
+    @NotNull(message = "제외 운동 목록은 null일 수 없습니다.")
+    private Set<String> excludedExerciseCodes = new HashSet<>();
+
     @Schema(description = "골격근량(kg), 선택값", example = "23.5")
     @Positive(message = "골격근량은 양수여야 합니다.")
     private Double skeletalMuscleMass;
