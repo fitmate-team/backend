@@ -22,7 +22,6 @@ public class BodyWeight extends BaseEntity {
     @Column(nullable = false)
     private Double weight;
 
-
     @Builder
     public BodyWeight(Member member, Double weight) {
         this.member = member;

@@ -45,12 +45,9 @@ public class Exercise {
     @Enumerated(EnumType.STRING)
     private ExerciseLevel minimumExperienceLevel;
 
-    @ElementCollection
-    @CollectionTable(name = "exercise_related_body_areas", joinColumns = @JoinColumn(name =
-            "exercise_id"))
-    @Column(name = "body_area", nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Set<BodyArea> relatedBodyAreas = new HashSet<>();
+    private BaselineRecordType baselineRecordType;
 
     @Column(nullable = false)
     @Lob
@@ -58,6 +55,13 @@ public class Exercise {
 
     @Column(nullable = false)
     private String videoUrl;
+
+    @ElementCollection
+    @CollectionTable(name = "exercise_related_body_areas", joinColumns = @JoinColumn(name =
+            "exercise_id"))
+    @Column(name = "body_area", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Set<BodyArea> relatedBodyAreas = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "exercise_equipment", joinColumns = @JoinColumn(name = "exercise_id"),
