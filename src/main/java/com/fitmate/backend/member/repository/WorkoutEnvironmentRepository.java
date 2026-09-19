@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface WorkoutEnvironmentRepository extends JpaRepository<WorkoutEnvironment, Long> {
     List<WorkoutEnvironment> findAllByMemberId(Long memberId);
+    void deleteAllByMemberId(Long memberId);
 }

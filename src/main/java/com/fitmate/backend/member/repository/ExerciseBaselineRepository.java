@@ -8,4 +8,4 @@ import java.util.List;
 public interface ExerciseBaselineRepository extends JpaRepository<ExerciseBaseline, Long> {
 
     List<ExerciseBaseline> findAllByMemberId(Long memberId);
-}
+    void deleteAllByMemberId(Long memberId);}

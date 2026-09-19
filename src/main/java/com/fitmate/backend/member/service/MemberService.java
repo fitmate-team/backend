@@ -18,10 +18,7 @@ import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
 import com.fitmate.backend.member.dto.response.MemberResponseDto;
 import com.fitmate.backend.member.dto.response.SignUpResponseDto;
-import com.fitmate.backend.member.repository.BodyWeightRepository;
-import com.fitmate.backend.member.repository.MemberProfileRepository;
-import com.fitmate.backend.member.repository.MemberRepository;
-import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
+import com.fitmate.backend.member.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,6 +38,7 @@ public class MemberService {
     private final EquipmentRepository equipmentRepository;
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
     private final ExerciseRepository exerciseRepository;
+    private final ExerciseBaselineRepository exerciseBaselineRepository;
 
     @Transactional
     public SignUpResponseDto signUp(SignUpRequestDto requestDto) {
@@ -144,7 +142,11 @@ public class MemberService {
 
         refreshTokenRepository.deleteByMemberId(memberId);
         bodyWeightRepository.deleteAllByMemberId(memberId);
+        workoutEnvironmentRepository.deleteAllByMemberId(memberId);
+        exerciseBaselineRepository.deleteAllByMemberId(memberId);
         memberProfileRepository.deleteByMemberId(memberId);
+
+
         memberRepository.delete(member);
     }
 }
