@@ -1,9 +1,10 @@
 package com.fitmate.backend.exercise.domain;
 
+import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.member.domain.BodyArea;
 import com.fitmate.backend.member.domain.ExerciseLevel;
+import com.fitmate.backend.member.domain.ExerciseLocation;
 import jakarta.persistence.*;
-import jakarta.websocket.Encoder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -57,4 +58,16 @@ public class Exercise {
 
     @Column(nullable = false)
     private String videoUrl;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "exercise_equipment", joinColumns = @JoinColumn(name = "exercise_id"),
+            inverseJoinColumns = @JoinColumn(name = "equipment_id"))
+    private Set<Equipment> equipment = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable(name = "exercise_available_locations", joinColumns = @JoinColumn(name =
+            "exercise_id"))
+    @Column(name = "location_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Set<ExerciseLocation> availableLocations = new HashSet<>();
 }

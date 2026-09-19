@@ -1,10 +1,14 @@
 package com.fitmate.backend.equipment.domain;
 
+import com.fitmate.backend.member.domain.ExerciseLocation;
 import jakarta.persistence.*;
 import jdk.jfr.Category;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -27,5 +31,12 @@ public class Equipment {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private EquipmentCategory category;
+
+    @ElementCollection
+    @CollectionTable(name = "equipment_available_locations", joinColumns = @JoinColumn(name =
+            "equipment_id"))
+    @Column(name = "location_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Set<ExerciseLocation> availableLocations = new HashSet<>();
 
 }
