@@ -1,5 +1,6 @@
 package com.fitmate.backend.member.dto.request;
 
+import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.member.domain.*;
 import com.fitmate.backend.member.domain.enums.*;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,11 +26,10 @@ public class SignUpRequestDto {
 
     @Schema(description = "비밀번호 (영문, 숫자 포함 10자 이상)", example = "asdfasdf1234")
     @NotBlank(message = "비밀번호를 입력해주세요.")
-    @Pattern(
-            regexp = "^(?=.*[A-Za-z])(?=.*\\d).{10,}$",
-            message = "비밀번호는 영문과 숫자를 포함한 10자리 이상이어야 합니다."
-    )
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d).{10,}$", message = "비밀번호는 영문과 숫자를 포함한 10자리 이상이어야 " +
+            "합니다.")
     private String password;
+
 
     // MemberProfile
 
@@ -59,10 +59,7 @@ public class SignUpRequestDto {
     @NotNull(message = "운동 목표를 선택해주세요.")
     private PrimaryGoal primaryGoal;
 
-    @Schema(
-            description = "운동 목표 세부 전략",
-            example = "MUSCLE_GAIN_HYPERTROPHY_FOCUS"
-    )
+    @Schema(description = "운동 목표 세부 전략", example = "MUSCLE_GAIN_HYPERTROPHY_FOCUS")
     @NotNull(message = "운동 목표 전략을 선택해주세요.")
     private GoalStrategy goalStrategy;
 
@@ -81,17 +78,21 @@ public class SignUpRequestDto {
     @NotNull(message = "운동 장소를 선택해주세요.")
     private ExerciseLocation exerciseLocation;
 
-    @Schema(
-            description = "운동 가능한 요일",
-            example = "[\"MONDAY\", \"WEDNESDAY\", \"FRIDAY\"]"
-    )
+    @Schema(description = "헬스장 이름 (운동 장소가 GYM인 경우 사용)", example = "Fit Gym")
+    private String gymName;
+
+    @Schema(description = "헬스장 주소 (운동 장소가 GYM인 경우 사용)", example = "서울특별시 노원구 동일로 123")
+    private String gymAddress;
+
+    @Schema(description = "선택한 운동기구 코드 목록", example = "[\"EQ_DUMBBELL\", \"EQ_BARBELL\", " +
+            "\"EQ_FLAT_BENCH\"]")
+    private Set<String> equipmentCodes = new HashSet<>();
+
+    @Schema(description = "운동 가능한 요일", example = "[\"MONDAY\", \"WEDNESDAY\", \"FRIDAY\"]")
     @NotEmpty(message = "운동 가능한 요일을 하나 이상 선택해주세요.")
     private Set<DayOfWeek> availableDays;
 
-    @Schema(
-            description = "운동 시 피하고 싶은 신체 부위",
-            example = "[\"KNEE\", \"LOWER_BACK\"]"
-    )
+    @Schema(description = "운동 시 피하고 싶은 신체 부위", example = "[\"KNEE\", \"LOWER_BACK\"]")
     private Set<BodyArea> avoidBodyAreas = new HashSet<>();
 
     @Schema(description = "골격근량(kg), 선택값", example = "23.5")
@@ -115,10 +116,7 @@ public class SignUpRequestDto {
     private Double weight;
 
     public Member toMember(String encodedPassword) {
-        return Member.builder()
-                .loginId(this.loginId)
-                .password(encodedPassword)
-                .build();
+        return Member.builder().loginId(this.loginId).password(encodedPassword).build();
     }
 
     public MemberProfile toMemberProfile(Member member) {
@@ -143,9 +141,19 @@ public class SignUpRequestDto {
     }
 
     public BodyWeight toBodyWeight(Member member) {
-        return BodyWeight.builder()
+        return BodyWeight.builder().member(member).weight(this.weight).build();
+    }
+
+    public WorkoutEnvironment toWorkoutEnvironment(Member member,
+                                                   boolean isDefault,
+                                                   Set<Equipment> equipment) {
+        return WorkoutEnvironment.builder()
                 .member(member)
-                .weight(this.weight)
+                .gymName(this.gymName)
+                .gymAddress(this.gymAddress)
+                .defaultGym(isDefault)
+                .locationType(this.exerciseLocation)
+                .equipment(equipment)
                 .build();
     }
 }
