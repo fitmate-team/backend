@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class TokenReissueRequestDto {
-
     @Schema(description = "리프레시 토큰")
     @NotBlank(message = "리프레시 토큰이 필요합니다")
     private String refreshToken;

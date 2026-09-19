@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class LoginRequestDto {
-    @Schema(description = "로그인 아이디 (8~15자)", example = "asdf1234")
+    @Schema(description = "로그인 아이디 (8~16자)", example = "asdf1234")
     @NotBlank(message = "아이디를 입력해주세요")
     private String loginId;
 
