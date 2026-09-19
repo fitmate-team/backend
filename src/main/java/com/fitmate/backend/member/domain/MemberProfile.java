@@ -107,7 +107,8 @@ public class MemberProfile extends BaseEntity {
         this.sessionMinutes = sessionMinutes;
         this.exerciseLocation = exerciseLocation;
         this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
-        this.avoidBodyAreas = avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
+        this.avoidBodyAreas =
+                avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
         this.skeletalMuscleMass = skeletalMuscleMass;
         this.bodyFatPercentage = bodyFatPercentage;
         this.bodyFatMass = bodyFatMass;
@@ -139,6 +140,22 @@ public class MemberProfile extends BaseEntity {
         this.avoidBodyAreas =
                 avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
 
+    }
+
+    public void updateBodyMetrics(Double skeletalMuscleMass,
+                                  Double bodyFatPercentage,
+                                  Double bodyFatMass) {
+        if (skeletalMuscleMass != null) {
+            this.skeletalMuscleMass = skeletalMuscleMass;
+        }
+
+        if (bodyFatPercentage != null) {
+            this.bodyFatPercentage = bodyFatPercentage;
+        }
+
+        if (bodyFatMass != null) {
+            this.bodyFatMass = bodyFatMass;
+        }
     }
 
 }

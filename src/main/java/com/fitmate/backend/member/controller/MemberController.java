@@ -1,5 +1,6 @@
 package com.fitmate.backend.member.controller;
 
+import com.fitmate.backend.member.dto.request.BodyMetricsUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
@@ -49,6 +50,14 @@ public class MemberController {
     public ResponseEntity<MemberResponseDto> updateMyInfo(@AuthenticationPrincipal Long memberId,
                                                           @Valid @RequestBody MemberProfileUpdateRequestDto requestDto) {
         return ResponseEntity.ok(memberService.updateMemberProfile(memberId, requestDto));
+    }
+
+    @Operation(summary = "몸무게, 체성분 수정")
+    @PutMapping("/my-body")
+    public ResponseEntity<Void> updateMyInfo(@AuthenticationPrincipal Long memberId,
+                                             @Valid @RequestBody BodyMetricsUpdateRequestDto requestDto) {
+        memberService.updateBodyMetrics(memberId, requestDto);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "회원 탈퇴")

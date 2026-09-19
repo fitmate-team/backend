@@ -6,6 +6,7 @@ import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.BodyWeight;
 import com.fitmate.backend.member.domain.Member;
 import com.fitmate.backend.member.domain.MemberProfile;
+import com.fitmate.backend.member.dto.request.BodyMetricsUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
@@ -55,40 +56,55 @@ public class MemberService {
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        BodyWeight bodyWeight =
-                bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        BodyWeight bodyWeight = bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         return MemberResponseDto.from(member, memberProfile, bodyWeight);
     }
 
     @Transactional
-    public MemberResponseDto updateMemberProfile(Long memberId, MemberProfileUpdateRequestDto requestDto) {
+    public MemberResponseDto updateMemberProfile(Long memberId,
+                                                 MemberProfileUpdateRequestDto requestDto) {
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        memberProfile.updateMemberProfile(
-                requestDto.getGender(),
-                requestDto.getAge(),
-                requestDto.getHeight(),
-                requestDto.getExerciseLevel(),
-                requestDto.getCurrentExerciseStatus(),
-                requestDto.getPrimaryGoal(),
-                requestDto.getGoalStrategy(),
-                requestDto.getWeeklyFrequency(),
-                requestDto.getSessionMinutes(),
-                requestDto.getExerciseLocation(),
-                requestDto.getAvailableDays(),
-                requestDto.getAvoidBodyAreas()
-        );
+        memberProfile.updateMemberProfile(requestDto.getGender(),
+                                          requestDto.getAge(),
+                                          requestDto.getHeight(),
+                                          requestDto.getExerciseLevel(),
+                                          requestDto.getCurrentExerciseStatus(),
+                                          requestDto.getPrimaryGoal(),
+                                          requestDto.getGoalStrategy(),
+                                          requestDto.getWeeklyFrequency(),
+                                          requestDto.getSessionMinutes(),
+                                          requestDto.getExerciseLocation(),
+                                          requestDto.getAvailableDays(),
+                                          requestDto.getAvoidBodyAreas());
 
         Member member = memberProfile.getMember();
 
-        BodyWeight bodyWeight =
-                bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        BodyWeight bodyWeight = bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         return MemberResponseDto.from(member, memberProfile, bodyWeight);
+
+    }
+
+    @Transactional
+    public void updateBodyMetrics(Long memberId, BodyMetricsUpdateRequestDto requestDto) {
+        MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        memberProfile.updateBodyMetrics(requestDto.getSkeletalMuscleMass(),
+                                        requestDto.getBodyFatPercentage(),
+                                        requestDto.getBodyFatMass());
+
+        if (requestDto.getWeight() != null) {
+            bodyWeightRepository.save(BodyWeight.builder()
+                                              .member(memberProfile.getMember())
+                                              .weight(requestDto.getWeight())
+                                              .build());
+        }
 
     }
 
