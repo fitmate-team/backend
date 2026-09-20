@@ -9,14 +9,12 @@ import lombok.Getter;
 public class LoginResponseDto {
     private Long id;
     private String loginId;
-    private String nickname;
     private String accessToken;
     private String refreshToken;
 
     public static LoginResponseDto of(Member member, String accessToken, String refreshToken) {
         return new LoginResponseDto(member.getId(),
                                     member.getLoginId(),
-                                    member.getNickname(),
                                     accessToken, refreshToken);
     }
 }

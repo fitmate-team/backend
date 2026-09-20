@@ -1,38 +1,68 @@
 package com.fitmate.backend.member.dto.response;
 
-import com.fitmate.backend.member.domain.ExerciseGoal;
-import com.fitmate.backend.member.domain.ExerciseLevel;
-import com.fitmate.backend.member.domain.Gender;
-import com.fitmate.backend.member.domain.Member;
+import com.fitmate.backend.member.domain.*;
+import com.fitmate.backend.member.domain.enums.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.time.DayOfWeek;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @AllArgsConstructor
 public class MemberResponseDto {
+    // Member
     private Long id;
     private String loginId;
-    private String nickname;
+
+    // MemberProfile
     private Gender gender;
+    private Integer age;
     private Double height;
-    private Double weight;
     private ExerciseLevel exerciseLevel;
-    private ExerciseGoal exerciseGoal;
-    private Double targetWeight;
+    private CurrentExerciseStatus currentExerciseStatus;
+    private PrimaryGoal primaryGoal;
+    private GoalStrategy goalStrategy;
+    private Integer weeklyFrequency;
+    private Integer sessionMinutes;
+    private ExerciseLocation exerciseLocation;
+    private Set<DayOfWeek> availableDays;
+    private Set<BodyArea> avoidBodyAreas;
+    private Double skeletalMuscleMass;
+    private Double bodyFatPercentage;
+    private Double bodyFatMass;
 
+    // BodyWeight
+    private Double weight;
 
-    public static MemberResponseDto from(Member member) {
+    public static MemberResponseDto from(
+            Member member,
+            MemberProfile profile,
+            BodyWeight bodyWeight
+    ) {
         return new MemberResponseDto(
                 member.getId(),
                 member.getLoginId(),
-                member.getNickname(),
-                member.getGender(),
-                member.getHeight(),
-                member.getWeight(),
-                member.getExerciseLevel(),
-                member.getExerciseGoal(),
-                member.getTargetWeight()
-        );
 
+                profile.getGender(),
+                profile.getAge(),
+                profile.getHeight(),
+                profile.getExerciseLevel(),
+                profile.getCurrentExerciseStatus(),
+                profile.getPrimaryGoal(),
+                profile.getGoalStrategy(),
+                profile.getWeeklyFrequency(),
+                profile.getSessionMinutes(),
+                profile.getExerciseLocation(),
+                new HashSet<>(profile.getAvailableDays()), // LazyInitializationException 방지
+                new HashSet<>(profile.getAvoidBodyAreas()),
+                profile.getSkeletalMuscleMass(),
+                profile.getBodyFatPercentage(),
+                profile.getBodyFatMass(),
+
+                bodyWeight.getWeight()
+
+        );
     }
 }
