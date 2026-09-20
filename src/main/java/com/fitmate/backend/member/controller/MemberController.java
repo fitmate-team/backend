@@ -1,6 +1,7 @@
 package com.fitmate.backend.member.controller;
 
-import com.fitmate.backend.member.dto.request.MemberUpdateRequestDto;
+import com.fitmate.backend.member.dto.request.BodyMetricsUpdateRequestDto;
+import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
 import com.fitmate.backend.member.dto.response.MemberResponseDto;
@@ -27,7 +28,7 @@ public class MemberController {
     @PostMapping("/signup")
     @SecurityRequirements()
     public ResponseEntity<SignUpResponseDto> createMember(@Valid @RequestBody SignUpRequestDto signUpRequestDto) {
-        SignUpResponseDto responseDto = memberService.createMember(signUpRequestDto);
+        SignUpResponseDto responseDto = memberService.signUp(signUpRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
@@ -47,8 +48,16 @@ public class MemberController {
     @Operation(summary = "내 정보 수정")
     @PutMapping("/my-info")
     public ResponseEntity<MemberResponseDto> updateMyInfo(@AuthenticationPrincipal Long memberId,
-                                                          @Valid @RequestBody MemberUpdateRequestDto requestDto) {
-        return ResponseEntity.ok(memberService.updateMember(memberId, requestDto));
+                                                          @Valid @RequestBody MemberProfileUpdateRequestDto requestDto) {
+        return ResponseEntity.ok(memberService.updateMemberProfile(memberId, requestDto));
+    }
+
+    @Operation(summary = "몸무게, 체성분 수정")
+    @PutMapping("/my-body")
+    public ResponseEntity<Void> updateMyInfo(@AuthenticationPrincipal Long memberId,
+                                             @Valid @RequestBody BodyMetricsUpdateRequestDto requestDto) {
+        memberService.updateBodyMetrics(memberId, requestDto);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "회원 탈퇴")

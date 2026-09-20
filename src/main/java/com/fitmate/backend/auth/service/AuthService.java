@@ -57,7 +57,6 @@ public class AuthService {
                                                 .build());
         }
 
-
         return LoginResponseDto.of(member, accessToken, refreshToken);
     }
 
