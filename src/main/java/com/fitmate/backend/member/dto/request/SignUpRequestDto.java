@@ -126,6 +126,7 @@ public class SignUpRequestDto {
     // ExerciseBaseline
 
     @Schema(description = "최근 운동 기록 목록")
+    @NotNull(message = "최근 운동 기록 목록은 null일 수 없습니다.")
     @Valid
     private List<RecentExerciseRecordRequestDto> recentExerciseRecords = new ArrayList<>();
 

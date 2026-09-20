@@ -4,16 +4,15 @@ import com.fitmate.backend.auth.token.RefreshTokenRepository;
 import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.equipment.repository.EquipmentRepository;
 import com.fitmate.backend.exercise.domain.Exercise;
+import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
 import com.fitmate.backend.exercise.repository.ExerciseRepository;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
-import com.fitmate.backend.member.domain.BodyWeight;
-import com.fitmate.backend.member.domain.Member;
-import com.fitmate.backend.member.domain.MemberProfile;
-import com.fitmate.backend.member.domain.WorkoutEnvironment;
+import com.fitmate.backend.member.domain.*;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import com.fitmate.backend.member.dto.request.BodyMetricsUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
+import com.fitmate.backend.member.dto.request.RecentExerciseRecordRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
 import com.fitmate.backend.member.dto.response.MemberResponseDto;
@@ -24,7 +23,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Nodes.collect;
 
 @Service
 @RequiredArgsConstructor
@@ -51,22 +56,83 @@ public class MemberService {
         memberProfileRepository.save(requestDto.toMemberProfile(savedMember));
         bodyWeightRepository.save(requestDto.toBodyWeight(savedMember));
 
-        Set<Equipment> equipmentSet = // 운동 기구 코드로 ID 조회
+        Set<Equipment> equipmentSet = // 운동 기구 코드로 Equipment 조회
                 equipmentRepository.findAllByEquipmentCodeIn(requestDto.getEquipmentCodes());
         if (requestDto.getEquipmentCodes().size() != equipmentSet.size()) {
-            throw new CustomException(ErrorCode.INVALID_EQUIPMENT_CODE); // 유효 코드 검증
+            throw new CustomException(ErrorCode.INVALID_EQUIPMENT_CODE); // 개수 유효 검사
         }
-        boolean defaultGym = requestDto.getExerciseLocation() == ExerciseLocation.GYM;
+        boolean defaultGym = requestDto.getExerciseLocation() == ExerciseLocation.GYM; // 기본 헬스장
         workoutEnvironmentRepository.save(requestDto.toWorkoutEnvironment(savedMember,
                                                                           defaultGym,
                                                                           equipmentSet));
 
-        Set<Exercise> excludedExerciseSet = // 운동 코드로 ID 조회
+        Set<Exercise> excludedExerciseSet = // 제외 운동 코드로 Exercise 조회
                 exerciseRepository.findAllByExerciseCodeIn(requestDto.getExcludedExerciseCodes());
         if (requestDto.getExcludedExerciseCodes().size() != excludedExerciseSet.size()) {
-            throw new CustomException(ErrorCode.INVALID_EXERCISE_CODE);
+            throw new CustomException(ErrorCode.INVALID_EXERCISE_CODE); // 개수 유효 검사
         }
         savedMember.updateExcludedExercises(excludedExerciseSet);
+
+        Set<String> exerciseCodes = requestDto.getRecentExerciseRecords()
+                .stream()
+                .map(RecentExerciseRecordRequestDto::getExerciseCode)
+                .collect(Collectors.toSet()); // 최근 운동 기록 코드 수집
+        if (requestDto.getRecentExerciseRecords().size() != exerciseCodes.size()) {
+            throw new CustomException(ErrorCode.DUPLICATE_RECENT_EXERCISE);
+        }
+
+        Set<Exercise> exercises = exerciseRepository.findAllByExerciseCodeIn(exerciseCodes);
+        if (exerciseCodes.size() != exercises.size()) {
+            throw new CustomException(ErrorCode.INVALID_EXERCISE_CODE);
+        }
+
+        Map<String, Exercise> exerciseMap = exercises.stream()
+                .collect(Collectors.toMap(Exercise::getExerciseCode, e -> e));
+
+        List<ExerciseBaseline> exerciseBaselines = new ArrayList<>();
+        for (RecentExerciseRecordRequestDto record : requestDto.getRecentExerciseRecords()) {
+            Exercise exercise = exerciseMap.get(record.getExerciseCode());
+
+            ExerciseBaselineType type = exercise.getBaselineRecordType();
+
+            if (type == ExerciseBaselineType.WEIGHT_REPS_SETS &&
+                    (record.getWeight() == null ||
+                            record.getReps() == null ||
+                            record.getSets() == null ||
+                            record.getDurationSeconds() != null)) {
+
+                throw new CustomException(ErrorCode.INVALID_EXERCISE_BASELINE);
+
+            } else if (type == ExerciseBaselineType.REPS_SETS &&
+                    (record.getWeight() != null ||
+                            record.getReps() == null ||
+                            record.getSets() == null ||
+                            record.getDurationSeconds() != null)) {
+
+                throw new CustomException(ErrorCode.INVALID_EXERCISE_BASELINE);
+
+            } else if (type == ExerciseBaselineType.DURATION &&
+                    (record.getWeight() != null ||
+                            record.getReps() != null ||
+                            record.getSets() != null ||
+                            record.getDurationSeconds() == null)) {
+
+                throw new CustomException(ErrorCode.INVALID_EXERCISE_BASELINE);
+            }
+
+            ExerciseBaseline exerciseBaseline = ExerciseBaseline.builder()
+                    .member(savedMember)
+                    .exercise(exercise)
+                    .weight(record.getWeight())
+                    .reps(record.getReps())
+                    .sets(record.getSets())
+                    .durationSeconds(record.getDurationSeconds())
+                    .build();
+
+            exerciseBaselines.add(exerciseBaseline);
+        }
+
+        exerciseBaselineRepository.saveAll(exerciseBaselines);
 
         return SignUpResponseDto.from(savedMember);
     }

@@ -15,6 +15,8 @@ public enum ErrorCode {
     INVALID_PASSWORD("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     INVALID_EQUIPMENT_CODE("존재하지 않는 운동기구 코드가 포함되어 있습니다.", HttpStatus.BAD_REQUEST),
     INVALID_EXERCISE_CODE("존재하지 않는 운동 코드가 포함되어 있습니다.", HttpStatus.BAD_REQUEST),
+    DUPLICATE_RECENT_EXERCISE("최근 운동 기록에 중복된 운동이 포함되어 있습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_EXERCISE_BASELINE("운동 유형에 맞지 않는 최근 운동 기록입니다.", HttpStatus.BAD_REQUEST),
 
     // 토큰
     REFRESH_TOKEN_EXPIRED("리프레시 토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED),
