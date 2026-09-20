@@ -41,7 +41,9 @@ public class SecurityConfig {
                                 "/api/members/signup",
                                 "/api/auth/login",
                                 "/api/members/id-check",
-                                "/api/auth/reissue")
+                                "/api/auth/reissue",
+                                "/api/equipments",
+                                "/api/exercises")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
