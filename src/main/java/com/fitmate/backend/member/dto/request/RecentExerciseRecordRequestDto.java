@@ -27,7 +27,7 @@ public class RecentExerciseRecordRequestDto {
     @Positive(message = "세트 수는 양수여야 합니다.")
     private Integer sets;
 
-    @Schema(description = "최근 수행 시간(초)", example = "120")
+    @Schema(description = "최근 수행 시간(초)", example = "null")
     @Positive(message = "운동 시간은 양수여야 합니다.")
     private Integer durationSeconds;
 }
