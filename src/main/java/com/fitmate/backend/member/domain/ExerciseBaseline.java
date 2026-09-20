@@ -29,6 +29,7 @@ public class ExerciseBaseline {
 
     private Integer reps;
 
+    @Column(name = "set_count")
     private Integer sets;
 
     private Integer durationSeconds;
