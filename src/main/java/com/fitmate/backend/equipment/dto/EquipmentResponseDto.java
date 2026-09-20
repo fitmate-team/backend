@@ -2,7 +2,6 @@ package com.fitmate.backend.equipment.dto;
 
 import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.equipment.domain.EquipmentCategory;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
