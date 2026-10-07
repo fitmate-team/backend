@@ -102,9 +102,10 @@ public class SignUpRequestDto {
 
 
 
-    // BodyWeight
+    // BodyComposition
 
-    @Schema(description = "몸무게(kg), 선택값", example = "55.4")
+    @Schema(description = "몸무게(kg)", example = "55.4")
+    @NotNull(message = "몸무게를 입력해주세요")
     @Positive(message = "몸무게는 양수여야 합니다.")
     private Double weight;
 
@@ -159,9 +160,7 @@ public class SignUpRequestDto {
                 .build();
     }
 
-    public WorkoutEnvironment toWorkoutEnvironment(Member member,
-                                                   boolean isDefault,
-                                                   Set<Equipment> equipment) {
+    public WorkoutEnvironment toWorkoutEnvironment(Member member, Set<Equipment> equipment) {
         return WorkoutEnvironment.builder()
                 .member(member)
                 .gymName(this.gymName)
