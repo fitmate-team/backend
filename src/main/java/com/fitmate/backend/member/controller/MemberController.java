@@ -1,6 +1,5 @@
 package com.fitmate.backend.member.controller;
 
-import com.fitmate.backend.member.dto.request.BodyMetricsUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;

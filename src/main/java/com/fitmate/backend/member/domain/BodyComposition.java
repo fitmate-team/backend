@@ -22,7 +22,7 @@ public class BodyComposition extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Column(name = "weight")
+    @Column(nullable = false)
     private Double weight;
 
     @Column(name = "skeletal_muscle_mass")

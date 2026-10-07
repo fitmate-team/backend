@@ -160,9 +160,7 @@ public class SignUpRequestDto {
                 .build();
     }
 
-    public WorkoutEnvironment toWorkoutEnvironment(Member member,
-                                                   boolean isDefault,
-                                                   Set<Equipment> equipment) {
+    public WorkoutEnvironment toWorkoutEnvironment(Member member, Set<Equipment> equipment) {
         return WorkoutEnvironment.builder()
                 .member(member)
                 .gymName(this.gymName)

@@ -2,7 +2,6 @@ package com.fitmate.backend.member.domain;
 
 import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
-import com.fitmate.backend.member.domain.enums.Gender;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
