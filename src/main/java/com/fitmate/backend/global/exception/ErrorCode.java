@@ -19,6 +19,7 @@ public enum ErrorCode {
     INVALID_EXERCISE_BASELINE("운동 유형에 맞지 않는 최근 운동 기록입니다.", HttpStatus.BAD_REQUEST),
     INVALID_WORKOUT_ENVIRONMENT("운동 장소와 운동 환경 정보가 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
     INVALID_GOAL_STRATEGY("운동 목표에 맞지 않는 운동 방식입니다.", HttpStatus.BAD_REQUEST),
+    WORKOUT_ENVIRONMENT_NOT_FOUND("등록된 운동 환경을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // 토큰
     REFRESH_TOKEN_EXPIRED("리프레시 토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED),

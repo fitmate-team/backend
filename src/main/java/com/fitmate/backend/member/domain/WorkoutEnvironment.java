@@ -47,4 +47,21 @@ public class WorkoutEnvironment {
         this.locationType = locationType;
         this.equipment = equipment != null ? new HashSet<>(equipment) : new HashSet<>();
     }
+
+    public void updateEquipment(Set<Equipment> equipment) {
+        this.equipment.clear();
+
+        if (equipment != null) {
+            this.equipment.addAll(equipment);
+        }
+    }
+
+    public void updateGym(String gymName, Set<Equipment> equipment) {
+        this.gymName = gymName;
+        this.equipment.clear();
+
+        if (equipment != null) {
+            this.equipment.addAll(equipment);
+        }
+    }
 }

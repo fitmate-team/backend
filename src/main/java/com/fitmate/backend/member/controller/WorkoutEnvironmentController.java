@@ -15,13 +15,15 @@ public class WorkoutEnvironmentController {
 
     @GetMapping
     public ResponseEntity<WorkoutEnvironmentListResponseDto> getWorkoutEnvironments(@AuthenticationPrincipal Long memberId) {
-        return ResponseEntity.ok(workoutEnvironmentService.);
-
+        return ResponseEntity.ok(workoutEnvironmentService.getWorkoutEnvironments(memberId));
     }
 
     @PatchMapping("/primary-location")
-    @PutMapping("/{locationType}")
+
+    @PutMapping("/{locationType}/equipments")
+
     @PostMapping("/gyms")
+
     @PutMapping("/gyms/{environmentId}")
 
 }

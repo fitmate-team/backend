@@ -59,8 +59,7 @@ public class MemberResponseDto {
                                      profile.getWeeklyFrequency(),
                                      profile.getSessionMinutes(),
                                      profile.getExerciseLocation(),
-                                     new HashSet<>(profile.getAvailableDays()), //
-                // LazyInitializationException 방지
+                                     new HashSet<>(profile.getAvailableDays()),
                                      new HashSet<>(profile.getAvoidBodyAreas()),
 
                                      bodyComposition.getWeight(),

@@ -129,4 +129,8 @@ public class MemberProfile extends BaseEntity {
                 avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
 
     }
+
+    public void updateExerciseLocation(ExerciseLocation exerciseLocation) {
+        this.exerciseLocation = exerciseLocation;
+    }
 }
