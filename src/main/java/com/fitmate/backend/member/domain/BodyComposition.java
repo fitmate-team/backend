@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// TODO (수정 완료) : BodyWeight 엔티티 삭제, BodyComposition 엔티티 생성
 @Entity
 @Table(name = "body_composition")
 @Getter

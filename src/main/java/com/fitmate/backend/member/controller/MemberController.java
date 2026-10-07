@@ -52,14 +52,6 @@ public class MemberController {
         return ResponseEntity.ok(memberService.updateMemberProfile(memberId, requestDto));
     }
 
-    @Operation(summary = "몸무게, 체성분 수정")
-    @PutMapping("/my-body")
-    public ResponseEntity<Void> updateMyInfo(@AuthenticationPrincipal Long memberId,
-                                             @Valid @RequestBody BodyMetricsUpdateRequestDto requestDto) {
-        memberService.updateBodyMetrics(memberId, requestDto);
-        return ResponseEntity.noContent().build();
-    }
-
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/my-info")
     public ResponseEntity<Void> deleteMember(@AuthenticationPrincipal Long memberId) {

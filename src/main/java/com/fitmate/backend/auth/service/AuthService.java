@@ -52,7 +52,7 @@ public class AuthService {
             optionalRefreshToken.get().updateToken(refreshToken);
         } else {
             refreshTokenRepository.save(RefreshToken.builder()
-                                                .memberId(member.getId())
+                                                .member(member)
                                                 .refreshToken(refreshToken)
                                                 .build());
         }
