@@ -48,12 +48,6 @@ public class MemberProfileUpdateRequestDto {
     @NotNull(message = "운동 목표 전략을 선택해주세요.")
     private GoalStrategy goalStrategy;
 
-    @Schema(description = "주간 운동 횟수", example = "3")
-    @NotNull(message = "주간 운동 횟수를 선택해주세요.")
-    @Min(value = 1, message = "주간 운동 횟수는 최소 1회여야 합니다.")
-    @Max(value = 7, message = "주간 운동 횟수는 최대 7회입니다.")
-    private Integer weeklyFrequency;
-
     @Schema(description = "1회 운동 가능 시간(분)", example = "60")
     @NotNull(message = "운동 시간을 선택해주세요.")
     @Positive(message = "운동 시간은 양수여야 합니다.")
