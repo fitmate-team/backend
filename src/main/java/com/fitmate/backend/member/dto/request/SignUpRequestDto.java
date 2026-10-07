@@ -84,9 +84,6 @@ public class SignUpRequestDto {
     @Schema(description = "헬스장 이름 (운동 장소가 GYM인 경우 사용)", example = "Fit Gym")
     private String gymName;
 
-    @Schema(description = "헬스장 주소 (운동 장소가 GYM인 경우 사용)", example = "서울특별시 노원구 동일로 123")
-    private String gymAddress;
-
     @Schema(description = "선택한 운동기구 코드 목록", example = "[\"EQ_DUMBBELL\", \"EQ_BARBELL\"]")
     @NotNull(message = "운동기구 목록은 null일 수 없습니다.")
     private Set<String> equipmentCodes = new HashSet<>();
@@ -103,6 +100,14 @@ public class SignUpRequestDto {
     @NotNull(message = "제외 운동 목록은 null일 수 없습니다.")
     private Set<String> excludedExerciseCodes = new HashSet<>();
 
+
+
+    // BodyWeight
+
+    @Schema(description = "몸무게(kg), 선택값", example = "55.4")
+    @Positive(message = "몸무게는 양수여야 합니다.")
+    private Double weight;
+
     @Schema(description = "골격근량(kg), 선택값", example = "23.5")
     @Positive(message = "골격근량은 양수여야 합니다.")
     private Double skeletalMuscleMass;
@@ -114,14 +119,6 @@ public class SignUpRequestDto {
     @Schema(description = "체지방량(kg), 선택값", example = "12.4")
     @Positive(message = "체지방량은 양수여야 합니다.")
     private Double bodyFatMass;
-
-
-    // BodyWeight
-
-    @Schema(description = "몸무게(kg)", example = "55.4")
-    @NotNull(message = "몸무게를 입력해주세요.")
-    @Positive(message = "몸무게는 양수여야 합니다.")
-    private Double weight;
 
     // ExerciseBaseline
 
@@ -149,14 +146,17 @@ public class SignUpRequestDto {
                 .exerciseLocation(this.exerciseLocation)
                 .availableDays(this.availableDays)
                 .avoidBodyAreas(this.avoidBodyAreas)
+                .build();
+    }
+
+    public BodyComposition toBodyComposition(Member member) {
+        return BodyComposition.builder()
+                .member(member)
+                .weight(this.weight)
                 .skeletalMuscleMass(this.skeletalMuscleMass)
                 .bodyFatPercentage(this.bodyFatPercentage)
                 .bodyFatMass(this.bodyFatMass)
                 .build();
-    }
-
-    public BodyWeight toBodyWeight(Member member) {
-        return BodyWeight.builder().member(member).weight(this.weight).build();
     }
 
     public WorkoutEnvironment toWorkoutEnvironment(Member member,
@@ -165,8 +165,6 @@ public class SignUpRequestDto {
         return WorkoutEnvironment.builder()
                 .member(member)
                 .gymName(this.gymName)
-                .gymAddress(this.gymAddress)
-                .defaultGym(isDefault)
                 .locationType(this.exerciseLocation)
                 .equipment(equipment)
                 .build();

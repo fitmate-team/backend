@@ -39,7 +39,7 @@ public class MemberResponseDto {
     public static MemberResponseDto from(
             Member member,
             MemberProfile profile,
-            BodyWeight bodyWeight
+            BodyComposition bodyComposition
     ) {
         return new MemberResponseDto(
                 member.getId(),
@@ -57,11 +57,11 @@ public class MemberResponseDto {
                 profile.getExerciseLocation(),
                 new HashSet<>(profile.getAvailableDays()), // LazyInitializationException 방지
                 new HashSet<>(profile.getAvoidBodyAreas()),
-                profile.getSkeletalMuscleMass(),
-                profile.getBodyFatPercentage(),
-                profile.getBodyFatMass(),
 
-                bodyWeight.getWeight()
+                bodyComposition.getWeight(),
+                bodyComposition.getBodyFatMass(),
+                bodyComposition.getBodyFatPercentage(),
+                bodyComposition.getSkeletalMuscleMass()
 
         );
     }

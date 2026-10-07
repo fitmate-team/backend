@@ -75,8 +75,6 @@ public class MemberProfile extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Set<BodyArea> avoidBodyAreas = new HashSet<>();
 
-    // TODO (수정 완료): skeletalMuscleMass, bodyFatPercentage, bodyFatMass 삭제. builder 수정, updateBodyMetrics 메서드 삭제
-
     @Builder
     public MemberProfile(Member member,
                          Gender gender,

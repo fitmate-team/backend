@@ -26,7 +26,6 @@ public class RefreshToken {
     @Column(nullable = false, length = 500)
     private String refreshToken;
 
-    // TODO: 객체 매개변수를 받기로 생성자 변경
     @Builder
     public RefreshToken(Member member, String refreshToken) {
         this.member = member;

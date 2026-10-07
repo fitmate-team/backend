@@ -37,7 +37,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberProfileRepository memberProfileRepository;
-    private final BodyWeightRepository bodyWeightRepository;
+    private final BodyCompositionRepository bodyWeightRepository;
     private final EquipmentRepository equipmentRepository;
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
     private final ExerciseRepository exerciseRepository;
@@ -52,7 +52,7 @@ public class MemberService {
         Member savedMember = memberRepository.save(member);
 
         memberProfileRepository.save(requestDto.toMemberProfile(savedMember));
-        bodyWeightRepository.save(requestDto.toBodyWeight(savedMember));
+        bodyWeightRepository.save(requestDto.toBodyComposition(savedMember));
 
         Set<Equipment> equipmentSet = // 운동 기구 코드로 Equipment 조회
                 equipmentRepository.findAllByEquipmentCodeIn(requestDto.getEquipmentCodes());
@@ -147,10 +147,10 @@ public class MemberService {
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        BodyWeight bodyWeight = bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
+        BodyComposition bodyComposition = bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        return MemberResponseDto.from(member, memberProfile, bodyWeight);
+        return MemberResponseDto.from(member, memberProfile, bodyComposition);
     }
 
     @Transactional
@@ -174,28 +174,10 @@ public class MemberService {
 
         Member member = memberProfile.getMember();
 
-        BodyWeight bodyWeight = bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
+        BodyComposition bodyComposition = bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        return MemberResponseDto.from(member, memberProfile, bodyWeight);
-
-    }
-
-    @Transactional
-    public void updateBodyMetrics(Long memberId, BodyMetricsUpdateRequestDto requestDto) {
-        MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        memberProfile.updateBodyMetrics(requestDto.getSkeletalMuscleMass(),
-                                        requestDto.getBodyFatPercentage(),
-                                        requestDto.getBodyFatMass());
-
-        if (requestDto.getWeight() != null) {
-            bodyWeightRepository.save(BodyWeight.builder()
-                                              .member(memberProfile.getMember())
-                                              .weight(requestDto.getWeight())
-                                              .build());
-        }
+        return MemberResponseDto.from(member, memberProfile, bodyComposition);
 
     }
 
