@@ -10,6 +10,8 @@ import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.*;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
+import com.fitmate.backend.member.domain.enums.GoalStrategy;
+import com.fitmate.backend.member.domain.enums.PrimaryGoal;
 import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.RecentExerciseRecordRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
@@ -49,7 +51,9 @@ public class MemberService {
             throw new CustomException(ErrorCode.DUPLICATE_LOGIN_ID);
         }
         Member member = requestDto.toMember(passwordEncoder.encode(requestDto.getPassword()));
+
         validateWorkoutEnvironment(requestDto);
+        validateGoalStrategy(requestDto.getPrimaryGoal(), requestDto.getGoalStrategy());
 
         Member savedMember = memberRepository.save(member);
 
@@ -158,6 +162,19 @@ public class MemberService {
                                                  MemberProfileUpdateRequestDto requestDto) {
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberProfile.getMember();
+
+        validateGoalStrategy(requestDto.getPrimaryGoal(), requestDto.getGoalStrategy());
+
+        Set<Exercise> excludedExercises =
+                exerciseRepository.findAllByExerciseCodeIn(
+                        requestDto.getExcludedExerciseCodes()
+                );
+        if (requestDto.getExcludedExerciseCodes().size() != excludedExercises.size()) {
+            throw new CustomException(ErrorCode.INVALID_EXERCISE_CODE);
+        }
+        member.updateExcludedExercises(excludedExercises);
+
 
         memberProfile.updateMemberProfile(requestDto.getGender(),
                                           requestDto.getAge(),
@@ -168,11 +185,8 @@ public class MemberService {
                                           requestDto.getGoalStrategy(),
                                           requestDto.getAvailableDays().size(),
                                           requestDto.getSessionMinutes(),
-                                          requestDto.getExerciseLocation(),
                                           requestDto.getAvailableDays(),
                                           requestDto.getAvoidBodyAreas());
-
-        Member member = memberProfile.getMember();
 
         BodyComposition bodyComposition = bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -203,6 +217,13 @@ public class MemberService {
             throw new CustomException(ErrorCode.INVALID_WORKOUT_ENVIRONMENT);
         }else if(requestDto.getExerciseLocation() != ExerciseLocation.GYM && hasGymName){
             throw new CustomException(ErrorCode.INVALID_WORKOUT_ENVIRONMENT);
+        }
+    }
+
+    private void validateGoalStrategy(PrimaryGoal primaryGoal,
+                                      GoalStrategy goalStrategy){
+        if(goalStrategy.getPrimaryGoal() != primaryGoal){
+            throw new CustomException(ErrorCode.INVALID_GOAL_STRATEGY);
         }
     }
 }
