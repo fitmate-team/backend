@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-// TODO (수정 완료): (member_id, gym_name) 복합 UNIQUE 추가
 @Table(name = "workout_environment", uniqueConstraints = @UniqueConstraint(
         name = "uk_workout_environment_member_gym", columnNames = {"member_id", "gym_name"}))
 @Getter
@@ -30,7 +29,6 @@ public class WorkoutEnvironment {
 
     private String gymName;
 
-    // TODO (수정 완료): 헬스장 주소, 기본 헬스장 및 생성자 관련 코드 삭제
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ExerciseLocation locationType;

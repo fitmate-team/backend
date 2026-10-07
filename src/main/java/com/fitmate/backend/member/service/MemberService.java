@@ -37,7 +37,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberProfileRepository memberProfileRepository;
-    private final BodyCompositionRepository bodyWeightRepository;
+    private final BodyCompositionRepository bodyCompositionRepository;
     private final EquipmentRepository equipmentRepository;
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
     private final ExerciseRepository exerciseRepository;
@@ -52,7 +52,7 @@ public class MemberService {
         Member savedMember = memberRepository.save(member);
 
         memberProfileRepository.save(requestDto.toMemberProfile(savedMember));
-        bodyWeightRepository.save(requestDto.toBodyComposition(savedMember));
+        bodyCompositionRepository.save(requestDto.toBodyComposition(savedMember));
 
         Set<Equipment> equipmentSet = // 운동 기구 코드로 Equipment 조회
                 equipmentRepository.findAllByEquipmentCodeIn(requestDto.getEquipmentCodes());
@@ -147,7 +147,7 @@ public class MemberService {
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        BodyComposition bodyComposition = bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
+        BodyComposition bodyComposition = bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         return MemberResponseDto.from(member, memberProfile, bodyComposition);
@@ -174,7 +174,7 @@ public class MemberService {
 
         Member member = memberProfile.getMember();
 
-        BodyComposition bodyComposition = bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
+        BodyComposition bodyComposition = bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         return MemberResponseDto.from(member, memberProfile, bodyComposition);
@@ -187,7 +187,7 @@ public class MemberService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         refreshTokenRepository.deleteByMemberId(memberId);
-        bodyWeightRepository.deleteAllByMemberId(memberId);
+        bodyCompositionRepository.deleteAllByMemberId(memberId);
         workoutEnvironmentRepository.deleteAllByMemberId(memberId);
         exerciseBaselineRepository.deleteAllByMemberId(memberId);
         memberProfileRepository.deleteByMemberId(memberId);
