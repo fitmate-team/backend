@@ -51,8 +51,8 @@ public class Exercise {
     @Enumerated(EnumType.STRING)
     private ExerciseBaselineType baselineRecordType;
 
-    @Column(nullable = false)
-    @Lob
+    // TODO: TEXT로 변경
+    @Column(nullable = false, columnDefinition = "text")
     private String guide;
 
     @Column(nullable = false)

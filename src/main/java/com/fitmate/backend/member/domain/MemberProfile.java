@@ -75,9 +75,7 @@ public class MemberProfile extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Set<BodyArea> avoidBodyAreas = new HashSet<>();
 
-    private Double skeletalMuscleMass;
-    private Double bodyFatPercentage;
-    private Double bodyFatMass;
+    // TODO (수정 완료): skeletalMuscleMass, bodyFatPercentage, bodyFatMass 삭제. builder 수정, updateBodyMetrics 메서드 삭제
 
     @Builder
     public MemberProfile(Member member,
@@ -92,10 +90,7 @@ public class MemberProfile extends BaseEntity {
                          Integer sessionMinutes,
                          ExerciseLocation exerciseLocation,
                          Set<DayOfWeek> availableDays,
-                         Set<BodyArea> avoidBodyAreas,
-                         Double skeletalMuscleMass,
-                         Double bodyFatPercentage,
-                         Double bodyFatMass) {
+                         Set<BodyArea> avoidBodyAreas) {
         this.member = member;
         this.gender = gender;
         this.age = age;
@@ -109,9 +104,6 @@ public class MemberProfile extends BaseEntity {
         this.exerciseLocation = exerciseLocation;
         this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
         this.avoidBodyAreas = avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
-        this.skeletalMuscleMass = skeletalMuscleMass;
-        this.bodyFatPercentage = bodyFatPercentage;
-        this.bodyFatMass = bodyFatMass;
     }
 
     public void updateMemberProfile(Gender gender,
@@ -141,21 +133,4 @@ public class MemberProfile extends BaseEntity {
                 avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
 
     }
-
-    public void updateBodyMetrics(Double skeletalMuscleMass,
-                                  Double bodyFatPercentage,
-                                  Double bodyFatMass) {
-        if (skeletalMuscleMass != null) {
-            this.skeletalMuscleMass = skeletalMuscleMass;
-        }
-
-        if (bodyFatPercentage != null) {
-            this.bodyFatPercentage = bodyFatPercentage;
-        }
-
-        if (bodyFatMass != null) {
-            this.bodyFatMass = bodyFatMass;
-        }
-    }
-
 }
