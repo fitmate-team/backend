@@ -95,7 +95,6 @@ public class SignUpRequestDto {
     private Set<String> excludedExerciseCodes = new HashSet<>();
 
 
-
     // BodyComposition
 
     @Schema(description = "몸무게(kg)", example = "55.4")
@@ -157,7 +156,9 @@ public class SignUpRequestDto {
     public WorkoutEnvironment toWorkoutEnvironment(Member member, Set<Equipment> equipment) {
         return WorkoutEnvironment.builder()
                 .member(member)
-                .gymName(this.gymName)
+                .gymName(this.exerciseLocation == ExerciseLocation.GYM
+                                 ? this.gymName.trim()
+                                 : null)
                 .locationType(this.exerciseLocation)
                 .equipment(equipment)
                 .build();
