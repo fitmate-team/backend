@@ -40,6 +40,10 @@ public class RoutineExercise extends BaseEntity {
     @Column(name = "set_count")
     private Integer setCount;
 
+    // TODO(수정 완료): 유산소용 수행 시간 칼럼 추가, 생성자 수정 완료
+    @Column(name = "duration_minutes")
+    private Integer durationMinutes;
+
     @Column(name = "rest_seconds", nullable = false)
     private Integer restSeconds;
 
@@ -50,6 +54,7 @@ public class RoutineExercise extends BaseEntity {
                            BigDecimal weight,
                            Integer reps,
                            Integer setCount,
+                           Integer durationMinutes,
                            Integer restSeconds) {
         this.dailyRoutine = dailyRoutine;
         this.exercise = exercise;
@@ -57,6 +62,7 @@ public class RoutineExercise extends BaseEntity {
         this.weight = weight;
         this.reps = reps;
         this.setCount = setCount;
+        this.durationMinutes = durationMinutes;
         this.restSeconds = restSeconds;
     }
 }

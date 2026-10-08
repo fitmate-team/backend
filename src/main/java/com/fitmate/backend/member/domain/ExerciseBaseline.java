@@ -32,7 +32,8 @@ public class ExerciseBaseline {
     @Column(name = "set_count")
     private Integer sets;
 
-    private Integer durationSeconds;
+    // TODO(수정 완료): durationSeconds -> duration_minutes
+    private Integer durationMinutes;
 
     @Builder
     public ExerciseBaseline(Member member,
@@ -40,12 +41,12 @@ public class ExerciseBaseline {
                             Integer weight,
                             Integer reps,
                             Integer sets,
-                            Integer durationSeconds) {
+                            Integer durationMinutes) {
         this.member = member;
         this.exercise = exercise;
         this.weight = weight;
         this.reps = reps;
         this.sets = sets;
-        this.durationSeconds = durationSeconds;
+        this.durationMinutes = durationMinutes;
     }
 }

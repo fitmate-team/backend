@@ -30,6 +30,10 @@ public class WorkoutExerciseRecord extends BaseEntity {
     @Column(name = "completed_set_count", nullable = false)
     private Integer completedSetCount;
 
+    // TODO(수정완료): 유산소용 실제 수행 시간 칼럼 추가, 생성자 수정 완료
+    @Column(name = "completed_minutes")
+    private Integer completedMinutes;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "calculated_difficulty", nullable = false)
     private CalculatedDifficulty calculatedDifficulty;
@@ -38,10 +42,12 @@ public class WorkoutExerciseRecord extends BaseEntity {
     public WorkoutExerciseRecord(WorkoutRecord workoutRecord,
                                  RoutineExercise routineExercise,
                                  Integer completedSetCount,
+                                 Integer completedMinutes,
                                  CalculatedDifficulty calculatedDifficulty) {
         this.workoutRecord = workoutRecord;
         this.routineExercise = routineExercise;
         this.completedSetCount = completedSetCount != null ? completedSetCount : 0;
+        this.completedMinutes = completedMinutes != null ? completedMinutes : 0;
         this.calculatedDifficulty = calculatedDifficulty;
     }
 }
