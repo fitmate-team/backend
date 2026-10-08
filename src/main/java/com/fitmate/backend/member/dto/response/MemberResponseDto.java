@@ -1,5 +1,6 @@
 package com.fitmate.backend.member.dto.response;
 
+import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.member.domain.*;
 import com.fitmate.backend.member.domain.enums.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import java.time.DayOfWeek;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -15,6 +17,7 @@ public class MemberResponseDto {
     // Member
     private Long id;
     private String loginId;
+    private Set<String> excludedExerciseCodes;
 
     // MemberProfile
     private Gender gender;
@@ -41,6 +44,10 @@ public class MemberResponseDto {
                                          BodyComposition bodyComposition) {
         return new MemberResponseDto(member.getId(),
                                      member.getLoginId(),
+                                     member.getExcludedExercises()
+                                             .stream()
+                                             .map(Exercise::getExerciseCode)
+                                             .collect(Collectors.toSet()),
 
                                      profile.getGender(),
                                      profile.getAge(),
@@ -52,7 +59,7 @@ public class MemberResponseDto {
                                      profile.getWeeklyFrequency(),
                                      profile.getSessionMinutes(),
                                      profile.getExerciseLocation(),
-                                     new HashSet<>(profile.getAvailableDays()), // LazyInitializationException 방지
+                                     new HashSet<>(profile.getAvailableDays()),
                                      new HashSet<>(profile.getAvoidBodyAreas()),
 
                                      bodyComposition.getWeight(),

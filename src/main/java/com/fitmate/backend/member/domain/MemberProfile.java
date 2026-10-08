@@ -113,7 +113,6 @@ public class MemberProfile extends BaseEntity {
                                     GoalStrategy goalStrategy,
                                     Integer weeklyFrequency,
                                     Integer sessionMinutes,
-                                    ExerciseLocation exerciseLocation,
                                     Set<DayOfWeek> availableDays,
                                     Set<BodyArea> avoidBodyAreas) {
         this.gender = gender;
@@ -125,10 +124,13 @@ public class MemberProfile extends BaseEntity {
         this.goalStrategy = goalStrategy;
         this.weeklyFrequency = weeklyFrequency;
         this.sessionMinutes = sessionMinutes;
-        this.exerciseLocation = exerciseLocation;
         this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
         this.avoidBodyAreas =
                 avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
 
+    }
+
+    public void updateExerciseLocation(ExerciseLocation exerciseLocation) {
+        this.exerciseLocation = exerciseLocation;
     }
 }

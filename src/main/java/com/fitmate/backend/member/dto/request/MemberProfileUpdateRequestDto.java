@@ -48,20 +48,10 @@ public class MemberProfileUpdateRequestDto {
     @NotNull(message = "운동 목표 전략을 선택해주세요.")
     private GoalStrategy goalStrategy;
 
-    @Schema(description = "주간 운동 횟수", example = "3")
-    @NotNull(message = "주간 운동 횟수를 선택해주세요.")
-    @Min(value = 1, message = "주간 운동 횟수는 최소 1회여야 합니다.")
-    @Max(value = 7, message = "주간 운동 횟수는 최대 7회입니다.")
-    private Integer weeklyFrequency;
-
     @Schema(description = "1회 운동 가능 시간(분)", example = "60")
     @NotNull(message = "운동 시간을 선택해주세요.")
     @Positive(message = "운동 시간은 양수여야 합니다.")
     private Integer sessionMinutes;
-
-    @Schema(description = "운동 장소", example = "GYM")
-    @NotNull(message = "운동 장소를 선택해주세요.")
-    private ExerciseLocation exerciseLocation;
 
     @Schema(
             description = "운동 가능한 요일",
@@ -75,5 +65,12 @@ public class MemberProfileUpdateRequestDto {
             example = "[\"KNEE\", \"LOWER_BACK\"]"
     )
     private Set<BodyArea> avoidBodyAreas = new HashSet<>();
+
+    @Schema(
+            description = "피하고 싶은 운동 코드 목록",
+            example = "[\"EX_CHEST_BB_BENCH_PRESS\", \"EX_LEGS_BB_BACK_SQUAT\"]"
+    )
+    @NotNull(message = "제외 운동 목록은 null일 수 없습니다.")
+    private Set<String> excludedExerciseCodes = new HashSet<>();
 
 }
