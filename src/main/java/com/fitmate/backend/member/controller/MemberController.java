@@ -39,20 +39,20 @@ public class MemberController {
     }
 
     @Operation(summary = "내 정보 조회")
-    @GetMapping("/my-info")
+    @GetMapping("/me")
     public ResponseEntity<MemberResponseDto> getMyInfo(@AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok(memberService.getMember(memberId));
     }
 
-    @Operation(summary = "내 정보 수정")
-    @PutMapping("/my-info")
+    @Operation(summary = "운동 프로필 수정")
+    @PutMapping("/profile")
     public ResponseEntity<MemberResponseDto> updateMyInfo(@AuthenticationPrincipal Long memberId,
                                                           @Valid @RequestBody MemberProfileUpdateRequestDto requestDto) {
         return ResponseEntity.ok(memberService.updateMemberProfile(memberId, requestDto));
     }
 
     @Operation(summary = "회원 탈퇴")
-    @DeleteMapping("/my-info")
+    @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMember(@AuthenticationPrincipal Long memberId) {
         memberService.deleteMember(memberId);
         return ResponseEntity.noContent().build();
