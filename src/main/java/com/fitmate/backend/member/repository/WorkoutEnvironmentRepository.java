@@ -14,4 +14,5 @@ public interface WorkoutEnvironmentRepository extends JpaRepository<WorkoutEnvir
     Optional<WorkoutEnvironment> findByIdAndMemberId(Long id, Long memberId);
 
     void deleteAllByMemberId(Long memberId);
+
 }

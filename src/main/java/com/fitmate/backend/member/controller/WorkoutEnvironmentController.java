@@ -55,4 +55,5 @@ public class WorkoutEnvironmentController {
                 .body(workoutEnvironmentService.createGym(memberId, requestDto));
     }
 
+
 }

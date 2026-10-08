@@ -107,18 +107,4 @@ public class WorkoutEnvironmentService {
         return WorkoutEnvironmentResponseDto.from(savedWorkoutEnvironment);
     }
 
-    @Transactional
-    public void deleteGym(Long memberId, Long environmentId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        WorkoutEnvironment environment = workoutEnvironmentRepository.findByIdAndMemberId(
-                        environmentId,
-                        memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
-
-        workoutEnvironmentRepository.deleteAllByMemberId(memberId);
-
-    }
-
 }
