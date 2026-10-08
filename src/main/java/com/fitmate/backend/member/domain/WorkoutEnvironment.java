@@ -56,12 +56,7 @@ public class WorkoutEnvironment {
         }
     }
 
-    public void updateGym(String gymName, Set<Equipment> equipment) {
+    public void updateGymName(String gymName) {
         this.gymName = gymName;
-        this.equipment.clear();
-
-        if (equipment != null) {
-            this.equipment.addAll(equipment);
-        }
     }
 }

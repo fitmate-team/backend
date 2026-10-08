@@ -10,14 +10,8 @@ import java.util.Optional;
 
 public interface WorkoutEnvironmentRepository extends JpaRepository<WorkoutEnvironment, Long> {
     List<WorkoutEnvironment> findAllByMemberId(Long memberId);
-    Optional<WorkoutEnvironment> findByMemberIdAndLocationType(
-            Long memberId,
-            ExerciseLocation locationType
-    );
 
-    Optional<WorkoutEnvironment> findByIdAndMemberId(
-            Long id,
-            Long memberId
-    );
+    Optional<WorkoutEnvironment> findByIdAndMemberId(Long id, Long memberId);
+
     void deleteAllByMemberId(Long memberId);
 }

@@ -10,7 +10,7 @@ import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import com.fitmate.backend.member.dto.request.GymRequestDto;
 import com.fitmate.backend.member.dto.request.PrimaryLocationUpdateRequestDto;
-import com.fitmate.backend.member.dto.request.EquipmentUpdateRequestDto;
+import com.fitmate.backend.member.dto.request.WorkoutEnvironmentUpdateRequestDto;
 import com.fitmate.backend.member.dto.response.WorkoutEnvironmentListResponseDto;
 import com.fitmate.backend.member.dto.response.WorkoutEnvironmentResponseDto;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
@@ -19,6 +19,7 @@ import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -38,7 +39,7 @@ public class WorkoutEnvironmentService {
 
         List<WorkoutEnvironmentResponseDto> responseDtos =
                 workoutEnvironmentRepository.findAllByMemberId(
-                        memberId).stream().map(WorkoutEnvironmentResponseDto::from).toList();
+                memberId).stream().map(WorkoutEnvironmentResponseDto::from).toList();
 
         return WorkoutEnvironmentListResponseDto.of(memberProfile.getExerciseLocation(),
                                                     responseDtos);
@@ -52,23 +53,39 @@ public class WorkoutEnvironmentService {
     }
 
     @Transactional
-    public WorkoutEnvironmentResponseDto updateEquipment(Long memberId,
-                                                         ExerciseLocation locationType,
-                                                         EquipmentUpdateRequestDto requestDto) {
-        WorkoutEnvironment workoutEnvironment =
-                workoutEnvironmentRepository.findByMemberIdAndLocationType(
-                                memberId,
-                                locationType)
-                        .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
+    public WorkoutEnvironmentResponseDto updateWorkoutEnvironment(Long memberId,
+                                                                  Long environmentId,
+                                                                  WorkoutEnvironmentUpdateRequestDto requestDto) {
+        WorkoutEnvironment environment = workoutEnvironmentRepository.findByIdAndMemberId(
+                        environmentId,
+                        memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
 
-        Set<Equipment> equipmentSet = // 운동 기구 코드로 Equipment 조회
-                equipmentRepository.findAllByEquipmentCodeIn(requestDto.getEquipmentCodes());
-        if (requestDto.getEquipmentCodes().size() != equipmentSet.size()) {
-            throw new CustomException(ErrorCode.INVALID_EQUIPMENT_CODE); // 개수 유효 검사
+        // 기구 수정
+        if (requestDto.getEquipmentCodes() != null) {
+            Set<Equipment> equipmentSet = // 운동 기구 코드로 Equipment 조회
+                    equipmentRepository.findAllByEquipmentCodeIn(requestDto.getEquipmentCodes());
+            if (requestDto.getEquipmentCodes().size() != equipmentSet.size()) {
+                throw new CustomException(ErrorCode.INVALID_EQUIPMENT_CODE); // 개수 유효 검사
+            }
+            environment.updateEquipment(equipmentSet);
         }
 
-        workoutEnvironment.updateEquipment(equipmentSet);
-        return WorkoutEnvironmentResponseDto.from(workoutEnvironment);
+        // 헬스장 이름 수정
+        if (environment.getLocationType() == ExerciseLocation.GYM) {
+            if (requestDto.getGymName() != null) {
+                if (!StringUtils.hasText(requestDto.getGymName())) {
+                    throw new CustomException(ErrorCode.INVALID_WORKOUT_ENVIRONMENT);
+                }
+                environment.updateGymName(requestDto.getGymName().trim());
+            }
+        } else {
+            if (StringUtils.hasText(requestDto.getGymName())) {
+                throw new CustomException(ErrorCode.INVALID_WORKOUT_ENVIRONMENT);
+            }
+        }
+
+        return WorkoutEnvironmentResponseDto.from(environment);
     }
 
     @Transactional
@@ -82,35 +99,12 @@ public class WorkoutEnvironmentService {
             throw new CustomException(ErrorCode.INVALID_EQUIPMENT_CODE); // 개수 유효 검사
         }
 
-        WorkoutEnvironment workoutEnvironment = WorkoutEnvironment.builder()
-                .member(member)
-                .gymName(requestDto.getGymName())
-                .locationType(ExerciseLocation.GYM)
-                .equipment(equipmentSet)
-                .build();
-
-        WorkoutEnvironment savedWorkoutEnvironment = workoutEnvironmentRepository.save(
-                workoutEnvironment);
+        WorkoutEnvironment savedWorkoutEnvironment =
+                workoutEnvironmentRepository.save(requestDto.toWorkoutEnvironment(
+                member,
+                equipmentSet));
 
         return WorkoutEnvironmentResponseDto.from(savedWorkoutEnvironment);
     }
 
-    @Transactional
-    public WorkoutEnvironmentResponseDto updateGym(Long memberId,
-                                                   Long environmentId,
-                                                   GymRequestDto requestDto) {
-
-        WorkoutEnvironment workoutEnvironment =
-                workoutEnvironmentRepository.findByIdAndMemberId(environmentId, memberId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
-
-        Set<Equipment> equipmentSet = // 운동 기구 코드로 Equipment 조회
-                equipmentRepository.findAllByEquipmentCodeIn(requestDto.getEquipmentCodes());
-        if (requestDto.getEquipmentCodes().size() != equipmentSet.size()) {
-            throw new CustomException(ErrorCode.INVALID_EQUIPMENT_CODE); // 개수 유효 검사
-        }
-
-        workoutEnvironment.updateGym(requestDto.getGymName(), equipmentSet);
-        return WorkoutEnvironmentResponseDto.from(workoutEnvironment);
-    }
 }

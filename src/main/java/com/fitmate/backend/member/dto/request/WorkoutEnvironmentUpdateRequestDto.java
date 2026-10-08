@@ -9,8 +9,7 @@ import java.util.Set;
 
 @Getter
 @NoArgsConstructor
-public class EquipmentUpdateRequestDto {
-
-    @NotNull
-    private Set<String> equipmentCodes = new HashSet<>();
+public class WorkoutEnvironmentUpdateRequestDto {
+    private String gymName;
+    private Set<String> equipmentCodes;
 }
