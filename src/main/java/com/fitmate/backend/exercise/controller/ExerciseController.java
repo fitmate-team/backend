@@ -1,5 +1,6 @@
 package com.fitmate.backend.exercise.controller;
 
+import com.fitmate.backend.exercise.domain.PrimaryMuscle;
 import com.fitmate.backend.exercise.dto.ExerciseResponseDto;
 import com.fitmate.backend.exercise.service.ExerciseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -23,7 +25,8 @@ public class ExerciseController {
     @Operation(summary = "운동 목록 조회")
     @GetMapping
     @SecurityRequirements()
-    public ResponseEntity<List<ExerciseResponseDto>> getExercises() {
-        return ResponseEntity.ok(exerciseService.getExercises());
+    public ResponseEntity<List<ExerciseResponseDto>> getExercises(@RequestParam(required = false) String keyword,
+                                                                  @RequestParam(required = false) PrimaryMuscle muscle) {
+        return ResponseEntity.ok(exerciseService.getExercises(keyword, muscle));
     }
 }
