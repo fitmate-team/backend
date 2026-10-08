@@ -1,6 +1,5 @@
 package com.fitmate.backend.member.controller;
 
-import com.fitmate.backend.member.dto.request.BodyMetricsUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
 import com.fitmate.backend.member.dto.response.LoginIdCheckResponseDto;
@@ -40,28 +39,20 @@ public class MemberController {
     }
 
     @Operation(summary = "내 정보 조회")
-    @GetMapping("/my-info")
+    @GetMapping("/me")
     public ResponseEntity<MemberResponseDto> getMyInfo(@AuthenticationPrincipal Long memberId) {
         return ResponseEntity.ok(memberService.getMember(memberId));
     }
 
-    @Operation(summary = "내 정보 수정")
-    @PutMapping("/my-info")
+    @Operation(summary = "운동 프로필 수정")
+    @PutMapping("/profile")
     public ResponseEntity<MemberResponseDto> updateMyInfo(@AuthenticationPrincipal Long memberId,
                                                           @Valid @RequestBody MemberProfileUpdateRequestDto requestDto) {
         return ResponseEntity.ok(memberService.updateMemberProfile(memberId, requestDto));
     }
 
-    @Operation(summary = "몸무게, 체성분 수정")
-    @PutMapping("/my-body")
-    public ResponseEntity<Void> updateMyInfo(@AuthenticationPrincipal Long memberId,
-                                             @Valid @RequestBody BodyMetricsUpdateRequestDto requestDto) {
-        memberService.updateBodyMetrics(memberId, requestDto);
-        return ResponseEntity.noContent().build();
-    }
-
     @Operation(summary = "회원 탈퇴")
-    @DeleteMapping("/my-info")
+    @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMember(@AuthenticationPrincipal Long memberId) {
         memberService.deleteMember(memberId);
         return ResponseEntity.noContent().build();

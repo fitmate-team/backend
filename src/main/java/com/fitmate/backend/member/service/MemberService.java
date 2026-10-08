@@ -10,7 +10,8 @@ import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.*;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
-import com.fitmate.backend.member.dto.request.BodyMetricsUpdateRequestDto;
+import com.fitmate.backend.member.domain.enums.GoalStrategy;
+import com.fitmate.backend.member.domain.enums.PrimaryGoal;
 import com.fitmate.backend.member.dto.request.MemberProfileUpdateRequestDto;
 import com.fitmate.backend.member.dto.request.RecentExerciseRecordRequestDto;
 import com.fitmate.backend.member.dto.request.SignUpRequestDto;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +39,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberProfileRepository memberProfileRepository;
-    private final BodyWeightRepository bodyWeightRepository;
+    private final BodyCompositionRepository bodyCompositionRepository;
     private final EquipmentRepository equipmentRepository;
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
     private final ExerciseRepository exerciseRepository;
@@ -49,20 +51,22 @@ public class MemberService {
             throw new CustomException(ErrorCode.DUPLICATE_LOGIN_ID);
         }
         Member member = requestDto.toMember(passwordEncoder.encode(requestDto.getPassword()));
+
+        validateWorkoutEnvironment(requestDto);
+        validateGoalStrategy(requestDto.getPrimaryGoal(), requestDto.getGoalStrategy());
+
         Member savedMember = memberRepository.save(member);
 
+
         memberProfileRepository.save(requestDto.toMemberProfile(savedMember));
-        bodyWeightRepository.save(requestDto.toBodyWeight(savedMember));
+        bodyCompositionRepository.save(requestDto.toBodyComposition(savedMember));
 
         Set<Equipment> equipmentSet = // 운동 기구 코드로 Equipment 조회
                 equipmentRepository.findAllByEquipmentCodeIn(requestDto.getEquipmentCodes());
         if (requestDto.getEquipmentCodes().size() != equipmentSet.size()) {
             throw new CustomException(ErrorCode.INVALID_EQUIPMENT_CODE); // 개수 유효 검사
         }
-        boolean defaultGym = requestDto.getExerciseLocation() == ExerciseLocation.GYM; // 기본 헬스장
-        workoutEnvironmentRepository.save(requestDto.toWorkoutEnvironment(savedMember,
-                                                                          defaultGym,
-                                                                          equipmentSet));
+        workoutEnvironmentRepository.save(requestDto.toWorkoutEnvironment(savedMember, equipmentSet));
 
         Set<Exercise> excludedExerciseSet = // 제외 운동 코드로 Exercise 조회
                 exerciseRepository.findAllByExerciseCodeIn(requestDto.getExcludedExerciseCodes());
@@ -147,10 +151,10 @@ public class MemberService {
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        BodyWeight bodyWeight = bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
+        BodyComposition bodyComposition = bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        return MemberResponseDto.from(member, memberProfile, bodyWeight);
+        return MemberResponseDto.from(member, memberProfile, bodyComposition);
     }
 
     @Transactional
@@ -158,6 +162,19 @@ public class MemberService {
                                                  MemberProfileUpdateRequestDto requestDto) {
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberProfile.getMember();
+
+        validateGoalStrategy(requestDto.getPrimaryGoal(), requestDto.getGoalStrategy());
+
+        Set<Exercise> excludedExercises =
+                exerciseRepository.findAllByExerciseCodeIn(
+                        requestDto.getExcludedExerciseCodes()
+                );
+        if (requestDto.getExcludedExerciseCodes().size() != excludedExercises.size()) {
+            throw new CustomException(ErrorCode.INVALID_EXERCISE_CODE);
+        }
+        member.updateExcludedExercises(excludedExercises);
+
 
         memberProfile.updateMemberProfile(requestDto.getGender(),
                                           requestDto.getAge(),
@@ -166,36 +183,15 @@ public class MemberService {
                                           requestDto.getCurrentExerciseStatus(),
                                           requestDto.getPrimaryGoal(),
                                           requestDto.getGoalStrategy(),
-                                          requestDto.getWeeklyFrequency(),
+                                          requestDto.getAvailableDays().size(),
                                           requestDto.getSessionMinutes(),
-                                          requestDto.getExerciseLocation(),
                                           requestDto.getAvailableDays(),
                                           requestDto.getAvoidBodyAreas());
 
-        Member member = memberProfile.getMember();
-
-        BodyWeight bodyWeight = bodyWeightRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
+        BodyComposition bodyComposition = bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        return MemberResponseDto.from(member, memberProfile, bodyWeight);
-
-    }
-
-    @Transactional
-    public void updateBodyMetrics(Long memberId, BodyMetricsUpdateRequestDto requestDto) {
-        MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        memberProfile.updateBodyMetrics(requestDto.getSkeletalMuscleMass(),
-                                        requestDto.getBodyFatPercentage(),
-                                        requestDto.getBodyFatMass());
-
-        if (requestDto.getWeight() != null) {
-            bodyWeightRepository.save(BodyWeight.builder()
-                                              .member(memberProfile.getMember())
-                                              .weight(requestDto.getWeight())
-                                              .build());
-        }
+        return MemberResponseDto.from(member, memberProfile, bodyComposition);
 
     }
 
@@ -205,12 +201,29 @@ public class MemberService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         refreshTokenRepository.deleteByMemberId(memberId);
-        bodyWeightRepository.deleteAllByMemberId(memberId);
+        bodyCompositionRepository.deleteAllByMemberId(memberId);
         workoutEnvironmentRepository.deleteAllByMemberId(memberId);
         exerciseBaselineRepository.deleteAllByMemberId(memberId);
         memberProfileRepository.deleteByMemberId(memberId);
 
 
         memberRepository.delete(member);
+    }
+
+    private void validateWorkoutEnvironment(SignUpRequestDto requestDto){
+        boolean hasGymName = StringUtils.hasText(requestDto.getGymName());
+
+        if(requestDto.getExerciseLocation() == ExerciseLocation.GYM && !hasGymName){
+            throw new CustomException(ErrorCode.INVALID_WORKOUT_ENVIRONMENT);
+        }else if(requestDto.getExerciseLocation() != ExerciseLocation.GYM && hasGymName){
+            throw new CustomException(ErrorCode.INVALID_WORKOUT_ENVIRONMENT);
+        }
+    }
+
+    private void validateGoalStrategy(PrimaryGoal primaryGoal,
+                                      GoalStrategy goalStrategy){
+        if(goalStrategy.getPrimaryGoal() != primaryGoal){
+            throw new CustomException(ErrorCode.INVALID_GOAL_STRATEGY);
+        }
     }
 }

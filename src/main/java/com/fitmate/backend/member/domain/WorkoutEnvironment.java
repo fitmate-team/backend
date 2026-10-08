@@ -2,7 +2,6 @@ package com.fitmate.backend.member.domain;
 
 import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
-import com.fitmate.backend.member.domain.enums.Gender;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,6 +12,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "workout_environment", uniqueConstraints = @UniqueConstraint(
+        name = "uk_workout_environment_member_gym", columnNames = {"member_id", "gym_name"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkoutEnvironment {
@@ -27,11 +28,6 @@ public class WorkoutEnvironment {
 
     private String gymName;
 
-    private String gymAddress;
-
-    @Column(nullable = false)
-    private boolean defaultGym;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ExerciseLocation locationType;
@@ -44,15 +40,23 @@ public class WorkoutEnvironment {
     @Builder
     public WorkoutEnvironment(Member member,
                               String gymName,
-                              String gymAddress,
-                              boolean defaultGym,
                               ExerciseLocation locationType,
                               Set<Equipment> equipment) {
         this.member = member;
         this.gymName = gymName;
-        this.gymAddress = gymAddress;
-        this.defaultGym = defaultGym;
         this.locationType = locationType;
         this.equipment = equipment != null ? new HashSet<>(equipment) : new HashSet<>();
+    }
+
+    public void updateEquipment(Set<Equipment> equipment) {
+        this.equipment.clear();
+
+        if (equipment != null) {
+            this.equipment.addAll(equipment);
+        }
+    }
+
+    public void updateGymName(String gymName) {
+        this.gymName = gymName;
     }
 }

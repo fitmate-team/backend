@@ -66,12 +66,6 @@ public class SignUpRequestDto {
     @NotNull(message = "운동 목표 전략을 선택해주세요.")
     private GoalStrategy goalStrategy;
 
-    @Schema(description = "주간 운동 횟수", example = "3")
-    @NotNull(message = "주간 운동 횟수를 선택해주세요.")
-    @Min(value = 1, message = "주간 운동 횟수는 최소 1회여야 합니다.")
-    @Max(value = 7, message = "주간 운동 횟수는 최대 7회입니다.")
-    private Integer weeklyFrequency;
-
     @Schema(description = "1회 운동 가능 시간(분)", example = "60")
     @NotNull(message = "운동 시간을 선택해주세요.")
     @Positive(message = "운동 시간은 양수여야 합니다.")
@@ -83,9 +77,6 @@ public class SignUpRequestDto {
 
     @Schema(description = "헬스장 이름 (운동 장소가 GYM인 경우 사용)", example = "Fit Gym")
     private String gymName;
-
-    @Schema(description = "헬스장 주소 (운동 장소가 GYM인 경우 사용)", example = "서울특별시 노원구 동일로 123")
-    private String gymAddress;
 
     @Schema(description = "선택한 운동기구 코드 목록", example = "[\"EQ_DUMBBELL\", \"EQ_BARBELL\"]")
     @NotNull(message = "운동기구 목록은 null일 수 없습니다.")
@@ -103,6 +94,14 @@ public class SignUpRequestDto {
     @NotNull(message = "제외 운동 목록은 null일 수 없습니다.")
     private Set<String> excludedExerciseCodes = new HashSet<>();
 
+
+    // BodyComposition
+
+    @Schema(description = "몸무게(kg)", example = "55.4")
+    @NotNull(message = "몸무게를 입력해주세요")
+    @Positive(message = "몸무게는 양수여야 합니다.")
+    private Double weight;
+
     @Schema(description = "골격근량(kg), 선택값", example = "23.5")
     @Positive(message = "골격근량은 양수여야 합니다.")
     private Double skeletalMuscleMass;
@@ -114,14 +113,6 @@ public class SignUpRequestDto {
     @Schema(description = "체지방량(kg), 선택값", example = "12.4")
     @Positive(message = "체지방량은 양수여야 합니다.")
     private Double bodyFatMass;
-
-
-    // BodyWeight
-
-    @Schema(description = "몸무게(kg)", example = "55.4")
-    @NotNull(message = "몸무게를 입력해주세요.")
-    @Positive(message = "몸무게는 양수여야 합니다.")
-    private Double weight;
 
     // ExerciseBaseline
 
@@ -144,29 +135,30 @@ public class SignUpRequestDto {
                 .currentExerciseStatus(this.currentExerciseStatus)
                 .primaryGoal(this.primaryGoal)
                 .goalStrategy(this.goalStrategy)
-                .weeklyFrequency(this.weeklyFrequency)
+                .weeklyFrequency(this.availableDays.size())
                 .sessionMinutes(this.sessionMinutes)
                 .exerciseLocation(this.exerciseLocation)
                 .availableDays(this.availableDays)
                 .avoidBodyAreas(this.avoidBodyAreas)
+                .build();
+    }
+
+    public BodyComposition toBodyComposition(Member member) {
+        return BodyComposition.builder()
+                .member(member)
+                .weight(this.weight)
                 .skeletalMuscleMass(this.skeletalMuscleMass)
                 .bodyFatPercentage(this.bodyFatPercentage)
                 .bodyFatMass(this.bodyFatMass)
                 .build();
     }
 
-    public BodyWeight toBodyWeight(Member member) {
-        return BodyWeight.builder().member(member).weight(this.weight).build();
-    }
-
-    public WorkoutEnvironment toWorkoutEnvironment(Member member,
-                                                   boolean isDefault,
-                                                   Set<Equipment> equipment) {
+    public WorkoutEnvironment toWorkoutEnvironment(Member member, Set<Equipment> equipment) {
         return WorkoutEnvironment.builder()
                 .member(member)
-                .gymName(this.gymName)
-                .gymAddress(this.gymAddress)
-                .defaultGym(isDefault)
+                .gymName(this.exerciseLocation == ExerciseLocation.GYM
+                                 ? this.gymName.trim()
+                                 : null)
                 .locationType(this.exerciseLocation)
                 .equipment(equipment)
                 .build();

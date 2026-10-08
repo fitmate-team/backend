@@ -1,5 +1,6 @@
 package com.fitmate.backend.auth.token;
 
+import com.fitmate.backend.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -17,15 +18,16 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private Long memberId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false, unique = true)
+    private Member member;
 
     @Column(nullable = false, length = 500)
     private String refreshToken;
 
     @Builder
-    public RefreshToken(Long memberId, String refreshToken) {
-        this.memberId = memberId;
+    public RefreshToken(Member member, String refreshToken) {
+        this.member = member;
         this.refreshToken = refreshToken;
     }
 

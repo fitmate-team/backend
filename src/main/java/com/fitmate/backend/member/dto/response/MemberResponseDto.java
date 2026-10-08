@@ -1,5 +1,6 @@
 package com.fitmate.backend.member.dto.response;
 
+import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.member.domain.*;
 import com.fitmate.backend.member.domain.enums.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import java.time.DayOfWeek;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -15,6 +17,7 @@ public class MemberResponseDto {
     // Member
     private Long id;
     private String loginId;
+    private Set<String> excludedExerciseCodes;
 
     // MemberProfile
     private Gender gender;
@@ -29,39 +32,41 @@ public class MemberResponseDto {
     private ExerciseLocation exerciseLocation;
     private Set<DayOfWeek> availableDays;
     private Set<BodyArea> avoidBodyAreas;
+
+    // BodyComposition
+    private Double weight;
     private Double skeletalMuscleMass;
     private Double bodyFatPercentage;
     private Double bodyFatMass;
 
-    // BodyWeight
-    private Double weight;
+    public static MemberResponseDto from(Member member,
+                                         MemberProfile profile,
+                                         BodyComposition bodyComposition) {
+        return new MemberResponseDto(member.getId(),
+                                     member.getLoginId(),
+                                     member.getExcludedExercises()
+                                             .stream()
+                                             .map(Exercise::getExerciseCode)
+                                             .collect(Collectors.toSet()),
 
-    public static MemberResponseDto from(
-            Member member,
-            MemberProfile profile,
-            BodyWeight bodyWeight
-    ) {
-        return new MemberResponseDto(
-                member.getId(),
-                member.getLoginId(),
+                                     profile.getGender(),
+                                     profile.getAge(),
+                                     profile.getHeight(),
+                                     profile.getExerciseLevel(),
+                                     profile.getCurrentExerciseStatus(),
+                                     profile.getPrimaryGoal(),
+                                     profile.getGoalStrategy(),
+                                     profile.getWeeklyFrequency(),
+                                     profile.getSessionMinutes(),
+                                     profile.getExerciseLocation(),
+                                     new HashSet<>(profile.getAvailableDays()),
+                                     new HashSet<>(profile.getAvoidBodyAreas()),
 
-                profile.getGender(),
-                profile.getAge(),
-                profile.getHeight(),
-                profile.getExerciseLevel(),
-                profile.getCurrentExerciseStatus(),
-                profile.getPrimaryGoal(),
-                profile.getGoalStrategy(),
-                profile.getWeeklyFrequency(),
-                profile.getSessionMinutes(),
-                profile.getExerciseLocation(),
-                new HashSet<>(profile.getAvailableDays()), // LazyInitializationException 방지
-                new HashSet<>(profile.getAvoidBodyAreas()),
-                profile.getSkeletalMuscleMass(),
-                profile.getBodyFatPercentage(),
-                profile.getBodyFatMass(),
+                                     bodyComposition.getWeight(),
+                                     bodyComposition.getSkeletalMuscleMass(),
+                                     bodyComposition.getBodyFatPercentage(),
+                                     bodyComposition.getBodyFatMass()
 
-                bodyWeight.getWeight()
 
         );
     }

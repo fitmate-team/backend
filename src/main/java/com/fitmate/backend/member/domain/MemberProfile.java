@@ -75,10 +75,6 @@ public class MemberProfile extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Set<BodyArea> avoidBodyAreas = new HashSet<>();
 
-    private Double skeletalMuscleMass;
-    private Double bodyFatPercentage;
-    private Double bodyFatMass;
-
     @Builder
     public MemberProfile(Member member,
                          Gender gender,
@@ -92,10 +88,7 @@ public class MemberProfile extends BaseEntity {
                          Integer sessionMinutes,
                          ExerciseLocation exerciseLocation,
                          Set<DayOfWeek> availableDays,
-                         Set<BodyArea> avoidBodyAreas,
-                         Double skeletalMuscleMass,
-                         Double bodyFatPercentage,
-                         Double bodyFatMass) {
+                         Set<BodyArea> avoidBodyAreas) {
         this.member = member;
         this.gender = gender;
         this.age = age;
@@ -109,9 +102,6 @@ public class MemberProfile extends BaseEntity {
         this.exerciseLocation = exerciseLocation;
         this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
         this.avoidBodyAreas = avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
-        this.skeletalMuscleMass = skeletalMuscleMass;
-        this.bodyFatPercentage = bodyFatPercentage;
-        this.bodyFatMass = bodyFatMass;
     }
 
     public void updateMemberProfile(Gender gender,
@@ -123,7 +113,6 @@ public class MemberProfile extends BaseEntity {
                                     GoalStrategy goalStrategy,
                                     Integer weeklyFrequency,
                                     Integer sessionMinutes,
-                                    ExerciseLocation exerciseLocation,
                                     Set<DayOfWeek> availableDays,
                                     Set<BodyArea> avoidBodyAreas) {
         this.gender = gender;
@@ -135,27 +124,13 @@ public class MemberProfile extends BaseEntity {
         this.goalStrategy = goalStrategy;
         this.weeklyFrequency = weeklyFrequency;
         this.sessionMinutes = sessionMinutes;
-        this.exerciseLocation = exerciseLocation;
         this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
         this.avoidBodyAreas =
                 avoidBodyAreas != null ? new HashSet<>(avoidBodyAreas) : new HashSet<>();
 
     }
 
-    public void updateBodyMetrics(Double skeletalMuscleMass,
-                                  Double bodyFatPercentage,
-                                  Double bodyFatMass) {
-        if (skeletalMuscleMass != null) {
-            this.skeletalMuscleMass = skeletalMuscleMass;
-        }
-
-        if (bodyFatPercentage != null) {
-            this.bodyFatPercentage = bodyFatPercentage;
-        }
-
-        if (bodyFatMass != null) {
-            this.bodyFatMass = bodyFatMass;
-        }
+    public void updateExerciseLocation(ExerciseLocation exerciseLocation) {
+        this.exerciseLocation = exerciseLocation;
     }
-
 }
