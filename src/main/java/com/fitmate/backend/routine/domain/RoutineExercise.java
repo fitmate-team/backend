@@ -4,14 +4,17 @@ import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.global.common.BaseEntity;
 import com.fitmate.backend.routine.domain.DailyRoutine;
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "routine_exercise", uniqueConstraints = {@UniqueConstraint(name = "uk_routine_exercise_0", columnNames = {"daily_routine_id", "exercise_order"})})
+@Table(name = "routine_exercise", uniqueConstraints = {@UniqueConstraint(name =
+        "uk_routine_exercise_0", columnNames = {"daily_routine_id", "exercise_order"})})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RoutineExercise extends BaseEntity {
@@ -40,6 +43,7 @@ public class RoutineExercise extends BaseEntity {
     @Column(name = "set_count")
     private Integer setCount;
 
+    @Column(name = "duration_seconds")
     private Integer durationSeconds;
 
     @Column(name = "duration_minutes")
@@ -55,6 +59,7 @@ public class RoutineExercise extends BaseEntity {
                            BigDecimal weight,
                            Integer reps,
                            Integer setCount,
+                           Integer durationSeconds,
                            Integer durationMinutes,
                            Integer restSeconds) {
         this.dailyRoutine = dailyRoutine;
@@ -63,6 +68,7 @@ public class RoutineExercise extends BaseEntity {
         this.weight = weight;
         this.reps = reps;
         this.setCount = setCount;
+        this.durationSeconds = durationSeconds;
         this.durationMinutes = durationMinutes;
         this.restSeconds = restSeconds;
     }
