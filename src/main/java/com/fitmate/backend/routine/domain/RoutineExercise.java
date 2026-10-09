@@ -4,14 +4,17 @@ import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.global.common.BaseEntity;
 import com.fitmate.backend.routine.domain.DailyRoutine;
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "routine_exercise", uniqueConstraints = {@UniqueConstraint(name = "uk_routine_exercise_0", columnNames = {"daily_routine_id", "exercise_order"})})
+@Table(name = "routine_exercise", uniqueConstraints = {@UniqueConstraint(name =
+        "uk_routine_exercise_0", columnNames = {"daily_routine_id", "exercise_order"})})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RoutineExercise extends BaseEntity {
@@ -34,15 +37,14 @@ public class RoutineExercise extends BaseEntity {
     @Column(name = "weight", precision = 6, scale = 2)
     private BigDecimal weight;
 
-    @Column(name = "reps", nullable = false)
+    @Column(name = "reps")
     private Integer reps;
 
-    @Column(name = "set_count")
+    @Column(name = "set_count", nullable = false)
     private Integer setCount;
 
-    // TODO(수정 완료): 유산소용 수행 시간 칼럼 추가, 생성자 수정 완료
-    @Column(name = "duration_minutes")
-    private Integer durationMinutes;
+    @Column(name = "duration_seconds")
+    private Integer durationSeconds;
 
     @Column(name = "rest_seconds", nullable = false)
     private Integer restSeconds;
@@ -54,7 +56,7 @@ public class RoutineExercise extends BaseEntity {
                            BigDecimal weight,
                            Integer reps,
                            Integer setCount,
-                           Integer durationMinutes,
+                           Integer durationSeconds,
                            Integer restSeconds) {
         this.dailyRoutine = dailyRoutine;
         this.exercise = exercise;
@@ -62,7 +64,7 @@ public class RoutineExercise extends BaseEntity {
         this.weight = weight;
         this.reps = reps;
         this.setCount = setCount;
-        this.durationMinutes = durationMinutes;
+        this.durationSeconds = durationSeconds;
         this.restSeconds = restSeconds;
     }
 }

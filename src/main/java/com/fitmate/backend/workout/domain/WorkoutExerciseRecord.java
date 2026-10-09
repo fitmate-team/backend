@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "workout_exercise_record", uniqueConstraints = {@UniqueConstraint(name = "uk_workout_exercise_record_0", columnNames = {"workout_record_id", "routine_exercise_id"})})
+@Table(name = "workout_exercise_record", uniqueConstraints = {@UniqueConstraint(name =
+        "uk_workout_exercise_record_0", columnNames = {"workout_record_id",
+        "routine_exercise_id"})})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkoutExerciseRecord extends BaseEntity {
@@ -30,9 +32,8 @@ public class WorkoutExerciseRecord extends BaseEntity {
     @Column(name = "completed_set_count", nullable = false)
     private Integer completedSetCount;
 
-    // TODO(수정완료): 유산소용 실제 수행 시간 칼럼 추가, 생성자 수정 완료
-    @Column(name = "completed_minutes")
-    private Integer completedMinutes;
+    @Column(name = "completed_duration_seconds")
+    private Integer completedDurationSeconds;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "calculated_difficulty", nullable = false)
@@ -42,12 +43,13 @@ public class WorkoutExerciseRecord extends BaseEntity {
     public WorkoutExerciseRecord(WorkoutRecord workoutRecord,
                                  RoutineExercise routineExercise,
                                  Integer completedSetCount,
-                                 Integer completedMinutes,
+                                 Integer completedDurationSeconds,
                                  CalculatedDifficulty calculatedDifficulty) {
         this.workoutRecord = workoutRecord;
         this.routineExercise = routineExercise;
         this.completedSetCount = completedSetCount != null ? completedSetCount : 0;
-        this.completedMinutes = completedMinutes != null ? completedMinutes : 0;
+        this.completedDurationSeconds =
+                completedDurationSeconds != null ? completedDurationSeconds : 0;
         this.calculatedDifficulty = calculatedDifficulty;
     }
 }
