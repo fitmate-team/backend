@@ -46,9 +46,6 @@ public class RoutineExercise extends BaseEntity {
     @Column(name = "duration_seconds")
     private Integer durationSeconds;
 
-    @Column(name = "duration_minutes")
-    private Integer durationMinutes;
-
     @Column(name = "rest_seconds", nullable = false)
     private Integer restSeconds;
 
@@ -60,7 +57,6 @@ public class RoutineExercise extends BaseEntity {
                            Integer reps,
                            Integer setCount,
                            Integer durationSeconds,
-                           Integer durationMinutes,
                            Integer restSeconds) {
         this.dailyRoutine = dailyRoutine;
         this.exercise = exercise;
@@ -69,7 +65,6 @@ public class RoutineExercise extends BaseEntity {
         this.reps = reps;
         this.setCount = setCount;
         this.durationSeconds = durationSeconds;
-        this.durationMinutes = durationMinutes;
         this.restSeconds = restSeconds;
     }
 }
