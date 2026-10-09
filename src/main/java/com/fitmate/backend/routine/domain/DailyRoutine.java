@@ -10,7 +10,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "daily_routine", uniqueConstraints = {@UniqueConstraint(name = "uk_daily_routine_0", columnNames = {"weekly_routine_id", "routine_date"})})
+@Table(
+        name = "daily_routine",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_daily_routine_0",
+                columnNames = {"weekly_routine_id", "routine_date"}
+        )
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DailyRoutine extends BaseEntity {
@@ -29,6 +35,19 @@ public class DailyRoutine extends BaseEntity {
     @Column(name = "title", nullable = false, length = 100)
     private String title;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "main_target", nullable = false)
+    private MainTarget mainTarget;
+
+    @Column(name = "focus")
+    private String focus;
+
+    @Column(name = "day_summary")
+    private String daySummary;
+
+    @Column(name = "daily_reason", length = 70)
+    private String dailyReason;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workout_environment_id", nullable = false)
     private WorkoutEnvironment workoutEnvironment;
@@ -39,12 +58,19 @@ public class DailyRoutine extends BaseEntity {
     @Builder
     public DailyRoutine(WeeklyRoutine weeklyRoutine,
                         LocalDate routineDate,
-                        String title,
+                        MainTarget mainTarget,
+                        String focus,
+                        String daySummary,
+                        String dailyReason,
                         WorkoutEnvironment workoutEnvironment,
                         Integer estimatedDurationMinutes) {
         this.weeklyRoutine = weeklyRoutine;
         this.routineDate = routineDate;
-        this.title = title;
+        this.mainTarget = mainTarget;
+        this.title = mainTarget.getDisplayTitle();
+        this.focus = focus;
+        this.daySummary = daySummary;
+        this.dailyReason = dailyReason;
         this.workoutEnvironment = workoutEnvironment;
         this.estimatedDurationMinutes = estimatedDurationMinutes;
     }
