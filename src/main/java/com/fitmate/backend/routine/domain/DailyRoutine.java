@@ -36,6 +36,7 @@ public class DailyRoutine extends BaseEntity {
     @Column(name = "estimated_duration_minutes", nullable = false)
     private Integer estimatedDurationMinutes;
 
+
     @Builder
     public DailyRoutine(WeeklyRoutine weeklyRoutine,
                         LocalDate routineDate,

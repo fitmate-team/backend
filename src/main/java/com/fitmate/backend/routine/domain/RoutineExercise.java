@@ -34,13 +34,14 @@ public class RoutineExercise extends BaseEntity {
     @Column(name = "weight", precision = 6, scale = 2)
     private BigDecimal weight;
 
-    @Column(name = "reps", nullable = false)
+    @Column(name = "reps")
     private Integer reps;
 
     @Column(name = "set_count")
     private Integer setCount;
 
-    // TODO(수정 완료): 유산소용 수행 시간 칼럼 추가, 생성자 수정 완료
+    private Integer durationSeconds;
+
     @Column(name = "duration_minutes")
     private Integer durationMinutes;
 
