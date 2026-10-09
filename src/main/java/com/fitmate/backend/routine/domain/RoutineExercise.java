@@ -40,7 +40,7 @@ public class RoutineExercise extends BaseEntity {
     @Column(name = "reps")
     private Integer reps;
 
-    @Column(name = "set_count")
+    @Column(name = "set_count", nullable = false)
     private Integer setCount;
 
     @Column(name = "duration_seconds")
