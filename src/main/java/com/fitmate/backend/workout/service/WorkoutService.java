@@ -4,10 +4,12 @@ import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
 import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
+import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.domain.DailyRoutine;
 import com.fitmate.backend.routine.domain.RoutineExercise;
 import com.fitmate.backend.routine.repository.DailyRoutineRepository;
 import com.fitmate.backend.routine.repository.RoutineExerciseRepository;
+import com.fitmate.backend.workout.dto.response.TodayWorkoutEnvironmentResponseDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutResponseDto;
 import com.fitmate.backend.workout.repository.WorkoutRecordRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class WorkoutService {
     private final DailyRoutineRepository dailyRoutineRepository;
     private final RoutineExerciseRepository routineExerciseRepository;
     private final WorkoutRecordRepository workoutRecordRepository;
+    private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
 
     /**
      * 오늘의 운동 조회
@@ -90,9 +93,6 @@ public class WorkoutService {
     /**
      * 루틴 운동 엔티티를 응답 DTO로 변환
      */
-    /**
-     * 루틴 운동 엔티티를 응답 DTO로 변환
-     */
     private TodayWorkoutResponseDto.ExerciseDto toExerciseDto(
             RoutineExercise routineExercise
     ) {
@@ -133,6 +133,44 @@ public class WorkoutService {
                 // 중량 설정 필요 여부
                 .weightRequired(weightRequired)
                 .build();
+    }
+
+    /**
+     * 오늘의 운동 환경 선택 화면 조회
+     * - 오늘 예정된 운동 환경 ID 조회
+     * - 사용자가 등록한 전체 운동 환경 목록 조회
+     *
+     * @param memberId 로그인한 회원 ID
+     * @return 오늘 선택된 운동 환경 ID 및 등록된 운동 환경 목록
+     */
+    public TodayWorkoutEnvironmentResponseDto getTodayWorkoutEnvironments(
+            Long memberId
+    ) {
+        LocalDate today = LocalDate.now(KOREA_ZONE);
+
+        // 1. 회원의 오늘 운동 루틴 조회
+        DailyRoutine dailyRoutine = dailyRoutineRepository
+                .findByWeeklyRoutine_Member_IdAndRoutineDate(memberId, today)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "오늘의 운동 루틴이 존재하지 않습니다."
+                ));
+
+        // 2. 오늘 운동 루틴에 설정된 운동 환경 ID 조회
+        Long selectedEnvironmentId =
+                dailyRoutine.getWorkoutEnvironment().getId();
+
+        // 3. 회원이 등록한 전체 운동 환경 조회 및 DTO 변환
+        List<TodayWorkoutEnvironmentResponseDto.EnvironmentDto> environments =
+                workoutEnvironmentRepository.findAllByMemberId(memberId)
+                        .stream()
+                        .map(TodayWorkoutEnvironmentResponseDto.EnvironmentDto::from)
+                        .toList();
+
+        // 4. 오늘 선택된 운동 환경과 등록된 운동 환경 목록 반환
+        return TodayWorkoutEnvironmentResponseDto.of(
+                selectedEnvironmentId,
+                environments
+        );
     }
 
     /**

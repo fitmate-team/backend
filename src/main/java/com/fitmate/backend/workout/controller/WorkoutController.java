@@ -1,5 +1,6 @@
 package com.fitmate.backend.workout.controller;
 
+import com.fitmate.backend.workout.dto.response.TodayWorkoutEnvironmentResponseDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutResponseDto;
 import com.fitmate.backend.workout.service.WorkoutService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,4 +23,14 @@ public class WorkoutController {
         return workoutService.getTodayWorkout(memberId);
     }
 
+    @Operation(
+            summary = "오늘의 운동 환경 선택 화면 조회",
+            description = "오늘 예정된 운동 환경과 사용자가 등록한 운동 환경 목록을 조회합니다."
+    )
+    @GetMapping("/today/environments")
+    public TodayWorkoutEnvironmentResponseDto getTodayWorkoutEnvironments(
+            @AuthenticationPrincipal Long memberId
+    ) {
+        return workoutService.getTodayWorkoutEnvironments(memberId);
+    }
 }
