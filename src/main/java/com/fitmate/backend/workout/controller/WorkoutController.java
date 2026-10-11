@@ -1,5 +1,6 @@
 package com.fitmate.backend.workout.controller;
 
+import com.fitmate.backend.workout.dto.request.WorkoutLocationUpdateRequestDto;
 import com.fitmate.backend.workout.dto.request.WorkoutLocationValidateRequestDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutEnvironmentResponseDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutResponseDto;
@@ -47,6 +48,21 @@ public class WorkoutController {
             @Valid @RequestBody WorkoutLocationValidateRequestDto request
     ) {
         return workoutService.validateWorkoutLocation(
+                memberId,
+                request.getWorkoutEnvironmentId()
+        );
+    }
+
+    @Operation(
+            summary = "오늘의 운동 환경 변경",
+            description = "선택한 운동 환경에서 현재 루틴을 수행할 수 있는지 검사한 후 운동 환경을 변경합니다."
+    )
+    @PatchMapping("/today/location")
+    public void changeWorkoutLocation(
+            @AuthenticationPrincipal Long memberId,
+            @Valid @RequestBody WorkoutLocationUpdateRequestDto request
+    ) {
+        workoutService.changeWorkoutLocation(
                 memberId,
                 request.getWorkoutEnvironmentId()
         );

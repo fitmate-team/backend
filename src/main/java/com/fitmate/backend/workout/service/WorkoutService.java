@@ -2,6 +2,8 @@ package com.fitmate.backend.workout.service;
 
 import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
+import com.fitmate.backend.global.exception.CustomException;
+import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
@@ -17,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.exercise.domain.ExerciseType;
-import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.workout.dto.response.WorkoutLocationValidateResponseDto;
 
 import java.util.Set;
@@ -54,9 +55,7 @@ public class WorkoutService {
         // 2. 회원의 오늘 운동 루틴 조회
         DailyRoutine dailyRoutine = dailyRoutineRepository
                 .findByWeeklyRoutine_Member_IdAndRoutineDate(memberId, today)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("오늘의 운동 루틴이 존재하지 않습니다.")
-                );
+                .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
         // 3. 오늘 루틴에 포함된 운동 목록 조회
         List<RoutineExercise> routineExercises =
@@ -158,9 +157,7 @@ public class WorkoutService {
         // 1. 회원의 오늘 운동 루틴 조회
         DailyRoutine dailyRoutine = dailyRoutineRepository
                 .findByWeeklyRoutine_Member_IdAndRoutineDate(memberId, today)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "오늘의 운동 루틴이 존재하지 않습니다."
-                ));
+                .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
         // 2. 오늘 운동 루틴에 설정된 운동 환경 ID 조회
         Long selectedEnvironmentId =
@@ -200,9 +197,7 @@ public class WorkoutService {
         // 1. 오늘의 운동 루틴 조회
         DailyRoutine dailyRoutine = dailyRoutineRepository
                 .findByWeeklyRoutine_Member_IdAndRoutineDate(memberId, today)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "오늘의 운동 루틴이 존재하지 않습니다."
-                ));
+                .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
         // 2. 현재 루틴의 기준 운동 환경 이름 조회
         String currentRoutineLocationName =
@@ -211,9 +206,7 @@ public class WorkoutService {
         // 3. 사용자가 새롭게 선택한 운동 환경 조회
         WorkoutEnvironment selectedEnvironment = workoutEnvironmentRepository
                 .findWithEquipmentByIdAndMemberId(workoutEnvironmentId, memberId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "운동 환경이 존재하지 않거나 접근 권한이 없습니다."
-                ));
+                .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
 
         // 4. 오늘의 운동 목록 조회
         List<RoutineExercise> routineExercises = routineExerciseRepository
@@ -277,6 +270,73 @@ public class WorkoutService {
 
         // 3. 무산소 운동은 기구 조건만 만족하면 수행 가능
         return true;
+    }
+
+    /**
+     * 오늘의 운동 환경 변경
+     *
+     * @param memberId 로그인한 회원 ID
+     * @param workoutEnvironmentId 변경할 운동 환경 ID
+     */
+    @Transactional
+    public void changeWorkoutLocation(
+            Long memberId,
+            Long workoutEnvironmentId
+    ) {
+        // 1. 오늘의 운동 루틴 조회
+        LocalDate today = LocalDate.now(KOREA_ZONE);
+
+        DailyRoutine dailyRoutine = dailyRoutineRepository
+                .findByWeeklyRoutine_Member_IdAndRoutineDate(memberId, today)
+                .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
+
+        // 2. 변경할 운동 환경 조회 및 소유권 확인
+        WorkoutEnvironment selectedEnvironment = workoutEnvironmentRepository
+                .findByIdAndMemberId(workoutEnvironmentId, memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
+
+        // 3. 현재 루틴의 운동 목록 조회
+        List<RoutineExercise> routineExercises = routineExerciseRepository
+                .findByDailyRoutine_IdOrderByExerciseOrderAsc(dailyRoutine.getId());
+
+        // 4. 선택한 운동 환경의 기구 목록 조회
+        Set<String> availableEquipmentCodes = selectedEnvironment
+                .getEquipment()
+                .stream()
+                .map(Equipment::getEquipmentCode)
+                .collect(Collectors.toSet());
+
+        // 5. 현재 루틴을 새로운 환경에서 수행할 수 있는지 검사
+        boolean incompatible = routineExercises.stream()
+                .anyMatch(routineExercise ->
+                        !isExerciseCompatible(
+                                routineExercise.getExercise(),
+                                selectedEnvironment,
+                                availableEquipmentCodes
+                        )
+                );
+
+        if (incompatible) {
+            throw new CustomException(ErrorCode.WORKOUT_LOCATION_RERECOMMENDATION_REQUIRED);
+        }
+
+        // 6. 운동 환경 변경
+        updateWorkoutEnvironment(dailyRoutine, selectedEnvironment);
+    }
+
+    /**
+     * 운동 환경 변경 공통 메서드
+     *
+     * PATCH: 기존 루틴을 유지하며 운동 환경 변경
+     * AI 재추천: 새로운 루틴으로 교체한 후 운동 환경 변경
+     *
+     * 호출하는 상위 서비스 메서드에서 트랜잭션을 관리해야 합니다.
+     */
+    public void updateWorkoutEnvironment(
+            DailyRoutine dailyRoutine,
+            WorkoutEnvironment environment
+    ) {
+        dailyRoutine.updateWorkoutEnvironment(environment);
     }
 
     /**
