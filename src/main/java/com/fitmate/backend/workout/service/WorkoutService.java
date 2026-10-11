@@ -15,6 +15,13 @@ import com.fitmate.backend.workout.repository.WorkoutRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fitmate.backend.equipment.domain.Equipment;
+import com.fitmate.backend.exercise.domain.ExerciseType;
+import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
+import com.fitmate.backend.workout.dto.response.WorkoutLocationValidateResponseDto;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -171,6 +178,105 @@ public class WorkoutService {
                 selectedEnvironmentId,
                 environments
         );
+    }
+
+    /**
+     * 오늘의 운동 장소 변경 시 루틴 재추천 필요 여부 검사
+     * - 현재 루틴의 운동 환경 이름 조회
+     * - 새롭게 선택한 운동 환경의 보유 기구 조회
+     * - 무산소 운동은 기구 호환성 검사
+     * - 유산소 운동은 장소 및 기구 호환성 검사
+     *
+     * @param memberId 로그인한 회원 ID
+     * @param workoutEnvironmentId 새롭게 선택한 운동 환경 ID
+     * @return 기존 운동 환경 이름 및 루틴 재추천 필요 여부
+     */
+    public WorkoutLocationValidateResponseDto validateWorkoutLocation(
+            Long memberId,
+            Long workoutEnvironmentId
+    ) {
+        LocalDate today = LocalDate.now(KOREA_ZONE);
+
+        // 1. 오늘의 운동 루틴 조회
+        DailyRoutine dailyRoutine = dailyRoutineRepository
+                .findByWeeklyRoutine_Member_IdAndRoutineDate(memberId, today)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "오늘의 운동 루틴이 존재하지 않습니다."
+                ));
+
+        // 2. 현재 루틴의 기준 운동 환경 이름 조회
+        String currentRoutineLocationName =
+                getLocationName(dailyRoutine.getWorkoutEnvironment());
+
+        // 3. 사용자가 새롭게 선택한 운동 환경 조회
+        WorkoutEnvironment selectedEnvironment = workoutEnvironmentRepository
+                .findWithEquipmentByIdAndMemberId(workoutEnvironmentId, memberId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "운동 환경이 존재하지 않거나 접근 권한이 없습니다."
+                ));
+
+        // 4. 오늘의 운동 목록 조회
+        List<RoutineExercise> routineExercises = routineExerciseRepository
+                .findByDailyRoutine_IdOrderByExerciseOrderAsc(dailyRoutine.getId());
+
+        // 5. 선택한 운동 환경에서 사용할 수 있는 기구 코드 조회
+        Set<String> availableEquipmentCodes = selectedEnvironment
+                .getEquipment()
+                .stream()
+                .map(Equipment::getEquipmentCode)
+                .collect(Collectors.toSet());
+
+        // 6. 오늘의 운동 중 하나라도 수행 불가능하면 재추천 필요
+        boolean requiresRerecommendation = routineExercises.stream()
+                .anyMatch(routineExercise ->
+                        !isExerciseCompatible(
+                                routineExercise.getExercise(),
+                                selectedEnvironment,
+                                availableEquipmentCodes
+                        )
+                );
+
+        // 7. 검사 결과 반환
+        return WorkoutLocationValidateResponseDto.of(
+                workoutEnvironmentId,
+                currentRoutineLocationName,
+                requiresRerecommendation
+        );
+    }
+
+    /**
+     * 선택한 운동 환경에서 개별 운동을 수행할 수 있는지 검사
+     * - 무산소: 필요한 운동 기구를 모두 보유하면 수행 가능
+     * - 유산소: 운동 기구와 운동 장소 조건을 모두 만족해야 수행 가능
+     *
+     * @param exercise 검사할 운동
+     * @param environment 선택한 운동 환경
+     * @param availableEquipmentCodes 해당 환경의 보유 기구 코드
+     * @return 운동 수행 가능 여부
+     */
+    private boolean isExerciseCompatible(
+            Exercise exercise,
+            WorkoutEnvironment environment,
+            Set<String> availableEquipmentCodes
+    ) {
+        // 1. 운동에 필요한 기구를 모두 보유하고 있는지 검사
+        boolean equipmentCompatible = exercise.getEquipment()
+                .stream()
+                .map(Equipment::getEquipmentCode)
+                .allMatch(availableEquipmentCodes::contains);
+
+        if (!equipmentCompatible) {
+            return false;
+        }
+
+        // 2. 유산소 운동인 경우 운동 장소까지 검사
+        if (exercise.getExerciseType() == ExerciseType.CARDIO) {
+            return exercise.getAvailableLocations()
+                    .contains(environment.getLocationType());
+        }
+
+        // 3. 무산소 운동은 기구 조건만 만족하면 수행 가능
+        return true;
     }
 
     /**

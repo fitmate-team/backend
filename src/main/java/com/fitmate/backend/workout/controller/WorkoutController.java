@@ -1,10 +1,13 @@
 package com.fitmate.backend.workout.controller;
 
+import com.fitmate.backend.workout.dto.request.WorkoutLocationValidateRequestDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutEnvironmentResponseDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutResponseDto;
+import com.fitmate.backend.workout.dto.response.WorkoutLocationValidateResponseDto;
 import com.fitmate.backend.workout.service.WorkoutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -32,5 +35,20 @@ public class WorkoutController {
             @AuthenticationPrincipal Long memberId
     ) {
         return workoutService.getTodayWorkoutEnvironments(memberId);
+    }
+
+    @Operation(
+            summary = "운동 환경 변경 시 루틴 재추천 필요 여부 검사",
+            description = "선택한 운동 환경의 기구 및 장소 조건을 검사하여 루틴 재추천 필요 여부를 반환합니다."
+    )
+    @PostMapping("/today/location/validate")
+    public WorkoutLocationValidateResponseDto validateWorkoutLocation(
+            @AuthenticationPrincipal Long memberId,
+            @Valid @RequestBody WorkoutLocationValidateRequestDto request
+    ) {
+        return workoutService.validateWorkoutLocation(
+                memberId,
+                request.getWorkoutEnvironmentId()
+        );
     }
 }
