@@ -1,21 +1,22 @@
 package com.fitmate.backend.workout.dto.response;
 
+import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
 import com.fitmate.backend.exercise.domain.ExerciseType;
+import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
-import com.fitmate.backend.routine.domain.MainTarget;
+import com.fitmate.backend.routine.domain.DailyRoutine;
+import com.fitmate.backend.routine.domain.RoutineExercise;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TodayWorkoutResponseDto {
 
     // 오늘의 운동 식별자
@@ -51,9 +52,32 @@ public class TodayWorkoutResponseDto {
     // 오늘의 운동 목록
     private List<ExerciseDto> exercises;
 
+    public static TodayWorkoutResponseDto of(
+            DailyRoutine dailyRoutine,
+            String locationName,
+            int averageRestSeconds,
+            boolean hasWorkedOut,
+            List<ExerciseDto> exercises
+    ) {
+        WorkoutEnvironment environment =
+                dailyRoutine.getWorkoutEnvironment();
+
+        return new TodayWorkoutResponseDto(
+                dailyRoutine.getId(),
+                dailyRoutine.getRoutineDate(),
+                environment.getId(),
+                environment.getLocationType(),
+                locationName,
+                dailyRoutine.getTitle(),
+                dailyRoutine.getEstimatedDurationMinutes(),
+                exercises.size(),
+                averageRestSeconds,
+                hasWorkedOut,
+                exercises
+        );
+    }
+
     @Getter
-    @Builder
-    @NoArgsConstructor
     @AllArgsConstructor
     public static class ExerciseDto {
 
@@ -92,5 +116,33 @@ public class TodayWorkoutResponseDto {
 
         // 중량 설정 필요 여부
         private Boolean weightRequired;
+
+        public static ExerciseDto from(RoutineExercise routineExercise) {
+            Exercise exercise = routineExercise.getExercise();
+
+            ExerciseBaselineType baselineRecordType =
+                    exercise.getBaselineRecordType();
+
+            BigDecimal weight = routineExercise.getWeight();
+
+            boolean weightRequired =
+                    baselineRecordType == ExerciseBaselineType.WEIGHT_REPS_SETS
+                            && weight == null;
+
+            return new ExerciseDto(
+                    routineExercise.getId(),
+                    exercise.getId(),
+                    exercise.getExerciseType(),
+                    baselineRecordType,
+                    exercise.getNameKo(),
+                    routineExercise.getExerciseOrder(),
+                    weight == null ? null : weight.doubleValue(),
+                    routineExercise.getReps(),
+                    routineExercise.getSetCount(),
+                    routineExercise.getDurationSeconds(),
+                    routineExercise.getRestSeconds(),
+                    weightRequired
+            );
+        }
     }
 }

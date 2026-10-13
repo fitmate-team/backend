@@ -1,7 +1,6 @@
 package com.fitmate.backend.workout.service;
 
 import com.fitmate.backend.exercise.domain.Exercise;
-import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.WorkoutEnvironment;
@@ -24,7 +23,6 @@ import com.fitmate.backend.workout.dto.response.WorkoutLocationValidateResponseD
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -67,7 +65,7 @@ public class WorkoutService {
         // 4. 운동 목록을 응답 DTO로 변환
         List<TodayWorkoutResponseDto.ExerciseDto> exercises =
                 routineExercises.stream()
-                        .map(this::toExerciseDto)
+                        .map(TodayWorkoutResponseDto.ExerciseDto::from)
                         .toList();
 
         // 5. 평균 휴식 시간 계산
@@ -81,64 +79,13 @@ public class WorkoutService {
                 workoutRecordRepository.existsByDailyRoutine_Id(dailyRoutine.getId());
 
         // 8. 최종 응답 생성
-        return TodayWorkoutResponseDto.builder()
-                .dailyRoutineId(dailyRoutine.getId())
-                .workoutDate(dailyRoutine.getRoutineDate())
-                .workoutEnvironmentId(environment.getId())
-                .locationType(environment.getLocationType())
-                .locationName(getLocationName(environment))
-                .title(dailyRoutine.getTitle())
-                .estimatedDurationMinutes(dailyRoutine.getEstimatedDurationMinutes())
-                .exerciseCount(exercises.size())
-                .averageRestSeconds(averageRestSeconds)
-                .hasWorkedOut(hasWorkedOut)
-                .exercises(exercises)
-                .build();
-    }
-
-    /**
-     * 루틴 운동 엔티티를 응답 DTO로 변환
-     */
-    private TodayWorkoutResponseDto.ExerciseDto toExerciseDto(
-            RoutineExercise routineExercise
-    ) {
-
-        // 운동 마스터 정보
-        Exercise exercise = routineExercise.getExercise();
-
-        // 운동 기록 방식
-        ExerciseBaselineType baselineRecordType =
-                exercise.getBaselineRecordType();
-
-        // 중량 기반 운동인데 추천 중량이 설정되지 않은 경우
-        boolean weightRequired =
-                baselineRecordType == ExerciseBaselineType.WEIGHT_REPS_SETS
-                        && routineExercise.getWeight() == null;
-
-        // 추천 중량 변환
-        Double weightKg = convertWeightToDouble(routineExercise.getWeight());
-
-        return TodayWorkoutResponseDto.ExerciseDto.builder()
-                // 루틴 운동 식별자
-                .routineExerciseId(routineExercise.getId())
-
-                // 운동 마스터 정보
-                .exerciseId(exercise.getId())
-                .exerciseType(exercise.getExerciseType())
-                .baselineRecordType(baselineRecordType)
-                .exerciseName(exercise.getNameKo())
-
-                // 오늘의 운동 설정값
-                .exerciseOrder(routineExercise.getExerciseOrder())
-                .weightKg(weightKg)
-                .reps(routineExercise.getReps())
-                .sets(routineExercise.getSetCount())
-                .durationSeconds(routineExercise.getDurationSeconds())
-                .restSeconds(routineExercise.getRestSeconds())
-
-                // 중량 설정 필요 여부
-                .weightRequired(weightRequired)
-                .build();
+        return TodayWorkoutResponseDto.of(
+                dailyRoutine,
+                getLocationName(environment),
+                averageRestSeconds,
+                hasWorkedOut,
+                exercises
+        );
     }
 
     /**
@@ -368,17 +315,5 @@ public class WorkoutService {
             case GYM -> environment.getGymName();
             case OUTDOOR -> "야외";
         };
-    }
-
-    /**
-     * 중량 타입 변환
-     */
-    private Double convertWeightToDouble(BigDecimal weight) {
-
-        if (weight == null) {
-            return null;
-        }
-
-        return weight.doubleValue();
     }
 }
