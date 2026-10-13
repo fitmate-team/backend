@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fitmate.backend.equipment.domain.Equipment;
-import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.workout.dto.response.WorkoutLocationValidateResponseDto;
 
 import java.util.Set;
@@ -209,14 +208,9 @@ public class WorkoutService {
             return false;
         }
 
-        // 2. 유산소 운동인 경우 운동 장소까지 검사
-        if (exercise.getExerciseType() == ExerciseType.CARDIO) {
-            return exercise.getAvailableLocations()
-                    .contains(environment.getLocationType());
-        }
-
-        // 3. 무산소 운동은 기구 조건만 만족하면 수행 가능
-        return true;
+        // 2. 운동 장소 검증
+        return exercise.getAvailableLocations()
+                .contains(environment.getLocationType());
     }
 
     /**
