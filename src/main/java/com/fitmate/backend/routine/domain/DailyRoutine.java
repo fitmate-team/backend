@@ -32,9 +32,6 @@ public class DailyRoutine extends BaseEntity {
     @Column(name = "routine_date", nullable = false)
     private LocalDate routineDate;
 
-    @Column(name = "title", nullable = false, length = 100)
-    private String title;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "main_target", nullable = false)
     private MainTarget mainTarget;
@@ -67,7 +64,6 @@ public class DailyRoutine extends BaseEntity {
         this.weeklyRoutine = weeklyRoutine;
         this.routineDate = routineDate;
         this.mainTarget = mainTarget;
-        this.title = mainTarget.getDisplayTitle();
         this.focus = focus;
         this.daySummary = daySummary;
         this.dailyReason = dailyReason;
