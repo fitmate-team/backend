@@ -26,6 +26,10 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN("유효하지 않은 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED),
 
     // 운동
+    EXERCISE_NOT_FOUND("해당 운동을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    INVALID_EXERCISE_IDS("유효한 운동 ID 목록을 입력해야 합니다.", HttpStatus.BAD_REQUEST),
+
+    // 오늘의 운동
     TODAY_ROUTINE_NOT_FOUND("오늘의 운동 루틴이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     WORKOUT_LOCATION_RERECOMMENDATION_REQUIRED("선택한 운동 환경에서 수행할 수 없는 운동이 포함되어 있습니다. 루틴 재추천이 필요합니다.", HttpStatus.CONFLICT),
 
