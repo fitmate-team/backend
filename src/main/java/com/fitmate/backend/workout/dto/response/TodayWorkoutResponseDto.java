@@ -68,7 +68,7 @@ public class TodayWorkoutResponseDto {
                 environment.getId(),
                 environment.getLocationType(),
                 locationName,
-                dailyRoutine.getTitle(),
+                dailyRoutine.getMainTarget().getDisplayTitle(),
                 dailyRoutine.getEstimatedDurationMinutes(),
                 exercises.size(),
                 averageRestSeconds,
