@@ -67,4 +67,8 @@ public class RoutineExercise extends BaseEntity {
         this.durationSeconds = durationSeconds;
         this.restSeconds = restSeconds;
     }
+
+    public void updateWeight(BigDecimal weight) {
+        this.weight = weight;
+    }
 }
