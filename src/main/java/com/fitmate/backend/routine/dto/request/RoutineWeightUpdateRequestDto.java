@@ -16,10 +16,6 @@ import java.util.List;
 @Schema(description = "오늘의 운동 중량 설정 요청")
 public class RoutineWeightUpdateRequestDto {
 
-    @Schema(description = "오늘의 운동 ID", example = "11")
-    @NotNull(message = "오늘의 운동 ID는 필수입니다.")
-    private Long dailyRoutineId;
-
     @Schema(description = "중량을 설정할 운동 목록")
     @Valid
     @NotEmpty(message = "중량을 설정할 운동은 필수입니다.")

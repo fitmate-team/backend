@@ -21,7 +21,6 @@ public class RoutineService {
             Long memberId,
             RoutineWeightUpdateRequestDto request
     ) {
-        Long dailyRoutineId = request.getDailyRoutineId();
 
         for (RoutineWeightUpdateRequestDto.ExerciseWeightDto exerciseDto
                 : request.getExercises()) {
@@ -31,13 +30,6 @@ public class RoutineService {
                     .orElseThrow(() -> new CustomException(
                             ErrorCode.ROUTINE_EXERCISE_NOT_FOUND
                     ));
-
-            // 요청한 DailyRoutine에 속하는 운동인지 검증
-            if (!routineExercise.getDailyRoutine().getId().equals(dailyRoutineId)) {
-                throw new CustomException(
-                        ErrorCode.ROUTINE_EXERCISE_MISMATCH
-                );
-            }
 
             // 로그인한 회원의 루틴인지 검증
             Long ownerId = routineExercise.getDailyRoutine()

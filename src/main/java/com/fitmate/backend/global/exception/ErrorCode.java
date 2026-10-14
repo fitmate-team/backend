@@ -31,7 +31,6 @@ public enum ErrorCode {
 
     // 루틴
     ROUTINE_EXERCISE_NOT_FOUND("해당 루틴 운동을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-    ROUTINE_EXERCISE_MISMATCH("해당 운동은 요청한 오늘의 운동에 속하지 않습니다.", HttpStatus.BAD_REQUEST),
     ROUTINE_ACCESS_DENIED("해당 루틴에 접근할 권한이 없습니다.", HttpStatus.FORBIDDEN),
 
     // etc
