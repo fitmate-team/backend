@@ -74,4 +74,15 @@ public class DailyRoutine extends BaseEntity {
         this.workoutEnvironment = workoutEnvironment;
         this.estimatedDurationMinutes = estimatedDurationMinutes;
     }
+
+    /**
+     * 오늘의 운동 환경 변경
+     *
+     * @param workoutEnvironment 변경할 운동 환경
+     */
+    public void updateWorkoutEnvironment(
+            WorkoutEnvironment workoutEnvironment
+    ) {
+        this.workoutEnvironment = workoutEnvironment;
+    }
 }

@@ -33,8 +33,8 @@ public class WorkoutRecord extends BaseEntity {
     @Column(name = "is_finished", nullable = false)
     private boolean isFinished;
 
-    @Column(name = "actual_exercise_minutes")
-    private Integer actualExerciseMinutes;
+    @Column(name = "actual_exercise_seconds")
+    private Integer actualExerciseSeconds;
 
     @Column(name = "actual_rest_seconds")
     private Integer actualRestSeconds;
@@ -54,7 +54,7 @@ public class WorkoutRecord extends BaseEntity {
                          LocalDateTime startedAt,
                          LocalDateTime endedAt,
                          boolean isFinished,
-                         Integer actualExerciseMinutes,
+                         Integer actualExerciseSeconds,
                          Integer actualRestSeconds,
                          Integer minHeartRate,
                          Integer maxHeartRate,
@@ -63,7 +63,7 @@ public class WorkoutRecord extends BaseEntity {
         this.startedAt = startedAt;
         this.endedAt = endedAt;
         this.isFinished = isFinished;
-        this.actualExerciseMinutes = actualExerciseMinutes;
+        this.actualExerciseSeconds = actualExerciseSeconds;
         this.actualRestSeconds = actualRestSeconds;
         this.minHeartRate = minHeartRate;
         this.maxHeartRate = maxHeartRate;
