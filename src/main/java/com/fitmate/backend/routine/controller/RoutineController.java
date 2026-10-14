@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,10 +26,12 @@ public class RoutineController {
             description = "AI가 중량을 추천하지 못한 운동에 대해 사용자가 직접 중량을 설정합니다."
     )
     @PatchMapping("/weights")
-    public void updateRoutineWeights(
+    public ResponseEntity<Void> updateRoutineWeights(
             @AuthenticationPrincipal Long memberId,
             @Valid @RequestBody RoutineWeightUpdateRequestDto request
     ) {
         routineService.updateRoutineWeights(memberId, request);
+
+        return ResponseEntity.noContent().build();
     }
 }
