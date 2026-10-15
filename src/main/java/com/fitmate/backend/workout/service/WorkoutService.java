@@ -21,6 +21,7 @@ import com.fitmate.backend.workout.dto.request.WorkoutFinishRequestDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutEnvironmentResponseDto;
 import com.fitmate.backend.workout.dto.request.WorkoutRecordCreateRequestDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutResponseDto;
+import com.fitmate.backend.workout.dto.response.WorkoutStartResponseDto;
 import com.fitmate.backend.workout.repository.WorkoutExerciseRecordRepository;
 import com.fitmate.backend.workout.repository.WorkoutRecordRepository;
 import lombok.RequiredArgsConstructor;
@@ -203,33 +204,34 @@ public class WorkoutService {
      * 운동 시작 및 운동 기록 생성
      */
     @Transactional
-    public void startWorkout(
+    public WorkoutStartResponseDto startWorkout(
             Long memberId,
             WorkoutRecordCreateRequestDto request
     ) {
-        // 1. 로그인한 회원의 오늘 루틴 조회 및 요청한 루틴 ID 확인
+        LocalDate today = LocalDate.now(KOREA_ZONE);
+
+        // 로그인한 회원의 오늘 루틴 조회 및 요청한 루틴 ID 확인
         DailyRoutine dailyRoutine = dailyRoutineRepository
-                .findByWeeklyRoutine_Member_IdAndRoutineDate(
-                        memberId,
-                        LocalDate.now(KOREA_ZONE)
-                )
+                .findByWeeklyRoutine_Member_IdAndRoutineDate(memberId, today)
                 .filter(routine -> routine.getId().equals(request.getDailyRoutineId()))
                 .orElseThrow(() ->
                         new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND)
                 );
 
-        // 2. 이미 시작한 운동인지 확인
+        // 이미 시작한 운동인지 확인
         if (workoutRecordRepository.existsByDailyRoutine_Id(dailyRoutine.getId())) {
             throw new CustomException(ErrorCode.WORKOUT_ALREADY_STARTED);
         }
 
-        // 3. 운동 시작 기록 생성 (나머지 필드는 null)
+        // 서버 시각으로 운동 시작 기록 생성
         WorkoutRecord workoutRecord = WorkoutRecord.of(
                 dailyRoutine,
                 LocalDateTime.now(KOREA_ZONE)
         );
 
-        workoutRecordRepository.save(workoutRecord);
+        WorkoutRecord savedRecord = workoutRecordRepository.save(workoutRecord);
+
+        return WorkoutStartResponseDto.of(savedRecord.getId());
     }
 
     /**
