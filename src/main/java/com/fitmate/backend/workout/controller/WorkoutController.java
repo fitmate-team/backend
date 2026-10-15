@@ -1,5 +1,6 @@
 package com.fitmate.backend.workout.controller;
 
+import com.fitmate.backend.workout.dto.request.WorkoutFinishRequestDto;
 import com.fitmate.backend.workout.dto.request.WorkoutLocationUpdateRequestDto;
 import com.fitmate.backend.workout.dto.request.WorkoutLocationValidateRequestDto;
 import com.fitmate.backend.workout.dto.request.WorkoutRecordCreateRequestDto;
@@ -84,5 +85,20 @@ public class WorkoutController {
         workoutService.startWorkout(memberId, request);
 
         return ResponseEntity.status(201).build();
+    }
+
+    @Operation(
+            summary = "오늘의 운동 종료",
+            description = "정상 종료 또는 중도 종료 시 운동별 수행 기록과 계산 난이도를 저장하고, "
+                    + "전체 운동 시간, 심박수, 체감 난이도를 반영하여 종료 처리합니다."
+    )
+    @PostMapping("/today/finish")
+    public ResponseEntity<Void> finishWorkout(
+            @AuthenticationPrincipal Long memberId,
+            @Valid @RequestBody WorkoutFinishRequestDto request
+    ) {
+        workoutService.finishWorkout(memberId, request);
+
+        return ResponseEntity.noContent().build();
     }
 }
