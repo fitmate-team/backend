@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,7 +59,7 @@ public class WorkoutController {
             description = "선택한 운동 환경에서 현재 루틴을 수행할 수 있는지 검사한 후 운동 환경을 변경합니다."
     )
     @PatchMapping("/today/location")
-    public void changeWorkoutLocation(
+    public ResponseEntity<Void> changeWorkoutLocation(
             @AuthenticationPrincipal Long memberId,
             @Valid @RequestBody WorkoutLocationUpdateRequestDto request
     ) {
@@ -66,5 +67,7 @@ public class WorkoutController {
                 memberId,
                 request.getWorkoutEnvironmentId()
         );
+
+        return ResponseEntity.noContent().build();
     }
 }
