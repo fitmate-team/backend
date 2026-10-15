@@ -69,4 +69,15 @@ public class WorkoutRecord extends BaseEntity {
         this.maxHeartRate = maxHeartRate;
         this.perceivedDifficulty = perceivedDifficulty;
     }
+
+    public static WorkoutRecord of(
+            DailyRoutine dailyRoutine,
+            LocalDateTime startedAt
+    ) {
+        return WorkoutRecord.builder()
+                .dailyRoutine(dailyRoutine)
+                .startedAt(startedAt)
+                .isFinished(false)
+                .build();
+    }
 }

@@ -2,6 +2,7 @@ package com.fitmate.backend.workout.controller;
 
 import com.fitmate.backend.workout.dto.request.WorkoutLocationUpdateRequestDto;
 import com.fitmate.backend.workout.dto.request.WorkoutLocationValidateRequestDto;
+import com.fitmate.backend.workout.dto.request.WorkoutRecordCreateRequestDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutEnvironmentResponseDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutResponseDto;
 import com.fitmate.backend.workout.dto.response.WorkoutLocationValidateResponseDto;
@@ -69,5 +70,19 @@ public class WorkoutController {
         );
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "오늘의 운동 시작",
+            description = "운동 시작 일시를 저장하고 미종료 상태의 운동 기록을 생성합니다."
+    )
+    @PostMapping("/today/start")
+    public ResponseEntity<Void> startWorkout(
+            @AuthenticationPrincipal Long memberId,
+            @Valid @RequestBody WorkoutRecordCreateRequestDto request
+    ) {
+        workoutService.startWorkout(memberId, request);
+
+        return ResponseEntity.status(201).build();
     }
 }

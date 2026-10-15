@@ -10,7 +10,9 @@ import com.fitmate.backend.routine.domain.DailyRoutine;
 import com.fitmate.backend.routine.domain.RoutineExercise;
 import com.fitmate.backend.routine.repository.DailyRoutineRepository;
 import com.fitmate.backend.routine.repository.RoutineExerciseRepository;
+import com.fitmate.backend.workout.domain.WorkoutRecord;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutEnvironmentResponseDto;
+import com.fitmate.backend.workout.dto.request.WorkoutRecordCreateRequestDto;
 import com.fitmate.backend.workout.dto.response.TodayWorkoutResponseDto;
 import com.fitmate.backend.workout.repository.WorkoutRecordRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.workout.dto.response.WorkoutLocationValidateResponseDto;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -181,6 +184,39 @@ public class WorkoutService {
                 currentRoutineLocationName,
                 requiresRerecommendation
         );
+    }
+
+    /**
+     * 운동 시작 및 운동 기록 생성
+     */
+    @Transactional
+    public void startWorkout(
+            Long memberId,
+            WorkoutRecordCreateRequestDto request
+    ) {
+        // 1. 로그인한 회원의 오늘 루틴 조회 및 요청한 루틴 ID 확인
+        DailyRoutine dailyRoutine = dailyRoutineRepository
+                .findByWeeklyRoutine_Member_IdAndRoutineDate(
+                        memberId,
+                        LocalDate.now(KOREA_ZONE)
+                )
+                .filter(routine -> routine.getId().equals(request.getDailyRoutineId()))
+                .orElseThrow(() ->
+                        new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND)
+                );
+
+        // 2. 이미 시작한 운동인지 확인
+        if (workoutRecordRepository.existsByDailyRoutine_Id(dailyRoutine.getId())) {
+            throw new CustomException(ErrorCode.WORKOUT_ALREADY_STARTED);
+        }
+
+        // 3. 운동 시작 기록 생성 (나머지 필드는 null)
+        WorkoutRecord workoutRecord = WorkoutRecord.of(
+                dailyRoutine,
+                LocalDateTime.now(KOREA_ZONE)
+        );
+
+        workoutRecordRepository.save(workoutRecord);
     }
 
     /**
