@@ -18,17 +18,14 @@ import com.fitmate.backend.workout.domain.PerceivedDifficulty;
 import com.fitmate.backend.workout.domain.WorkoutExerciseRecord;
 import com.fitmate.backend.workout.domain.WorkoutRecord;
 import com.fitmate.backend.workout.dto.request.WorkoutFinishRequestDto;
-import com.fitmate.backend.workout.dto.response.TodayWorkoutEnvironmentResponseDto;
+import com.fitmate.backend.workout.dto.response.*;
 import com.fitmate.backend.workout.dto.request.WorkoutRecordCreateRequestDto;
-import com.fitmate.backend.workout.dto.response.TodayWorkoutResponseDto;
-import com.fitmate.backend.workout.dto.response.WorkoutStartResponseDto;
 import com.fitmate.backend.workout.repository.WorkoutExerciseRecordRepository;
 import com.fitmate.backend.workout.repository.WorkoutRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fitmate.backend.equipment.domain.Equipment;
-import com.fitmate.backend.workout.dto.response.WorkoutLocationValidateResponseDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -491,6 +488,115 @@ public class WorkoutService {
                 maxHeartRate,
                 request.getPerceivedDifficulty()
         );
+    }
+
+    /**
+     * 시작 날짜를 기준으로 로그인한 회원의 종료된 운동 기록을 조회합니다.
+     * 오늘의 운동 분석 화면과 과거 기록 상세 화면에서 공통으로 사용합니다.
+     */
+    public WorkoutRecordResponseDto getWorkoutRecord(
+            Long memberId,
+            LocalDate date
+    ) {
+        // startedAt은 운동 시작 시 한국 시간으로 저장하므로 같은 기준으로 조회합니다.
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime startOfNextDay = date.plusDays(1).atStartOfDay();
+
+        WorkoutRecord workoutRecord = workoutRecordRepository
+                .findFinishedRecordByMemberIdAndStartedAtRange(
+                        memberId,
+                        startOfDay,
+                        startOfNextDay
+                )
+                .orElseThrow(() ->
+                        new CustomException(ErrorCode.WORKOUT_RECORD_NOT_FOUND)
+                );
+
+        DailyRoutine dailyRoutine = workoutRecord.getDailyRoutine();
+
+        // 종료 시 미수행 운동도 저장되므로 전체 운동별 기록을 그대로 조회합니다.
+        List<WorkoutExerciseRecord> exerciseRecords =
+                workoutExerciseRecordRepository
+                        .findByWorkoutRecord_IdOrderByRoutineExercise_ExerciseOrderAsc(
+                                workoutRecord.getId()
+                        );
+
+        int completionRate = calculateOverallCompletionRate(exerciseRecords);
+
+        boolean hasNextRoutine = dailyRoutineRepository.existsNextUnstartedRoutine(
+                dailyRoutine.getWeeklyRoutine().getId(),
+                dailyRoutine.getRoutineDate()
+        );
+
+        List<WorkoutRecordResponseDto.ExerciseDto> exercises =
+                exerciseRecords.stream()
+                        .map(WorkoutRecordResponseDto.ExerciseDto::from)
+                        .toList();
+
+        return WorkoutRecordResponseDto.of(
+                workoutRecord,
+                completionRate,
+                hasNextRoutine,
+                exercises
+        );
+    }
+
+    /**
+     * 운동별 수행률을 동일한 비중으로 평균 냅니다.
+     * 개별 수행률은 반올림하지 않고, 최종 평균만 정수 백분율로 반올림합니다.
+     */
+    private int calculateOverallCompletionRate(
+            List<WorkoutExerciseRecord> exerciseRecords
+    ) {
+        double averageRate = exerciseRecords.stream()
+                .mapToDouble(this::calculateExerciseCompletionRate)
+                .average()
+                .orElse(0.0);
+
+        return (int) Math.round(averageRate * 100.0);
+    }
+
+    /**
+     * 운동 유형에 맞는 목표량과 실제 수행량으로 0~1 범위의 수행률을 계산합니다.
+     * 미수행은 0%, 목표 초과 수행은 최대 100%로 계산합니다.
+     */
+    private double calculateExerciseCompletionRate(
+            WorkoutExerciseRecord exerciseRecord
+    ) {
+        RoutineExercise routineExercise = exerciseRecord.getRoutineExercise();
+
+        ExerciseBaselineType baselineType =
+                routineExercise.getExercise().getBaselineRecordType();
+
+        Integer plannedAmount;
+        Integer completedAmount;
+
+        switch (baselineType) {
+            case WEIGHT_REPS_SETS, REPS_SETS -> {
+                plannedAmount = routineExercise.getSetCount();
+                completedAmount = exerciseRecord.getCompletedSetCount();
+            }
+
+            case DURATION -> {
+                plannedAmount = routineExercise.getDurationSeconds();
+                completedAmount = exerciseRecord.getCompletedDurationSeconds();
+            }
+
+            default -> throw new CustomException(
+                    ErrorCode.INVALID_EXERCISE_BASELINE
+            );
+        }
+
+        // 목표량이 올바르지 않으면 나눗셈을 진행하지 않습니다.
+        if (plannedAmount == null || plannedAmount <= 0) {
+            throw new CustomException(ErrorCode.INVALID_EXERCISE_BASELINE);
+        }
+
+        if (completedAmount == null || completedAmount <= 0) {
+            return 0.0;
+        }
+
+        return Math.min(1.0, (double) completedAmount / plannedAmount);
     }
 
     /**
