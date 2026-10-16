@@ -1,7 +1,6 @@
 package com.fitmate.backend.member.domain;
 
 import com.fitmate.backend.global.common.BaseEntity;
-import com.fitmate.backend.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -45,5 +44,21 @@ public class BodyComposition extends BaseEntity {
         this.skeletalMuscleMass = skeletalMuscleMass;
         this.bodyFatPercentage = bodyFatPercentage;
         this.bodyFatMass = bodyFatMass;
+    }
+
+    public static BodyComposition of(
+            Member member,
+            Double weight,
+            Double skeletalMuscleMass,
+            Double bodyFatPercentage,
+            Double bodyFatMass
+    ) {
+        return BodyComposition.builder()
+                .member(member)
+                .weight(weight)
+                .skeletalMuscleMass(skeletalMuscleMass)
+                .bodyFatPercentage(bodyFatPercentage)
+                .bodyFatMass(bodyFatMass)
+                .build();
     }
 }
