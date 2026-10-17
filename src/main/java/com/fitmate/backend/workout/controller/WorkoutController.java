@@ -4,14 +4,14 @@ import com.fitmate.backend.workout.dto.request.WorkoutFinishRequestDto;
 import com.fitmate.backend.workout.dto.request.WorkoutLocationUpdateRequestDto;
 import com.fitmate.backend.workout.dto.request.WorkoutLocationValidateRequestDto;
 import com.fitmate.backend.workout.dto.request.WorkoutRecordCreateRequestDto;
+import com.fitmate.backend.workout.dto.response.ExerciseGrowthResponseDto;
 import com.fitmate.backend.workout.dto.response.*;
+import com.fitmate.backend.workout.service.WorkoutGrowthService;
 import com.fitmate.backend.workout.service.WorkoutService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +25,7 @@ import java.time.LocalDate;
 public class WorkoutController {
 
     private final WorkoutService workoutService;
+    private final WorkoutGrowthService workoutGrowthService;
 
     @Operation(summary = "오늘의 운동 조회")
     @GetMapping("/today")
@@ -103,16 +104,69 @@ public class WorkoutController {
     }
 
     @Operation(
-            summary = "일별 운동 기록 조회",
-            description = "운동을 시작한 날짜를 기준으로 종료된 운동 기록과 운동별 분석 결과를 조회합니다."
+            description = "운동 기록 ID로 로그인한 회원의 종료된 운동 기록과 운동별 분석 결과를 조회합니다. "
+                    + "정상 종료와 중도 종료 기록 모두 조회할 수 있습니다."
     )
-    @GetMapping("/records")
+    @GetMapping("/records/{workoutRecordId}")
     public WorkoutRecordResponseDto getWorkoutRecord(
             @AuthenticationPrincipal Long memberId,
-            @Parameter(description = "조회할 운동 시작 날짜", example = "2026-10-16")
-            @RequestParam("date")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+            @PathVariable("workoutRecordId") Long workoutRecordId
     ) {
-        return workoutService.getWorkoutRecord(memberId, date);
+        return workoutService.getWorkoutRecord(
+                memberId,
+                workoutRecordId
+        );
+    }
+
+    @Operation(
+            description = "로그인한 회원의 월별 운동 기록을 조회합니다. "
+                    + "year는 조회 연도(예: 2026), month는 조회 월(예: 9)입니다. "
+                    + "한국 시간 기준 운동 시작 날짜로 종료된 기록을 조회하며 중도 종료도 포함합니다. "
+                    + "월간 운동 횟수, 실제 운동 시간 합계, 달력 표시 날짜와 최신순 기록 목록을 반환합니다. "
+                    + "기록이 없는 달은 횟수와 시간 합계가 0이며 목록은 비어 있습니다."
+    )
+    @GetMapping("/records/monthly")
+    public MonthlyWorkoutRecordResponseDto getMonthlyWorkoutRecords(
+            @AuthenticationPrincipal Long memberId,
+            @RequestParam("year") int year,
+            @RequestParam("month") int month
+    ) {
+        return workoutService.getMonthlyWorkoutRecords(
+                memberId,
+                year,
+                month
+        );
+    }
+
+    @Operation(
+            description = "성장 분석 화면의 초기 데이터를 조회합니다. "
+                    + "신체 지표별 최근 측정값과 이번 달 포함 최근 6개월의 월별 최대·최소, "
+                    + "실제 수행한 중량 운동 목록, 기본 선택 운동의 중량 변화, 월별 출석률을 반환합니다. "
+                    + "기본 운동은 최근 6개월에 1세트 이상 수행한 중량 운동 중 ID가 가장 작은 운동입니다. "
+                    + "출석률은 오늘까지 예정된 일일 루틴 중 시작한 루틴의 비율이며, "
+                    + "종료 여부와 관계없이 출석으로 처리합니다."
+    )
+    @GetMapping("/growth")
+    public GrowthAnalysisResponseDto getGrowthAnalysis(
+            @AuthenticationPrincipal Long memberId
+    ) {
+        return workoutGrowthService.getGrowthAnalysis(memberId);
+    }
+
+    @Operation(
+            description = "선택한 운동의 이번 달 포함 최근 6개월 월별 최대·최소 중량을 조회합니다. "
+                    + "로그인한 회원이 해당 기간에 1세트 이상 수행한 중량 운동만 조회할 수 있습니다. "
+                    + "종료된 운동 기록을 시작 날짜 기준으로 집계하며 중도 종료도 포함합니다. "
+                    + "월 오름차순으로 6개 항목을 반환하고 기록이 없는 달의 중량은 null입니다."
+    )
+    @GetMapping("/growth/exercises/{exerciseId}")
+    public ExerciseGrowthResponseDto getExerciseGrowth(
+            @AuthenticationPrincipal Long memberId,
+            @PathVariable("exerciseId") Long exerciseId
+    ) {
+        return workoutGrowthService.getExerciseGrowth(
+                memberId,
+                exerciseId
+        );
     }
 }
