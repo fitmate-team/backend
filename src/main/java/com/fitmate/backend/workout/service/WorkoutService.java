@@ -27,15 +27,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fitmate.backend.equipment.domain.Equipment;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -539,6 +537,125 @@ public class WorkoutService {
                 hasNextRoutine,
                 exercises
         );
+    }
+
+    public MonthlyWorkoutRecordResponseDto getMonthlyWorkoutRecords(
+            Long memberId,
+            int year,
+            int month
+    ) {
+        if (year < 1 || year > 9999) {
+            throw new CustomException(ErrorCode.INVALID_WORKOUT_YEAR_MONTH);
+        }
+
+        YearMonth yearMonth;
+
+        try {
+            yearMonth = YearMonth.of(year, month);
+        } catch (DateTimeException exception) {
+            throw new CustomException(ErrorCode.INVALID_WORKOUT_YEAR_MONTH);
+        }
+
+        LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = yearMonth.plusMonths(1)
+                .atDay(1)
+                .atStartOfDay();
+
+        List<WorkoutRecord> workoutRecords = workoutRecordRepository
+                .findFinishedRecordsByMemberIdAndStartedAtRange(
+                        memberId,
+                        startOfMonth,
+                        startOfNextMonth
+                );
+
+        if (workoutRecords.isEmpty()) {
+            return MonthlyWorkoutRecordResponseDto.of(
+                    year,
+                    month,
+                    List.of()
+            );
+        }
+
+        List<Long> workoutRecordIds = workoutRecords.stream()
+                .map(WorkoutRecord::getId)
+                .toList();
+
+        Map<Long, List<WorkoutExerciseRecord>> exerciseRecordsByWorkoutId =
+                workoutExerciseRecordRepository
+                        .findAllByWorkoutRecordIds(workoutRecordIds)
+                        .stream()
+                        .collect(Collectors.groupingBy(
+                                exerciseRecord ->
+                                        exerciseRecord.getWorkoutRecord().getId()
+                        ));
+
+        List<MonthlyWorkoutRecordResponseDto.RecordDto> records =
+                workoutRecords.stream()
+                        .map(workoutRecord -> {
+                            List<WorkoutExerciseRecord> exerciseRecords =
+                                    exerciseRecordsByWorkoutId.getOrDefault(
+                                            workoutRecord.getId(),
+                                            List.of()
+                                    );
+
+                            List<String> exerciseNames = exerciseRecords.stream()
+                                    .filter(this::hasPerformedExercise)
+                                    .map(exerciseRecord ->
+                                            exerciseRecord.getRoutineExercise()
+                                                    .getExercise()
+                                                    .getNameKo()
+                                    )
+                                    .toList();
+
+                            int completionRate =
+                                    calculateOverallCompletionRate(exerciseRecords);
+
+                            Integer actualExerciseSeconds =
+                                    workoutRecord.getActualExerciseSeconds();
+
+                            return MonthlyWorkoutRecordResponseDto.RecordDto.of(
+                                    workoutRecord.getId(),
+                                    workoutRecord.getStartedAt().toLocalDate(),
+                                    workoutRecord.getDailyRoutine()
+                                            .getMainTarget()
+                                            .getDisplayTitle(),
+                                    actualExerciseSeconds == null
+                                            ? 0
+                                            : actualExerciseSeconds,
+                                    completionRate,
+                                    workoutRecord.getMaxHeartRate(),
+                                    exerciseNames
+                            );
+                        })
+                        .toList();
+
+        return MonthlyWorkoutRecordResponseDto.of(
+                year,
+                month,
+                records
+        );
+    }
+
+    private boolean hasPerformedExercise(
+            WorkoutExerciseRecord exerciseRecord
+    ) {
+        ExerciseBaselineType baselineType = exerciseRecord.getRoutineExercise()
+                .getExercise()
+                .getBaselineRecordType();
+
+        if (baselineType == null) {
+            throw new CustomException(ErrorCode.INVALID_EXERCISE_BASELINE);
+        }
+
+        return switch (baselineType) {
+            case WEIGHT_REPS_SETS, REPS_SETS ->
+                    exerciseRecord.getCompletedSetCount() != null
+                            && exerciseRecord.getCompletedSetCount() > 0;
+
+            case DURATION ->
+                    exerciseRecord.getCompletedDurationSeconds() != null
+                            && exerciseRecord.getCompletedDurationSeconds() > 0;
+        };
     }
 
     /**

@@ -115,4 +115,24 @@ public class WorkoutController {
     ) {
         return workoutService.getWorkoutRecord(memberId, date);
     }
+
+    @Operation(
+            description = "로그인한 회원의 월별 운동 기록을 조회합니다. "
+                    + "year는 조회 연도(예: 2026), month는 조회 월(예: 9)입니다. "
+                    + "한국 시간 기준 운동 시작 날짜로 종료된 기록을 조회하며 중도 종료도 포함합니다. "
+                    + "월간 운동 횟수, 실제 운동 시간 합계, 달력 표시 날짜와 최신순 기록 목록을 반환합니다. "
+                    + "기록이 없는 달은 횟수와 시간 합계가 0이며 목록은 비어 있습니다."
+    )
+    @GetMapping("/records/monthly")
+    public MonthlyWorkoutRecordResponseDto getMonthlyWorkoutRecords(
+            @AuthenticationPrincipal Long memberId,
+            @RequestParam("year") int year,
+            @RequestParam("month") int month
+    ) {
+        return workoutService.getMonthlyWorkoutRecords(
+                memberId,
+                year,
+                month
+        );
+    }
 }
