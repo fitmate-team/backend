@@ -21,15 +21,15 @@ public class AiUserProfileDto {
 
     private Integer age;
 
-    private Double height;
+    private Double heightCm;
 
-    private Double weight;
+    private Double weightKg;
 
-    private Double skeletalMuscleMass;
+    private Double skeletalMuscleMassKg;
 
     private Double bodyFatPercentage;
 
-    private Double bodyFatMass;
+    private Double bodyFatMassKg;
 
     private ExerciseLevel exerciseLevel;
 
