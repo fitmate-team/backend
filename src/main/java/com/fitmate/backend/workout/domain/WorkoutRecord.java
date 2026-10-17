@@ -69,4 +69,35 @@ public class WorkoutRecord extends BaseEntity {
         this.maxHeartRate = maxHeartRate;
         this.perceivedDifficulty = perceivedDifficulty;
     }
+
+    public static WorkoutRecord of(
+            DailyRoutine dailyRoutine,
+            LocalDateTime startedAt
+    ) {
+        return WorkoutRecord.builder()
+                .dailyRoutine(dailyRoutine)
+                .startedAt(startedAt)
+                .isFinished(false)
+                .build();
+    }
+
+    /**
+     * 정상 종료 또는 중도 종료 결과를 반영합니다.
+     */
+    public void finish(
+            LocalDateTime endedAt,
+            Integer actualExerciseSeconds,
+            Integer actualRestSeconds,
+            Integer minHeartRate,
+            Integer maxHeartRate,
+            PerceivedDifficulty perceivedDifficulty
+    ) {
+        this.endedAt = endedAt;
+        this.actualExerciseSeconds = actualExerciseSeconds;
+        this.actualRestSeconds = actualRestSeconds;
+        this.minHeartRate = minHeartRate;
+        this.maxHeartRate = maxHeartRate;
+        this.perceivedDifficulty = perceivedDifficulty;
+        this.isFinished = true;
+    }
 }
