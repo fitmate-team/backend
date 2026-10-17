@@ -1,6 +1,7 @@
 package com.fitmate.backend.member.repository;
 
 import com.fitmate.backend.member.domain.BodyComposition;
+import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
