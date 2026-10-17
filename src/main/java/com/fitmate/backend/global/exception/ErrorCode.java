@@ -43,6 +43,7 @@ public enum ErrorCode {
     WORKOUT_EXERCISE_MISMATCH("해당 루틴의 모든 운동을 미수행 운동까지 포함하여 전달해야 합니다.", HttpStatus.BAD_REQUEST),
     INVALID_HEART_RATE_RANGE("최소 심박수는 최대 심박수보다 클 수 없습니다.", HttpStatus.BAD_REQUEST),
     MEMBER_PROFILE_NOT_FOUND("회원 프로필을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    INVALID_WORKOUT_YEAR_MONTH("조회 연도는 1~9999, 월은 1~12 범위로 입력해주세요.", HttpStatus.BAD_REQUEST),
 
     // 루틴
     ROUTINE_EXERCISE_NOT_FOUND("해당 루틴 운동을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
@@ -50,6 +51,7 @@ public enum ErrorCode {
 
     // 기록
     DUPLICATE_BODY_COMPOSITION("오늘의 신체 기록이 이미 존재합니다.", HttpStatus.CONFLICT),
+    EXERCISE_GROWTH_RECORD_NOT_FOUND("최근 6개월 내 해당 운동의 중량 수행 기록이 없습니다.", HttpStatus.NOT_FOUND),
 
     // etc
     TARGET_WEIGHT_REQUIRED("체중 감량 목표인 경우 목표 체중을 입력해주세요.", HttpStatus.BAD_REQUEST);
