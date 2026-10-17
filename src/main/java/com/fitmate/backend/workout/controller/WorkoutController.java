@@ -7,11 +7,9 @@ import com.fitmate.backend.workout.dto.request.WorkoutRecordCreateRequestDto;
 import com.fitmate.backend.workout.dto.response.*;
 import com.fitmate.backend.workout.service.WorkoutService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -103,17 +101,18 @@ public class WorkoutController {
     }
 
     @Operation(
-            summary = "일별 운동 기록 조회",
-            description = "운동을 시작한 날짜를 기준으로 종료된 운동 기록과 운동별 분석 결과를 조회합니다."
+            description = "운동 기록 ID로 로그인한 회원의 종료된 운동 기록과 운동별 분석 결과를 조회합니다. "
+                    + "정상 종료와 중도 종료 기록 모두 조회할 수 있습니다."
     )
-    @GetMapping("/records")
+    @GetMapping("/records/{workoutRecordId}")
     public WorkoutRecordResponseDto getWorkoutRecord(
             @AuthenticationPrincipal Long memberId,
-            @Parameter(description = "조회할 운동 시작 날짜", example = "2026-10-16")
-            @RequestParam("date")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+            @PathVariable("workoutRecordId") Long workoutRecordId
     ) {
-        return workoutService.getWorkoutRecord(memberId, date);
+        return workoutService.getWorkoutRecord(
+                memberId,
+                workoutRecordId
+        );
     }
 
     @Operation(
