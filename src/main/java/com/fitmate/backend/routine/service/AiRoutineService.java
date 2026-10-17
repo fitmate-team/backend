@@ -43,5 +43,26 @@ public class AiRoutineService {
                         memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
 
+        List<Exercise> eligibleExercises = hardFilterService.getEligibleExercises(memberId,
+                                                                                  environmentId,
+                                                                                  weekStartDate);
+        List<ExerciseBaseline> baselines = exerciseBaselineRepository.findAllByMemberId(memberId);
+
+        AiUserProfileDto aiUserProfileDto = AiUserProfileDto.of(memberProfile,
+                                                                composition,
+                                                                environment);
+
+
+        List<AiEligibleExerciseDto> aiEligibleExerciseDtos = eligibleExercises.stream()
+                .map(AiEligibleExerciseDto::from)
+                .toList();
+
+        List<AiRecentExerciseRecordDto> aiRecentExerciseRecordDtos = baselines.stream()
+                .map(AiRecentExerciseRecordDto::from)
+                .toList();
+
+        return AiRoutineRequestDto.of(aiUserProfileDto,
+                                      aiEligibleExerciseDtos,
+                                      aiRecentExerciseRecordDtos);
     }
 }
