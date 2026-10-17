@@ -51,6 +51,7 @@ public enum ErrorCode {
 
     // 기록
     DUPLICATE_BODY_COMPOSITION("오늘의 신체 기록이 이미 존재합니다.", HttpStatus.CONFLICT),
+    EXERCISE_GROWTH_RECORD_NOT_FOUND("최근 6개월 내 해당 운동의 중량 수행 기록이 없습니다.", HttpStatus.NOT_FOUND),
 
     // etc
     TARGET_WEIGHT_REQUIRED("체중 감량 목표인 경우 목표 체중을 입력해주세요.", HttpStatus.BAD_REQUEST);

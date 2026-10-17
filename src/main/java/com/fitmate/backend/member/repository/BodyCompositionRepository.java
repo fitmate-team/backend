@@ -16,4 +16,28 @@ public interface BodyCompositionRepository extends JpaRepository<BodyComposition
             LocalDateTime startOfDay,
             LocalDateTime startOfNextDay
     );
+
+    Optional<BodyComposition>
+    findTopByMember_IdAndCreatedAtLessThanEqualOrderByCreatedAtDescIdDesc(
+            Long memberId,
+            LocalDateTime now
+    );
+
+    Optional<BodyComposition>
+    findTopByMember_IdAndSkeletalMuscleMassIsNotNullAndCreatedAtLessThanEqualOrderByCreatedAtDescIdDesc(
+            Long memberId,
+            LocalDateTime now
+    );
+
+    Optional<BodyComposition>
+    findTopByMember_IdAndBodyFatPercentageIsNotNullAndCreatedAtLessThanEqualOrderByCreatedAtDescIdDesc(
+            Long memberId,
+            LocalDateTime now
+    );
+
+    Optional<BodyComposition>
+    findTopByMember_IdAndBodyFatMassIsNotNullAndCreatedAtLessThanEqualOrderByCreatedAtDescIdDesc(
+            Long memberId,
+            LocalDateTime now
+    );
 }
