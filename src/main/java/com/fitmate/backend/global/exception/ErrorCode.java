@@ -50,6 +50,7 @@ public enum ErrorCode {
     ROUTINE_EXERCISE_NOT_FOUND("해당 루틴 운동을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     ROUTINE_ACCESS_DENIED("해당 루틴에 접근할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     NO_AVAILABLE_ROUTINE_DAY("이번 주에 생성 가능한 운동 요일이 없습니다.", HttpStatus.BAD_REQUEST),
+    NO_ELIGIBLE_EXERCISE("현재 조건에서 추천 가능한 운동이 없습니다.", HttpStatus.BAD_REQUEST),
 
     // 기록
     DUPLICATE_BODY_COMPOSITION("오늘의 신체 기록이 이미 존재합니다.", HttpStatus.CONFLICT),

@@ -14,6 +14,7 @@ import com.fitmate.backend.routine.ai.dto.AiRecentExerciseRecordDto;
 import com.fitmate.backend.routine.ai.dto.AiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.dto.AiUserProfileDto;
 import com.fitmate.backend.routine.ai.dto.request.AiRoutineGenerationRequestDto;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +51,7 @@ public class AiRoutineService {
 
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         LocalDate weekStartDate = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        List<DayOfWeek> effectiveDays = requestDto.getSelectedDays()
+        List<@NotNull DayOfWeek> effectiveDays = requestDto.getSelectedDays()
                 .stream()
                 .filter(d -> d.getValue() >= today.getDayOfWeek().getValue())
                 .distinct()
@@ -65,6 +66,9 @@ public class AiRoutineService {
         List<Exercise> eligibleExercises = hardFilterService.getEligibleExercises(memberId,
                                                                                   requestDto.getEnvironmentId(),
                                                                                   weekStartDate);
+        if (eligibleExercises.isEmpty()) {
+            throw new CustomException(ErrorCode.NO_ELIGIBLE_EXERCISE); // 아예 비었으면 루틴 생성 금지
+        }
         // 프론트에서 넘어온 값 기준으로 AI 입력 프로필 생성 (마이페이지 X)
         AiUserProfileDto aiUserProfileDto = AiUserProfileDto.of(memberProfile,
                                                                 composition,
