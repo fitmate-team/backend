@@ -14,7 +14,7 @@ import java.util.List;
 public class AiRoutineGenerationRequestDto {
 
     @NotEmpty
-    private List<DayOfWeek> selectedDays;
+    private List<@NotNull DayOfWeek> selectedDays;
 
     @NotNull
     @Positive

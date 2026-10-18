@@ -51,7 +51,7 @@ public class AiRoutineService {
 
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         LocalDate weekStartDate = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        List<@NotNull DayOfWeek> effectiveDays = requestDto.getSelectedDays()
+        List<DayOfWeek> effectiveDays = requestDto.getSelectedDays()
                 .stream()
                 .filter(d -> d.getValue() >= today.getDayOfWeek().getValue())
                 .distinct()
