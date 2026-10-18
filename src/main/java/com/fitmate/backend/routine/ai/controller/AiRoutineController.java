@@ -1,0 +1,25 @@
+package com.fitmate.backend.routine.ai.controller;
+
+import com.fitmate.backend.routine.ai.dto.request.AiRoutineGenerationRequestDto;
+import com.fitmate.backend.routine.ai.service.AiRoutineService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/ai")
+@Tag(name = "루틴 AI API", description = "루틴 생성 관련 API")
+public class AiRoutineController {
+    private final AiRoutineService aiRoutineService;
+
+    @PostMapping("/prompt")
+    public ResponseEntity<String> getAiPrompt(@AuthenticationPrincipal Long memberId,
+                                              @Valid @RequestBody AiRoutineGenerationRequestDto requestDto) {
+
+        return ResponseEntity.ok(aiRoutineService.createAiPrompt(memberId, requestDto));
+    }
+}

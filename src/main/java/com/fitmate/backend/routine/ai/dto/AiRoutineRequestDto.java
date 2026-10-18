@@ -1,10 +1,9 @@
-package com.fitmate.backend.routine.dto.ai;
+package com.fitmate.backend.routine.ai.dto;
 
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.fitmate.backend.routine.service;
+package com.fitmate.backend.routine.ai.service;
 
 import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.exercise.domain.ExerciseType;

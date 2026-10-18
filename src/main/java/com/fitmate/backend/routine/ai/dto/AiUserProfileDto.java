@@ -1,4 +1,4 @@
-package com.fitmate.backend.routine.dto.ai;
+package com.fitmate.backend.routine.ai.dto;
 
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.DayOfWeek;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -41,7 +42,7 @@ public class AiUserProfileDto {
 
     private Integer weeklyFrequency;
 
-    private Set<DayOfWeek> availableDays;
+    private List<DayOfWeek> availableDays;
 
     private Integer sessionMinutes;
 
@@ -49,7 +50,10 @@ public class AiUserProfileDto {
 
     public static AiUserProfileDto of(MemberProfile profile,
                                       BodyComposition composition,
-                                      WorkoutEnvironment environment) {
+                                      WorkoutEnvironment environment,
+                                      int weeklyFrequency,
+                                      List<DayOfWeek> effectiveDays,
+                                      Integer sessionMinutes) {
         return new AiUserProfileDto(profile.getGender(),
                                     profile.getAge(),
                                     profile.getHeight(),
@@ -61,9 +65,9 @@ public class AiUserProfileDto {
                                     profile.getCurrentExerciseStatus(),
                                     profile.getPrimaryGoal(),
                                     profile.getGoalStrategy(),
-                                    profile.getWeeklyFrequency(),
-                                    profile.getAvailableDays(),
-                                    profile.getSessionMinutes(),
+                                    weeklyFrequency,
+                                    effectiveDays,
+                                    sessionMinutes,
                                     environment.getLocationType());
     }
 }

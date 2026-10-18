@@ -1,4 +1,4 @@
-package com.fitmate.backend.routine.service;
+package com.fitmate.backend.routine.ai.service;
 
 import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.global.exception.CustomException;
@@ -8,16 +8,21 @@ import com.fitmate.backend.member.repository.BodyCompositionRepository;
 import com.fitmate.backend.member.repository.ExerciseBaselineRepository;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
-import com.fitmate.backend.routine.ai.AiPromptBuilder;
-import com.fitmate.backend.routine.dto.ai.AiEligibleExerciseDto;
-import com.fitmate.backend.routine.dto.ai.AiRecentExerciseRecordDto;
-import com.fitmate.backend.routine.dto.ai.AiRoutineRequestDto;
-import com.fitmate.backend.routine.dto.ai.AiUserProfileDto;
+import com.fitmate.backend.routine.ai.builder.AiPromptBuilder;
+import com.fitmate.backend.routine.ai.dto.AiEligibleExerciseDto;
+import com.fitmate.backend.routine.ai.dto.AiRecentExerciseRecordDto;
+import com.fitmate.backend.routine.ai.dto.AiRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.AiUserProfileDto;
+import com.fitmate.backend.routine.ai.dto.request.AiRoutineGenerationRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -31,26 +36,42 @@ public class AiRoutineService {
     private final HardFilterService hardFilterService;
     private final AiPromptBuilder aiPromptBuilder;
 
-    public String createAiPrompt(Long memberId, Long environmentId, LocalDate weekStartDate) {
+    public String createAiPrompt(Long memberId, AiRoutineGenerationRequestDto requestDto) {
 
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         BodyComposition composition =
                 bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(
                 memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        WorkoutEnvironment environment = workoutEnvironmentRepository.findByIdAndMemberId(
-                        environmentId,
-                        memberId)
+        WorkoutEnvironment environment =
+                workoutEnvironmentRepository.findByIdAndMemberId(requestDto.getEnvironmentId(),
+                                                                                          memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
-        List<Exercise> eligibleExercises = hardFilterService.getEligibleExercises(memberId,
-                                                                                  environmentId,
-                                                                                  weekStartDate);
+
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDate weekStartDate = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        List<DayOfWeek> effectiveDays = requestDto.getSelectedDays()
+                .stream()
+                .filter(d -> d.getValue() >= today.getDayOfWeek().getValue())
+                .distinct()
+                .sorted(Comparator.comparingInt(DayOfWeek::getValue))
+                .toList(); // 오늘 이전 요일 제외 및 중복 제거
+        if (effectiveDays.isEmpty()) {
+            throw new CustomException(ErrorCode.NO_AVAILABLE_ROUTINE_DAY); // 아예 비었으면 루틴 생성 금지
+        }
+
         List<ExerciseBaseline> baselines = exerciseBaselineRepository.findAllByMemberId(memberId);
 
-
+        List<Exercise> eligibleExercises = hardFilterService.getEligibleExercises(memberId,
+                                                                                  requestDto.getEnvironmentId(),
+                                                                                  weekStartDate);
+        // 프론트에서 넘어온 값 기준으로 AI 입력 프로필 생성 (마이페이지 X)
         AiUserProfileDto aiUserProfileDto = AiUserProfileDto.of(memberProfile,
                                                                 composition,
-                                                                environment);
+                                                                environment,
+                                                                effectiveDays.size(),
+                                                                effectiveDays,
+                                                                requestDto.getSessionMinutes());
         List<AiEligibleExerciseDto> aiEligibleExerciseDtos = eligibleExercises.stream()
                 .map(AiEligibleExerciseDto::from)
                 .toList();

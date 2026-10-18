@@ -1,8 +1,8 @@
-package com.fitmate.backend.routine.ai;
+package com.fitmate.backend.routine.ai.builder;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import com.fitmate.backend.routine.dto.ai.AiRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.AiRoutineRequestDto;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
