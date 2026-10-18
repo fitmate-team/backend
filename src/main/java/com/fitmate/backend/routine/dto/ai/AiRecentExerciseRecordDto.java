@@ -1,7 +1,7 @@
 package com.fitmate.backend.routine.dto.ai;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.annotation.JsonNaming;
 import com.fitmate.backend.member.domain.ExerciseBaseline;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

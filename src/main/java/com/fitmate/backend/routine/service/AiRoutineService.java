@@ -8,6 +8,7 @@ import com.fitmate.backend.member.repository.BodyCompositionRepository;
 import com.fitmate.backend.member.repository.ExerciseBaselineRepository;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
+import com.fitmate.backend.routine.ai.AiPromptBuilder;
 import com.fitmate.backend.routine.dto.ai.AiEligibleExerciseDto;
 import com.fitmate.backend.routine.dto.ai.AiRecentExerciseRecordDto;
 import com.fitmate.backend.routine.dto.ai.AiRoutineRequestDto;
@@ -28,10 +29,9 @@ public class AiRoutineService {
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
     private final ExerciseBaselineRepository exerciseBaselineRepository;
     private final HardFilterService hardFilterService;
+    private final AiPromptBuilder aiPromptBuilder;
 
-    public AiRoutineRequestDto createAiRoutineRequest(Long memberId,
-                                                      Long environmentId,
-                                                      LocalDate weekStartDate) {
+    public String createAiPrompt(Long memberId, Long environmentId, LocalDate weekStartDate) {
 
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -42,27 +42,27 @@ public class AiRoutineService {
                         environmentId,
                         memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
-
         List<Exercise> eligibleExercises = hardFilterService.getEligibleExercises(memberId,
                                                                                   environmentId,
                                                                                   weekStartDate);
         List<ExerciseBaseline> baselines = exerciseBaselineRepository.findAllByMemberId(memberId);
 
+
         AiUserProfileDto aiUserProfileDto = AiUserProfileDto.of(memberProfile,
                                                                 composition,
                                                                 environment);
-
-
         List<AiEligibleExerciseDto> aiEligibleExerciseDtos = eligibleExercises.stream()
                 .map(AiEligibleExerciseDto::from)
                 .toList();
-
         List<AiRecentExerciseRecordDto> aiRecentExerciseRecordDtos = baselines.stream()
                 .map(AiRecentExerciseRecordDto::from)
                 .toList();
 
-        return AiRoutineRequestDto.of(aiUserProfileDto,
-                                      aiEligibleExerciseDtos,
-                                      aiRecentExerciseRecordDtos);
+
+        AiRoutineRequestDto aiRoutineRequestDto = AiRoutineRequestDto.of(aiUserProfileDto,
+                                                                         aiEligibleExerciseDtos,
+                                                                         aiRecentExerciseRecordDtos);
+        return aiPromptBuilder.build(aiRoutineRequestDto);
     }
+
 }
