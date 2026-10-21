@@ -1,8 +1,8 @@
-package com.fitmate.backend.routine.ai.builder;
+package com.fitmate.backend.routine.ai.prompt;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import com.fitmate.backend.routine.ai.dto.AiRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.input.WeeklyGenerationInputDto;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class AiPromptBuilder {
 
-    private static final String PROMPT_PATH = "prompts/fitmate-production-v0.8.0.txt";
+    private static final String PROMPT_PATH = "prompts/fitmate-production-v0.8.1.txt";
 
     private final ObjectMapper objectMapper;
     private final String promptTemplate;
@@ -22,7 +22,7 @@ public class AiPromptBuilder {
         this.promptTemplate = loadPromptTemplate();
     }
 
-    public String build(AiRoutineRequestDto request) {
+    public String build(WeeklyGenerationInputDto request) {
         try {
             String userProfileJson = objectMapper.writeValueAsString(request.getUserProfile());
 

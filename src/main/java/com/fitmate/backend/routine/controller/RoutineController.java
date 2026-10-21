@@ -1,7 +1,6 @@
 package com.fitmate.backend.routine.controller;
 
 import com.fitmate.backend.routine.dto.request.RoutineWeightUpdateRequestDto;
-import com.fitmate.backend.routine.ai.service.AiRoutineService;
 import com.fitmate.backend.routine.service.RoutineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor

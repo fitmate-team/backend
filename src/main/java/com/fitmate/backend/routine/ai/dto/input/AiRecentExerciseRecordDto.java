@@ -1,4 +1,4 @@
-package com.fitmate.backend.routine.ai.dto;
+package com.fitmate.backend.routine.ai.dto.input;
 
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;

@@ -1,7 +1,7 @@
 package com.fitmate.backend.routine.ai.controller;
 
-import com.fitmate.backend.routine.ai.dto.request.AiRoutineGenerationRequestDto;
-import com.fitmate.backend.routine.ai.service.AiRoutineService;
+import com.fitmate.backend.routine.ai.dto.request.WeeklyGenerationRequestDto;
+import com.fitmate.backend.routine.ai.service.WeeklyRoutineService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/ai")
 @Tag(name = "루틴 AI API", description = "루틴 생성 관련 API")
 public class AiRoutineController {
-    private final AiRoutineService aiRoutineService;
+    private final WeeklyRoutineService weeklyRoutineService;
 
     @PostMapping("/prompt")
     public ResponseEntity<String> getAiPrompt(@AuthenticationPrincipal Long memberId,
-                                              @Valid @RequestBody AiRoutineGenerationRequestDto requestDto) {
+                                              @Valid @RequestBody WeeklyGenerationRequestDto requestDto) {
 
-        return ResponseEntity.ok(aiRoutineService.createAiPrompt(memberId, requestDto));
+        return ResponseEntity.ok(weeklyRoutineService.createAiPrompt(memberId, requestDto));
     }
 }

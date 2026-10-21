@@ -8,13 +8,12 @@ import com.fitmate.backend.member.repository.BodyCompositionRepository;
 import com.fitmate.backend.member.repository.ExerciseBaselineRepository;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
-import com.fitmate.backend.routine.ai.builder.AiPromptBuilder;
-import com.fitmate.backend.routine.ai.dto.AiEligibleExerciseDto;
-import com.fitmate.backend.routine.ai.dto.AiRecentExerciseRecordDto;
-import com.fitmate.backend.routine.ai.dto.AiRoutineRequestDto;
-import com.fitmate.backend.routine.ai.dto.AiUserProfileDto;
-import com.fitmate.backend.routine.ai.dto.request.AiRoutineGenerationRequestDto;
-import jakarta.validation.constraints.NotNull;
+import com.fitmate.backend.routine.ai.prompt.AiPromptBuilder;
+import com.fitmate.backend.routine.ai.dto.input.AiEligibleExerciseDto;
+import com.fitmate.backend.routine.ai.dto.input.AiRecentExerciseRecordDto;
+import com.fitmate.backend.routine.ai.dto.input.WeeklyGenerationInputDto;
+import com.fitmate.backend.routine.ai.dto.input.AiUserProfileDto;
+import com.fitmate.backend.routine.ai.dto.request.WeeklyGenerationRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AiRoutineService {
+public class WeeklyRoutineService {
     private final MemberProfileRepository memberProfileRepository;
     private final BodyCompositionRepository bodyCompositionRepository;
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
@@ -37,7 +36,7 @@ public class AiRoutineService {
     private final HardFilterService hardFilterService;
     private final AiPromptBuilder aiPromptBuilder;
 
-    public String createAiPrompt(Long memberId, AiRoutineGenerationRequestDto requestDto) {
+    public String createAiPrompt(Long memberId, WeeklyGenerationRequestDto requestDto) {
 
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -84,10 +83,10 @@ public class AiRoutineService {
                 .toList();
 
 
-        AiRoutineRequestDto aiRoutineRequestDto = AiRoutineRequestDto.of(aiUserProfileDto,
-                                                                         aiEligibleExerciseDtos,
-                                                                         aiRecentExerciseRecordDtos);
-        return aiPromptBuilder.build(aiRoutineRequestDto);
+        WeeklyGenerationInputDto weeklyGenerationInputDto = WeeklyGenerationInputDto.of(aiUserProfileDto,
+                                                                                        aiEligibleExerciseDtos,
+                                                                                        aiRecentExerciseRecordDtos);
+        return aiPromptBuilder.build(weeklyGenerationInputDto);
     }
 
 }
