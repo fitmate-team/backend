@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class WeeklyRoutineOutputDto {
-    private RecommendationReasons recommendationReasons;
+    private RecommendationReasons recommendationReason;
     private List<DailyRoutineOutputDto> weeklyPlan;
 
     @Getter
@@ -25,7 +25,6 @@ public class WeeklyRoutineOutputDto {
 
     @Getter
     @NoArgsConstructor
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecommendationReason {
         private String title;
         private String reason;
