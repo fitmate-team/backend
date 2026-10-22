@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
 @Setter
 public class OpenAiProperties {
 
-    String apiKey; // OpenAI API 인증키
-    String model;
-    String baseUrl;
-
+    private String apiKey; // OpenAI API 인증키
+    private String model;
+    private String baseUrl;
 }
