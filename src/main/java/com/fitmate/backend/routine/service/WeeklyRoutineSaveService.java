@@ -23,6 +23,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -50,16 +52,17 @@ public class WeeklyRoutineSaveService {
         if (weeklyRoutineRepository.existsByMember_IdAndWeekStartDate(memberId, weekStartDate)) {
             throw new CustomException(ErrorCode.DUPLICATE_WEEKLY_ROUTINE);
         }
+        validateDaysAndTime(requestDto, today);
+
         WeeklyRoutine weeklyRoutine = requestDto.toWeeklyRoutine(member,
                                                                  environment,
                                                                  weekStartDate);
-
         weeklyRoutineRepository.save(weeklyRoutine);
 
         // 타입 변수명 : 반복할 리스트
         for (WeeklyRoutineSaveRequestDto.DailyDto dailyDto : requestDto.getWeeklyPlan()) {
             DayOfWeek day = dailyDto.getDay();
-            LocalDate routineDate = weekStartDate.plusDays(day.getValue() - 1); // 운동한 날짜
+            LocalDate routineDate = weekStartDate.plusDays(day.getValue() - 1); // 은동 예정 날짜
             DailyRoutine dailyRoutine = dailyDto.toDailyRoutine(weeklyRoutine,
                                                                 routineDate,
                                                                 environment);
@@ -77,6 +80,26 @@ public class WeeklyRoutineSaveService {
             }
         }
 
+    }
 
+    private void validateDaysAndTime(WeeklyRoutineSaveRequestDto requestDto, LocalDate today) {
+        Set<DayOfWeek> seenDays = new HashSet<>(); // 이미 등장한 요일
+
+        for (WeeklyRoutineSaveRequestDto.DailyDto dailyDto : requestDto.getWeeklyPlan()) {
+            DayOfWeek day = dailyDto.getDay();
+
+            // 지난 요일 검사
+            if (day.getValue() < today.getDayOfWeek().getValue()) {
+                throw new CustomException(ErrorCode.INVALID_WEEKLY_ROUTINE_DAY);
+            }
+            // 중복 요일 검사
+            if (!seenDays.add(day)) {
+                throw new CustomException(ErrorCode.DUPLICATE_WEEKLY_ROUTINE_DAY);
+            }
+            // 운동시간 초과 검사
+            if (requestDto.getSessionMinutes() < dailyDto.getEstimatedMinutes()) {
+                throw new CustomException(ErrorCode.ROUTINE_DURATION_EXCEEDED);
+            }
+        }
     }
 }

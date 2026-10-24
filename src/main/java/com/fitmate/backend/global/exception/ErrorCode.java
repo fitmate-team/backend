@@ -52,6 +52,9 @@ public enum ErrorCode {
     NO_AVAILABLE_ROUTINE_DAY("이번 주에 생성 가능한 운동 요일이 없습니다.", HttpStatus.BAD_REQUEST),
     NO_ELIGIBLE_EXERCISE("현재 조건에서 추천 가능한 운동이 없습니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_WEEKLY_ROUTINE("이번 주 주간 루틴이 이미 저장되어 있습니다.", HttpStatus.CONFLICT),
+    INVALID_WEEKLY_ROUTINE_DAY("이번 주 오늘 이후의 운동 요일만 저장할 수 있습니다.", HttpStatus.BAD_REQUEST),
+    DUPLICATE_WEEKLY_ROUTINE_DAY("주간 루틴에 중복된 운동 요일이 포함되어 있습니다.", HttpStatus.BAD_REQUEST),
+    ROUTINE_DURATION_EXCEEDED("예상 운동시간이 설정한 운동 가능 시간을 초과합니다.", HttpStatus.BAD_REQUEST),
 
     // 기록
     DUPLICATE_BODY_COMPOSITION("오늘의 신체 기록이 이미 존재합니다.", HttpStatus.CONFLICT),
