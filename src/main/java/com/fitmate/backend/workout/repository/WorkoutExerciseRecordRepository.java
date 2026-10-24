@@ -24,8 +24,8 @@ public interface WorkoutExerciseRecordRepository
      * 응답에 필요한 루틴 운동과 운동 정보를 함께 조회합니다.
      */
     @EntityGraph(attributePaths = {
-            "routineExercise",
-            "routineExercise.exercise"
+            "exerciseRoutine",
+            "exerciseRoutine.exercise"
     })
     List<WorkoutExerciseRecord> findByWorkoutRecord_IdOrderByRoutineExercise_ExerciseOrderAsc(
             Long workoutRecordId
@@ -35,11 +35,11 @@ public interface WorkoutExerciseRecordRepository
             select exerciseRecord
             from WorkoutExerciseRecord exerciseRecord
             join fetch exerciseRecord.workoutRecord workoutRecord
-            join fetch exerciseRecord.routineExercise routineExercise
-            join fetch routineExercise.exercise exercise
+            join fetch exerciseRecord.exerciseRoutine exerciseRoutine
+            join fetch exerciseRoutine.exercise exercise
             where workoutRecord.id in :workoutRecordIds
             order by workoutRecord.id asc,
-                     routineExercise.exerciseOrder asc,
+                     exerciseRoutine.exerciseOrder asc,
                      exerciseRecord.id asc
             """)
     List<WorkoutExerciseRecord> findAllByWorkoutRecordIds(

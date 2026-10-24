@@ -1,6 +1,12 @@
 package com.fitmate.backend.routine.dto.request;
 
+import com.fitmate.backend.exercise.domain.Exercise;
+import com.fitmate.backend.member.domain.Member;
+import com.fitmate.backend.member.domain.WorkoutEnvironment;
+import com.fitmate.backend.routine.domain.DailyRoutine;
 import com.fitmate.backend.routine.domain.MainTarget;
+import com.fitmate.backend.routine.domain.ExerciseRoutine;
+import com.fitmate.backend.routine.domain.WeeklyRoutine;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -9,7 +15,9 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -29,6 +37,20 @@ public class WeeklyRoutineSaveRequestDto {
     @NotEmpty
     @Schema(description = "저장할 요일별 운동 루틴 목록")
     private List<@NotNull @Valid DailyDto> weeklyPlan;
+
+    public WeeklyRoutine toWeeklyRoutine(Member member,
+                                         WorkoutEnvironment environment,
+                                         LocalDate weekStartDate) {
+        return WeeklyRoutine.builder()
+                .member(member)
+                .weekStartDate(weekStartDate)
+                .sessionMinutes(this.sessionMinutes)
+                .workoutEnvironment(environment)
+                .availableDays(this.weeklyPlan.stream()
+                                       .map(DailyDto::getDay)
+                                       .collect(Collectors.toSet()))
+                .build();
+    }
 
     @Getter
     @NoArgsConstructor
@@ -56,7 +78,21 @@ public class WeeklyRoutineSaveRequestDto {
         @NotEmpty
         @Schema(description = "해당 운동일에 수행할 운동 목록 (배열 순서가 운동 순서)")
         private List<@NotNull @Valid ExerciseDto> exercises;
+
+        public DailyRoutine toDailyRoutine(WeeklyRoutine weeklyRoutine,
+                                           LocalDate routineDate,
+                                           WorkoutEnvironment environment) {
+            return DailyRoutine.builder()
+                    .weeklyRoutine(weeklyRoutine)
+                    .routineDate(routineDate)
+                    .mainTarget(this.mainTarget)
+                    .focus(this.focus)
+                    .workoutEnvironment(environment)
+                    .estimatedDurationMinutes(this.estimatedMinutes)
+                    .build();
+        }
     }
+
 
     @Getter
     @NoArgsConstructor
@@ -88,5 +124,20 @@ public class WeeklyRoutineSaveRequestDto {
         @PositiveOrZero
         @Schema(description = "세트 간 휴식 시간(초). CARDIO는 0", example = "90")
         private Integer restSeconds;
+
+        public ExerciseRoutine toExerciseRoutine(DailyRoutine dailyRoutine,
+                                                 Exercise exercise,
+                                                 Integer exerciseOrder) {
+            return ExerciseRoutine.builder()
+                    .dailyRoutine(dailyRoutine)
+                    .exercise(exercise)
+                    .exerciseOrder(exerciseOrder)
+                    .weight(this.weightKg)
+                    .reps(this.reps)
+                    .setCount(this.sets)
+                    .durationSeconds(this.durationSeconds)
+                    .restSeconds(this.restSeconds)
+                    .build();
+        }
     }
 }

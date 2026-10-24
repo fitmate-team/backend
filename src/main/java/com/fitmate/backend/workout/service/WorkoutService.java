@@ -10,9 +10,9 @@ import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.domain.DailyRoutine;
-import com.fitmate.backend.routine.domain.RoutineExercise;
+import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.routine.repository.DailyRoutineRepository;
-import com.fitmate.backend.routine.repository.RoutineExerciseRepository;
+import com.fitmate.backend.routine.repository.ExerciseRoutineRepository;
 import com.fitmate.backend.workout.domain.CalculatedDifficulty;
 import com.fitmate.backend.workout.domain.PerceivedDifficulty;
 import com.fitmate.backend.workout.domain.WorkoutExerciseRecord;
@@ -44,7 +44,7 @@ public class WorkoutService {
     private static final ZoneId KOREA_ZONE = ZoneId.of("Asia/Seoul");
 
     private final DailyRoutineRepository dailyRoutineRepository;
-    private final RoutineExerciseRepository routineExerciseRepository;
+    private final ExerciseRoutineRepository exerciseRoutineRepository;
     private final WorkoutRecordRepository workoutRecordRepository;
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
     private final MemberProfileRepository memberProfileRepository;
@@ -67,20 +67,20 @@ public class WorkoutService {
                 .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
         // 3. 오늘 루틴에 포함된 운동 목록 조회
-        List<RoutineExercise> routineExercises =
-                routineExerciseRepository
+        List<ExerciseRoutine> exerciseRoutines =
+                exerciseRoutineRepository
                         .findByDailyRoutine_IdOrderByExerciseOrderAsc(
                                 dailyRoutine.getId()
                         );
 
         // 4. 운동 목록을 응답 DTO로 변환
         List<TodayWorkoutResponseDto.ExerciseDto> exercises =
-                routineExercises.stream()
+                exerciseRoutines.stream()
                         .map(TodayWorkoutResponseDto.ExerciseDto::from)
                         .toList();
 
         // 5. 평균 휴식 시간 계산
-        int averageRestSeconds = calculateAverageRestSeconds(routineExercises);
+        int averageRestSeconds = calculateAverageRestSeconds(exerciseRoutines);
 
         // 6. 운동 장소 조회
         WorkoutEnvironment environment = dailyRoutine.getWorkoutEnvironment();
@@ -167,7 +167,7 @@ public class WorkoutService {
                 .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
 
         // 4. 오늘의 운동 목록 조회
-        List<RoutineExercise> routineExercises = routineExerciseRepository
+        List<ExerciseRoutine> exerciseRoutines = exerciseRoutineRepository
                 .findByDailyRoutine_IdOrderByExerciseOrderAsc(dailyRoutine.getId());
 
         // 5. 선택한 운동 환경에서 사용할 수 있는 기구 코드 조회
@@ -178,7 +178,7 @@ public class WorkoutService {
                 .collect(Collectors.toSet());
 
         // 6. 오늘의 운동 중 하나라도 수행 불가능하면 재추천 필요
-        boolean requiresRerecommendation = routineExercises.stream()
+        boolean requiresRerecommendation = exerciseRoutines.stream()
                 .anyMatch(routineExercise ->
                         !isExerciseCompatible(
                                 routineExercise.getExercise(),
@@ -283,7 +283,7 @@ public class WorkoutService {
                 .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
 
         // 3. 현재 루틴의 운동 목록 조회
-        List<RoutineExercise> routineExercises = routineExerciseRepository
+        List<ExerciseRoutine> exerciseRoutines = exerciseRoutineRepository
                 .findByDailyRoutine_IdOrderByExerciseOrderAsc(dailyRoutine.getId());
 
         // 4. 선택한 운동 환경의 기구 목록 조회
@@ -294,7 +294,7 @@ public class WorkoutService {
                 .collect(Collectors.toSet());
 
         // 5. 현재 루틴을 새로운 환경에서 수행할 수 있는지 검사
-        boolean incompatible = routineExercises.stream()
+        boolean incompatible = exerciseRoutines.stream()
                 .anyMatch(routineExercise ->
                         !isExerciseCompatible(
                                 routineExercise.getExercise(),
@@ -353,12 +353,12 @@ public class WorkoutService {
         }
 
         // 5. 해당 루틴의 전체 운동을 조회하고 ID를 기준으로 매핑합니다.
-        List<RoutineExercise> routineExercises = routineExerciseRepository
+        List<ExerciseRoutine> exerciseRoutines = exerciseRoutineRepository
                 .findByDailyRoutine_IdOrderByExerciseOrderAsc(dailyRoutine.getId());
 
-        Map<Long, RoutineExercise> routineExerciseMap = routineExercises.stream()
+        Map<Long, ExerciseRoutine> routineExerciseMap = exerciseRoutines.stream()
                 .collect(Collectors.toMap(
-                        RoutineExercise::getId,
+                        ExerciseRoutine::getId,
                         Function.identity()
                 ));
 
@@ -393,7 +393,7 @@ public class WorkoutService {
         for (WorkoutFinishRequestDto.ExerciseDto exerciseDto
                 : request.getExercises()) {
 
-            RoutineExercise routineExercise =
+            ExerciseRoutine exerciseRoutine =
                     routineExerciseMap.get(exerciseDto.getRoutineExerciseId());
 
             Integer exerciseMinHeartRate = exerciseDto.getMinHeartRate();
@@ -409,7 +409,7 @@ public class WorkoutService {
 
             // 운동 기준 유형에 따라 목표량과 실제 수행량의 단위를 맞춥니다.
             ExerciseBaselineType baselineType =
-                    routineExercise.getExercise().getBaselineRecordType();
+                    exerciseRoutine.getExercise().getBaselineRecordType();
 
             int plannedAmount;
             int completedAmount;
@@ -417,14 +417,14 @@ public class WorkoutService {
             switch (baselineType) {
                 case WEIGHT_REPS_SETS, REPS_SETS -> {
                     // 세트 기반 운동: 목표 세트 수 대비 완료 세트 수
-                    plannedAmount = routineExercise.getSetCount();
+                    plannedAmount = exerciseRoutine.getSetCount();
                     completedAmount = exerciseDto.getCompletedSetCount();
                 }
 
                 case DURATION -> {
                     // 시간 기반 운동: 목표 시간 대비 실제 수행 시간
                     // 목표 시간과 실제 수행 시간 모두 초 단위를 사용합니다.
-                    plannedAmount = routineExercise.getDurationSeconds();
+                    plannedAmount = exerciseRoutine.getDurationSeconds();
                     completedAmount = exerciseDto.getCompletedDurationSeconds();
                 }
 
@@ -448,7 +448,7 @@ public class WorkoutService {
             WorkoutExerciseRecord exerciseRecord =
                     WorkoutExerciseRecord.builder()
                             .workoutRecord(workoutRecord)
-                            .routineExercise(routineExercise)
+                            .routineExercise(exerciseRoutine)
                             .completedSetCount(exerciseDto.getCompletedSetCount())
                             .completedDurationSeconds(
                                     exerciseDto.getCompletedDurationSeconds()
@@ -591,7 +591,7 @@ public class WorkoutService {
                             List<String> exerciseNames = exerciseRecords.stream()
                                     .filter(this::hasPerformedExercise)
                                     .map(exerciseRecord ->
-                                            exerciseRecord.getRoutineExercise()
+                                            exerciseRecord.getExerciseRoutine()
                                                     .getExercise()
                                                     .getNameKo()
                                     )
@@ -629,7 +629,7 @@ public class WorkoutService {
     private boolean hasPerformedExercise(
             WorkoutExerciseRecord exerciseRecord
     ) {
-        ExerciseBaselineType baselineType = exerciseRecord.getRoutineExercise()
+        ExerciseBaselineType baselineType = exerciseRecord.getExerciseRoutine()
                 .getExercise()
                 .getBaselineRecordType();
 
@@ -670,22 +670,22 @@ public class WorkoutService {
     private double calculateExerciseCompletionRate(
             WorkoutExerciseRecord exerciseRecord
     ) {
-        RoutineExercise routineExercise = exerciseRecord.getRoutineExercise();
+        ExerciseRoutine exerciseRoutine = exerciseRecord.getExerciseRoutine();
 
         ExerciseBaselineType baselineType =
-                routineExercise.getExercise().getBaselineRecordType();
+                exerciseRoutine.getExercise().getBaselineRecordType();
 
         Integer plannedAmount;
         Integer completedAmount;
 
         switch (baselineType) {
             case WEIGHT_REPS_SETS, REPS_SETS -> {
-                plannedAmount = routineExercise.getSetCount();
+                plannedAmount = exerciseRoutine.getSetCount();
                 completedAmount = exerciseRecord.getCompletedSetCount();
             }
 
             case DURATION -> {
-                plannedAmount = routineExercise.getDurationSeconds();
+                plannedAmount = exerciseRoutine.getDurationSeconds();
                 completedAmount = exerciseRecord.getCompletedDurationSeconds();
             }
 
@@ -725,12 +725,12 @@ public class WorkoutService {
      * 평균 휴식 시간 계산
      */
     private int calculateAverageRestSeconds(
-            List<RoutineExercise> routineExercises
+            List<ExerciseRoutine> exerciseRoutines
     ) {
 
         return (int) Math.round(
-                routineExercises.stream()
-                        .map(RoutineExercise::getRestSeconds)
+                exerciseRoutines.stream()
+                        .map(ExerciseRoutine::getRestSeconds)
                         .filter(restSeconds -> restSeconds != null)
                         .mapToInt(Integer::intValue)
                         .average()

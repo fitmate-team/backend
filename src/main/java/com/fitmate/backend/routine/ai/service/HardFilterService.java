@@ -11,7 +11,7 @@ import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.MemberRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
-import com.fitmate.backend.routine.domain.RoutineExercise;
+import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.workout.domain.WorkoutExerciseRecord;
 import com.fitmate.backend.workout.repository.WorkoutExerciseRecordRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,8 +69,8 @@ public class HardFilterService {
         // 실제 수행한 운동 중 유산소 제거
         // 이번 주 AI 추천에서 사용하면 안되는 운동
         Set<Exercise> excludedPreviousWeekExercises = performedPreviousWeekRecords.stream()
-                .map(WorkoutExerciseRecord::getRoutineExercise)
-                .map(RoutineExercise::getExercise)
+                .map(WorkoutExerciseRecord::getExerciseRoutine)
+                .map(ExerciseRoutine::getExercise)
                 .filter(exercise -> exercise.getExerciseType() != ExerciseType.CARDIO)
                 .collect(Collectors.toSet());
 

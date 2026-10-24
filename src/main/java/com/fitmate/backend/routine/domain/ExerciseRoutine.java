@@ -2,7 +2,6 @@ package com.fitmate.backend.routine.domain;
 
 import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.global.common.BaseEntity;
-import com.fitmate.backend.routine.domain.DailyRoutine;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -17,7 +16,7 @@ import lombok.NoArgsConstructor;
         "uk_routine_exercise_0", columnNames = {"daily_routine_id", "exercise_order"})})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RoutineExercise extends BaseEntity {
+public class ExerciseRoutine extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,7 +49,7 @@ public class RoutineExercise extends BaseEntity {
     private Integer restSeconds;
 
     @Builder
-    public RoutineExercise(DailyRoutine dailyRoutine,
+    public ExerciseRoutine(DailyRoutine dailyRoutine,
                            Exercise exercise,
                            Integer exerciseOrder,
                            BigDecimal weight,
