@@ -16,6 +16,7 @@ import com.fitmate.backend.routine.ai.dto.input.AiRecentExerciseRecordDto;
 import com.fitmate.backend.routine.ai.dto.input.WeeklyGenerationInputDto;
 import com.fitmate.backend.routine.ai.dto.input.AiUserProfileDto;
 import com.fitmate.backend.routine.ai.dto.request.WeeklyGenerationRequestDto;
+import com.fitmate.backend.routine.ai.validator.WeeklyRoutineValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,9 +39,25 @@ public class WeeklyRoutineService {
     private final HardFilterService hardFilterService;
     private final AiPromptBuilder aiPromptBuilder;
     private final OpenAiClient openAiClient;
+    private final WeeklyRoutineValidator validator;
 
     public String createAiPrompt(Long memberId, WeeklyGenerationRequestDto requestDto) {
+        // 프롬포트 완성
+        WeeklyGenerationInputDto input = buildGenerationInput(memberId, requestDto);
+        return aiPromptBuilder.build(input);
+    }
 
+    public WeeklyRoutineOutputDto generateWeeklyRoutine(Long memberId,
+                                                        WeeklyGenerationRequestDto requestDto) {
+        WeeklyGenerationInputDto input = buildGenerationInput(memberId, requestDto);
+        String prompt = aiPromptBuilder.build(input);
+        WeeklyRoutineOutputDto output = openAiClient.generate(prompt, WeeklyRoutineOutputDto.class);
+        validator.validate(input, output);
+        return output;
+    }
+
+    private WeeklyGenerationInputDto buildGenerationInput(Long memberId,
+                                                          WeeklyGenerationRequestDto requestDto) {
         // DB 조회
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -89,19 +106,9 @@ public class WeeklyRoutineService {
                 .toList();
 
         // 세 DTO 를 WeeklyGenerationInputDto 로 묶어서 구성 (Input -> AI 전달용)
-        WeeklyGenerationInputDto weeklyGenerationInputDto = WeeklyGenerationInputDto.of(
-                aiUserProfileDto,
-                aiEligibleExerciseDtos,
-                aiRecentExerciseRecordDtos);
-
-        // 프롬포트 완성
-        return aiPromptBuilder.build(weeklyGenerationInputDto);
-    }
-
-    public WeeklyRoutineOutputDto generateWeeklyRoutine(Long memberId,
-                                                        WeeklyGenerationRequestDto requestDto) {
-        String prompt = createAiPrompt(memberId, requestDto); // 프롬포트 만들어서
-        return openAiClient.generate(prompt, WeeklyRoutineOutputDto.class); // AI 돌린 output 받음
+        return WeeklyGenerationInputDto.of(aiUserProfileDto,
+                                           aiEligibleExerciseDtos,
+                                           aiRecentExerciseRecordDtos);
     }
 
 }
