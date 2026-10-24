@@ -9,14 +9,12 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class WeeklyRoutineOutputDto {
     private RecommendationReasons recommendationReason;
     private List<DailyRoutineOutputDto> weeklyPlan;
 
     @Getter
     @NoArgsConstructor
-    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     public static class RecommendationReasons {
         private RecommendationReason primaryGoalReason;
         private RecommendationReason secondaryGoalReason;

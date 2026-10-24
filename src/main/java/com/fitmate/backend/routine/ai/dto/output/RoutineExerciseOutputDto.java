@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 
 @Getter
 @NoArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class RoutineExerciseOutputDto {
 
     private String exerciseCode;

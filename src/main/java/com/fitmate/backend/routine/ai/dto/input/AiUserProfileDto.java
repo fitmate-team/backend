@@ -14,7 +14,6 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AiUserProfileDto {
 
     private Gender gender;
