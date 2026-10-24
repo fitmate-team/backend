@@ -1,0 +1,172 @@
+package com.fitmate.backend.workout.controller;
+
+import com.fitmate.backend.workout.dto.request.WorkoutFinishRequestDto;
+import com.fitmate.backend.workout.dto.request.WorkoutLocationUpdateRequestDto;
+import com.fitmate.backend.workout.dto.request.WorkoutLocationValidateRequestDto;
+import com.fitmate.backend.workout.dto.request.WorkoutRecordCreateRequestDto;
+import com.fitmate.backend.workout.dto.response.ExerciseGrowthResponseDto;
+import com.fitmate.backend.workout.dto.response.*;
+import com.fitmate.backend.workout.service.WorkoutGrowthService;
+import com.fitmate.backend.workout.service.WorkoutService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/workouts")
+@Tag(name = "오늘의 운동 API", description = "오늘의 운동 조회, 오늘의 운동 조건 변경, 운동 기록, 다음 운동 추천")
+public class WorkoutController {
+
+    private final WorkoutService workoutService;
+    private final WorkoutGrowthService workoutGrowthService;
+
+    @Operation(summary = "오늘의 운동 조회")
+    @GetMapping("/today")
+    public TodayWorkoutResponseDto getTodayWorkout(@AuthenticationPrincipal Long memberId) {
+        return workoutService.getTodayWorkout(memberId);
+    }
+
+    @Operation(
+            summary = "오늘의 운동 환경 선택 화면 조회",
+            description = "오늘 예정된 운동 환경과 사용자가 등록한 운동 환경 목록을 조회합니다."
+    )
+    @GetMapping("/today/environments")
+    public TodayWorkoutEnvironmentResponseDto getTodayWorkoutEnvironments(
+            @AuthenticationPrincipal Long memberId
+    ) {
+        return workoutService.getTodayWorkoutEnvironments(memberId);
+    }
+
+    @Operation(
+            summary = "운동 환경 변경 시 루틴 재추천 필요 여부 검사",
+            description = "선택한 운동 환경의 기구 및 장소 조건을 검사하여 루틴 재추천 필요 여부를 반환합니다."
+    )
+    @PostMapping("/today/location/validate")
+    public WorkoutLocationValidateResponseDto validateWorkoutLocation(
+            @AuthenticationPrincipal Long memberId,
+            @Valid @RequestBody WorkoutLocationValidateRequestDto request
+    ) {
+        return workoutService.validateWorkoutLocation(
+                memberId,
+                request.getWorkoutEnvironmentId()
+        );
+    }
+
+    @Operation(
+            summary = "오늘의 운동 환경 변경",
+            description = "선택한 운동 환경에서 현재 루틴을 수행할 수 있는지 검사한 후 운동 환경을 변경합니다."
+    )
+    @PatchMapping("/today/location")
+    public ResponseEntity<Void> changeWorkoutLocation(
+            @AuthenticationPrincipal Long memberId,
+            @Valid @RequestBody WorkoutLocationUpdateRequestDto request
+    ) {
+        workoutService.changeWorkoutLocation(
+                memberId,
+                request.getWorkoutEnvironmentId()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "오늘의 운동 시작",
+            description = "운동 시작 일시를 저장하고 미종료 상태의 운동 기록을 생성한 뒤 운동 기록 ID를 반환합니다."
+    )
+    @PostMapping("/today/start")
+    public WorkoutStartResponseDto startWorkout(
+            @AuthenticationPrincipal Long memberId,
+            @Valid @RequestBody WorkoutRecordCreateRequestDto request
+    ) {
+        return workoutService.startWorkout(memberId, request);
+    }
+
+    @Operation(
+            summary = "오늘의 운동 종료",
+            description = "정상 종료 또는 중도 종료 시 운동별 수행 기록과 계산 난이도를 저장하고, "
+                    + "전체 운동 시간, 심박수, 체감 난이도를 반영하여 종료 처리합니다."
+    )
+    @PostMapping("/today/finish")
+    public ResponseEntity<Void> finishWorkout(
+            @AuthenticationPrincipal Long memberId,
+            @Valid @RequestBody WorkoutFinishRequestDto request
+    ) {
+        workoutService.finishWorkout(memberId, request);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            description = "운동 기록 ID로 로그인한 회원의 종료된 운동 기록과 운동별 분석 결과를 조회합니다. "
+                    + "정상 종료와 중도 종료 기록 모두 조회할 수 있습니다."
+    )
+    @GetMapping("/records/{workoutRecordId}")
+    public WorkoutRecordResponseDto getWorkoutRecord(
+            @AuthenticationPrincipal Long memberId,
+            @PathVariable("workoutRecordId") Long workoutRecordId
+    ) {
+        return workoutService.getWorkoutRecord(
+                memberId,
+                workoutRecordId
+        );
+    }
+
+    @Operation(
+            description = "로그인한 회원의 월별 운동 기록을 조회합니다. "
+                    + "year는 조회 연도(예: 2026), month는 조회 월(예: 9)입니다. "
+                    + "한국 시간 기준 운동 시작 날짜로 종료된 기록을 조회하며 중도 종료도 포함합니다. "
+                    + "월간 운동 횟수, 실제 운동 시간 합계, 달력 표시 날짜와 최신순 기록 목록을 반환합니다. "
+                    + "기록이 없는 달은 횟수와 시간 합계가 0이며 목록은 비어 있습니다."
+    )
+    @GetMapping("/records/monthly")
+    public MonthlyWorkoutRecordResponseDto getMonthlyWorkoutRecords(
+            @AuthenticationPrincipal Long memberId,
+            @RequestParam("year") int year,
+            @RequestParam("month") int month
+    ) {
+        return workoutService.getMonthlyWorkoutRecords(
+                memberId,
+                year,
+                month
+        );
+    }
+
+    @Operation(
+            description = "성장 분석 화면의 초기 데이터를 조회합니다. "
+                    + "신체 지표별 최근 측정값과 이번 달 포함 최근 6개월의 월별 최대·최소, "
+                    + "실제 수행한 중량 운동 목록, 기본 선택 운동의 중량 변화, 월별 출석률을 반환합니다. "
+                    + "기본 운동은 최근 6개월에 1세트 이상 수행한 중량 운동 중 ID가 가장 작은 운동입니다. "
+                    + "출석률은 오늘까지 예정된 일일 루틴 중 시작한 루틴의 비율이며, "
+                    + "종료 여부와 관계없이 출석으로 처리합니다."
+    )
+    @GetMapping("/growth")
+    public GrowthAnalysisResponseDto getGrowthAnalysis(
+            @AuthenticationPrincipal Long memberId
+    ) {
+        return workoutGrowthService.getGrowthAnalysis(memberId);
+    }
+
+    @Operation(
+            description = "선택한 운동의 이번 달 포함 최근 6개월 월별 최대·최소 중량을 조회합니다. "
+                    + "로그인한 회원이 해당 기간에 1세트 이상 수행한 중량 운동만 조회할 수 있습니다. "
+                    + "종료된 운동 기록을 시작 날짜 기준으로 집계하며 중도 종료도 포함합니다. "
+                    + "월 오름차순으로 6개 항목을 반환하고 기록이 없는 달의 중량은 null입니다."
+    )
+    @GetMapping("/growth/exercises/{exerciseId}")
+    public ExerciseGrowthResponseDto getExerciseGrowth(
+            @AuthenticationPrincipal Long memberId,
+            @PathVariable("exerciseId") Long exerciseId
+    ) {
+        return workoutGrowthService.getExerciseGrowth(
+                memberId,
+                exerciseId
+        );
+    }
+}

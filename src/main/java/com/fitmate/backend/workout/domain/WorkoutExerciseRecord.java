@@ -1,7 +1,7 @@
 package com.fitmate.backend.workout.domain;
 
 import com.fitmate.backend.global.common.BaseEntity;
-import com.fitmate.backend.routine.domain.RoutineExercise;
+import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,7 +26,7 @@ public class WorkoutExerciseRecord extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "routine_exercise_id", nullable = false, unique = true)
-    private RoutineExercise routineExercise;
+    private ExerciseRoutine exerciseRoutine;
 
     @org.hibernate.annotations.ColumnDefault("0")
     @Column(name = "completed_set_count", nullable = false)
@@ -41,12 +41,12 @@ public class WorkoutExerciseRecord extends BaseEntity {
 
     @Builder
     public WorkoutExerciseRecord(WorkoutRecord workoutRecord,
-                                 RoutineExercise routineExercise,
+                                 ExerciseRoutine exerciseRoutine,
                                  Integer completedSetCount,
                                  Integer completedDurationSeconds,
                                  CalculatedDifficulty calculatedDifficulty) {
         this.workoutRecord = workoutRecord;
-        this.routineExercise = routineExercise;
+        this.exerciseRoutine = exerciseRoutine;
         this.completedSetCount = completedSetCount != null ? completedSetCount : 0;
         this.completedDurationSeconds =
                 completedDurationSeconds != null ? completedDurationSeconds : 0;

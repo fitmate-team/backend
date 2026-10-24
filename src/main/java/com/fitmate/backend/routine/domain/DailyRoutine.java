@@ -32,21 +32,12 @@ public class DailyRoutine extends BaseEntity {
     @Column(name = "routine_date", nullable = false)
     private LocalDate routineDate;
 
-    @Column(name = "title", nullable = false, length = 100)
-    private String title;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "main_target", nullable = false)
     private MainTarget mainTarget;
 
     @Column(name = "focus")
     private String focus;
-
-    @Column(name = "day_summary")
-    private String daySummary;
-
-    @Column(name = "daily_reason", length = 70)
-    private String dailyReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workout_environment_id", nullable = false)
@@ -60,18 +51,24 @@ public class DailyRoutine extends BaseEntity {
                         LocalDate routineDate,
                         MainTarget mainTarget,
                         String focus,
-                        String daySummary,
-                        String dailyReason,
                         WorkoutEnvironment workoutEnvironment,
                         Integer estimatedDurationMinutes) {
         this.weeklyRoutine = weeklyRoutine;
         this.routineDate = routineDate;
         this.mainTarget = mainTarget;
-        this.title = mainTarget.getDisplayTitle();
         this.focus = focus;
-        this.daySummary = daySummary;
-        this.dailyReason = dailyReason;
         this.workoutEnvironment = workoutEnvironment;
         this.estimatedDurationMinutes = estimatedDurationMinutes;
+    }
+
+    /**
+     * 오늘의 운동 환경 변경
+     *
+     * @param workoutEnvironment 변경할 운동 환경
+     */
+    public void updateWorkoutEnvironment(
+            WorkoutEnvironment workoutEnvironment
+    ) {
+        this.workoutEnvironment = workoutEnvironment;
     }
 }
