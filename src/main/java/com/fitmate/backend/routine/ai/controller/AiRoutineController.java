@@ -1,5 +1,6 @@
 package com.fitmate.backend.routine.ai.controller;
 
+import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
 import com.fitmate.backend.routine.ai.dto.request.WeeklyGenerationRequestDto;
 import com.fitmate.backend.routine.ai.service.WeeklyRoutineService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,5 +22,11 @@ public class AiRoutineController {
                                               @Valid @RequestBody WeeklyGenerationRequestDto requestDto) {
 
         return ResponseEntity.ok(weeklyRoutineService.createAiPrompt(memberId, requestDto));
+    }
+
+    @PostMapping("/weekly-routines/preview")
+    public ResponseEntity<WeeklyRoutineOutputDto> generateWeeklyRoutine(@AuthenticationPrincipal Long memberId,
+                                                                        @Valid @RequestBody WeeklyGenerationRequestDto requestDto) {
+        return ResponseEntity.ok(weeklyRoutineService.generateWeeklyRoutine(memberId, requestDto));
     }
 }

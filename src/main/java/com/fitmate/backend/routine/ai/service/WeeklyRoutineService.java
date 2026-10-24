@@ -8,6 +8,8 @@ import com.fitmate.backend.member.repository.BodyCompositionRepository;
 import com.fitmate.backend.member.repository.ExerciseBaselineRepository;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
+import com.fitmate.backend.routine.ai.client.OpenAiClient;
+import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
 import com.fitmate.backend.routine.ai.prompt.AiPromptBuilder;
 import com.fitmate.backend.routine.ai.dto.input.AiEligibleExerciseDto;
 import com.fitmate.backend.routine.ai.dto.input.AiRecentExerciseRecordDto;
@@ -35,9 +37,11 @@ public class WeeklyRoutineService {
     private final ExerciseBaselineRepository exerciseBaselineRepository;
     private final HardFilterService hardFilterService;
     private final AiPromptBuilder aiPromptBuilder;
+    private final OpenAiClient openAiClient;
 
     public String createAiPrompt(Long memberId, WeeklyGenerationRequestDto requestDto) {
 
+        // DB 조회
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         BodyComposition composition =
@@ -68,6 +72,8 @@ public class WeeklyRoutineService {
         if (eligibleExercises.isEmpty()) {
             throw new CustomException(ErrorCode.NO_ELIGIBLE_EXERCISE); // 아예 비었으면 루틴 생성 금지
         }
+
+        // 입력 DTO 구성 (UserProfile, EligibleExercise, RecentExeciseRecord)
         // 프론트에서 넘어온 값 기준으로 AI 입력 프로필 생성 (마이페이지 X)
         AiUserProfileDto aiUserProfileDto = AiUserProfileDto.of(memberProfile,
                                                                 composition,
@@ -82,11 +88,20 @@ public class WeeklyRoutineService {
                 .map(AiRecentExerciseRecordDto::from)
                 .toList();
 
+        // 세 DTO 를 WeeklyGenerationInputDto 로 묶어서 구성 (Input -> AI 전달용)
+        WeeklyGenerationInputDto weeklyGenerationInputDto = WeeklyGenerationInputDto.of(
+                aiUserProfileDto,
+                aiEligibleExerciseDtos,
+                aiRecentExerciseRecordDtos);
 
-        WeeklyGenerationInputDto weeklyGenerationInputDto = WeeklyGenerationInputDto.of(aiUserProfileDto,
-                                                                                        aiEligibleExerciseDtos,
-                                                                                        aiRecentExerciseRecordDtos);
+        // 프롬포트 완성
         return aiPromptBuilder.build(weeklyGenerationInputDto);
+    }
+
+    public WeeklyRoutineOutputDto generateWeeklyRoutine(Long memberId,
+                                                        WeeklyGenerationRequestDto requestDto) {
+        String prompt = createAiPrompt(memberId, requestDto); // 프롬포트 만들어서
+        return openAiClient.generate(prompt, WeeklyRoutineOutputDto.class); // AI 돌린 output 받음
     }
 
 }
