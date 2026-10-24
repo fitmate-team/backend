@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class AiPromptBuilder {
 
-    private static final String PROMPT_PATH = "prompts/fitmate-production-v0.8.1.txt";
+    private static final String PROMPT_PATH = "prompts/fitmate-production.txt";
 
     private final ObjectMapper objectMapper;
     private final String promptTemplate;
