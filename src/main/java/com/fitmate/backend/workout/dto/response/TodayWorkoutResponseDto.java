@@ -6,7 +6,7 @@ import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import com.fitmate.backend.routine.domain.DailyRoutine;
-import com.fitmate.backend.routine.domain.RoutineExercise;
+import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -117,30 +117,30 @@ public class TodayWorkoutResponseDto {
         // 중량 설정 필요 여부
         private Boolean weightRequired;
 
-        public static ExerciseDto from(RoutineExercise routineExercise) {
-            Exercise exercise = routineExercise.getExercise();
+        public static ExerciseDto from(ExerciseRoutine exerciseRoutine) {
+            Exercise exercise = exerciseRoutine.getExercise();
 
             ExerciseBaselineType baselineRecordType =
                     exercise.getBaselineRecordType();
 
-            BigDecimal weight = routineExercise.getWeight();
+            BigDecimal weight = exerciseRoutine.getWeight();
 
             boolean weightRequired =
                     baselineRecordType == ExerciseBaselineType.WEIGHT_REPS_SETS
                             && weight == null;
 
             return new ExerciseDto(
-                    routineExercise.getId(),
+                    exerciseRoutine.getId(),
                     exercise.getId(),
                     exercise.getExerciseType(),
                     baselineRecordType,
                     exercise.getNameKo(),
-                    routineExercise.getExerciseOrder(),
+                    exerciseRoutine.getExerciseOrder(),
                     weight == null ? null : weight.doubleValue(),
-                    routineExercise.getReps(),
-                    routineExercise.getSetCount(),
-                    routineExercise.getDurationSeconds(),
-                    routineExercise.getRestSeconds(),
+                    exerciseRoutine.getReps(),
+                    exerciseRoutine.getSetCount(),
+                    exerciseRoutine.getDurationSeconds(),
+                    exerciseRoutine.getRestSeconds(),
                     weightRequired
             );
         }

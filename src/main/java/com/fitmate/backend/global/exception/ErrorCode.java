@@ -31,7 +31,8 @@ public enum ErrorCode {
 
     // 오늘의 운동
     TODAY_ROUTINE_NOT_FOUND("오늘의 운동 루틴이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
-    WORKOUT_LOCATION_RERECOMMENDATION_REQUIRED("선택한 운동 환경에서 수행할 수 없는 운동이 포함되어 있습니다. 루틴 재추천이 필요합니다.", HttpStatus.CONFLICT),
+    WORKOUT_LOCATION_RERECOMMENDATION_REQUIRED("선택한 운동 환경에서 수행할 수 없는 운동이 포함되어 있습니다. 루틴 재추천이 필요합니다.",
+                                               HttpStatus.CONFLICT),
     WORKOUT_ALREADY_STARTED("이미 시작한 운동입니다.", HttpStatus.CONFLICT),
 
     // 운동 기록
@@ -48,13 +49,26 @@ public enum ErrorCode {
     // 루틴
     ROUTINE_EXERCISE_NOT_FOUND("해당 루틴 운동을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     ROUTINE_ACCESS_DENIED("해당 루틴에 접근할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    NO_AVAILABLE_ROUTINE_DAY("이번 주에 생성 가능한 운동 요일이 없습니다.", HttpStatus.BAD_REQUEST),
+    NO_ELIGIBLE_EXERCISE("현재 조건에서 추천 가능한 운동이 없습니다.", HttpStatus.BAD_REQUEST),
+    DUPLICATE_WEEKLY_ROUTINE("이번 주 주간 루틴이 이미 저장되어 있습니다.", HttpStatus.CONFLICT),
+    INVALID_WEEKLY_ROUTINE_DAY("이번 주 오늘 이후의 운동 요일만 저장할 수 있습니다.", HttpStatus.BAD_REQUEST),
+    DUPLICATE_WEEKLY_ROUTINE_DAY("주간 루틴에 중복된 운동 요일이 포함되어 있습니다.", HttpStatus.BAD_REQUEST),
+    ROUTINE_DURATION_EXCEEDED("예상 운동시간이 설정한 운동 가능 시간을 초과합니다.", HttpStatus.BAD_REQUEST),
 
     // 기록
     DUPLICATE_BODY_COMPOSITION("오늘의 신체 기록이 이미 존재합니다.", HttpStatus.CONFLICT),
     EXERCISE_GROWTH_RECORD_NOT_FOUND("최근 6개월 내 해당 운동의 중량 수행 기록이 없습니다.", HttpStatus.NOT_FOUND),
 
+    // AI
+    OPENAI_API_ERROR("AI 서비스 호출에 실패했습니다.", HttpStatus.BAD_GATEWAY),
+    OPENAI_TIMEOUT("AI 서비스 응답 시간이 초과되었습니다.", HttpStatus.GATEWAY_TIMEOUT),
+    OPENAI_INVALID_RESPONSE("AI 서비스가 올바르지 않은 응답을 반환했습니다.", HttpStatus.BAD_GATEWAY),
+    OPENAI_RESPONSE_REFUSED("AI가 요청을 처리할 수 없습니다.", HttpStatus.BAD_GATEWAY),
+
     // etc
     TARGET_WEIGHT_REQUIRED("체중 감량 목표인 경우 목표 체중을 입력해주세요.", HttpStatus.BAD_REQUEST);
+
 
     private final String message;
     private final HttpStatus httpStatus;

@@ -45,15 +45,15 @@ public interface WorkoutGrowthRepository
         join exerciseRecord.workoutRecord record
         join record.dailyRoutine dailyRoutine
         join dailyRoutine.weeklyRoutine weeklyRoutine
-        join exerciseRecord.routineExercise routineExercise
-        join routineExercise.exercise exercise
+        join exerciseRecord.exerciseRoutine exerciseRoutine
+        join exerciseRoutine.exercise exercise
         where weeklyRoutine.member.id = :memberId
           and record.isFinished = true
           and record.startedAt >= :startAt
           and record.startedAt <= :now
           and exercise.baselineRecordType = :baselineType
           and exerciseRecord.completedSetCount > 0
-          and routineExercise.weight is not null
+          and exerciseRoutine.weight is not null
         order by exercise.id asc
         """)
     List<ExerciseProjection> findPerformedWeightExercises(
@@ -66,14 +66,14 @@ public interface WorkoutGrowthRepository
     @Query("""
         select year(record.startedAt) as year,
                month(record.startedAt) as month,
-               max(routineExercise.weight) as maxWeight,
-               min(routineExercise.weight) as minWeight
+               max(exerciseRoutine.weight) as maxWeight,
+               min(exerciseRoutine.weight) as minWeight
         from WorkoutExerciseRecord exerciseRecord
         join exerciseRecord.workoutRecord record
         join record.dailyRoutine dailyRoutine
         join dailyRoutine.weeklyRoutine weeklyRoutine
-        join exerciseRecord.routineExercise routineExercise
-        join routineExercise.exercise exercise
+        join exerciseRecord.exerciseRoutine exerciseRoutine
+        join exerciseRoutine.exercise exercise
         where weeklyRoutine.member.id = :memberId
           and exercise.id = :exerciseId
           and exercise.baselineRecordType = :baselineType
@@ -81,7 +81,7 @@ public interface WorkoutGrowthRepository
           and record.startedAt >= :startAt
           and record.startedAt <= :now
           and exerciseRecord.completedSetCount > 0
-          and routineExercise.weight is not null
+          and exerciseRoutine.weight is not null
         group by year(record.startedAt), month(record.startedAt)
         order by year(record.startedAt), month(record.startedAt)
         """)

@@ -2,7 +2,7 @@ package com.fitmate.backend.workout.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
-import com.fitmate.backend.routine.domain.RoutineExercise;
+import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.workout.domain.CalculatedDifficulty;
 import com.fitmate.backend.workout.domain.PerceivedDifficulty;
 import com.fitmate.backend.workout.domain.WorkoutExerciseRecord;
@@ -117,20 +117,20 @@ public class WorkoutRecordResponseDto {
         private CalculatedDifficulty calculatedDifficulty;
 
         public static ExerciseDto from(WorkoutExerciseRecord exerciseRecord) {
-            RoutineExercise routineExercise = exerciseRecord.getRoutineExercise();
+            ExerciseRoutine exerciseRoutine = exerciseRecord.getExerciseRoutine();
 
             return ExerciseDto.builder()
-                    .routineExerciseId(routineExercise.getId())
-                    .exerciseId(routineExercise.getExercise().getId())
-                    .exerciseOrder(routineExercise.getExerciseOrder())
-                    .exerciseName(routineExercise.getExercise().getNameKo())
+                    .routineExerciseId(exerciseRoutine.getId())
+                    .exerciseId(exerciseRoutine.getExercise().getId())
+                    .exerciseOrder(exerciseRoutine.getExerciseOrder())
+                    .exerciseName(exerciseRoutine.getExercise().getNameKo())
                     .baselineRecordType(
-                            routineExercise.getExercise().getBaselineRecordType()
+                            exerciseRoutine.getExercise().getBaselineRecordType()
                     )
-                    .weight(routineExercise.getWeight())
-                    .reps(routineExercise.getReps())
-                    .setCount(routineExercise.getSetCount())
-                    .durationSeconds(routineExercise.getDurationSeconds())
+                    .weight(exerciseRoutine.getWeight())
+                    .reps(exerciseRoutine.getReps())
+                    .setCount(exerciseRoutine.getSetCount())
+                    .durationSeconds(exerciseRoutine.getDurationSeconds())
                     .completedSetCount(exerciseRecord.getCompletedSetCount())
                     .completedDurationSeconds(
                             exerciseRecord.getCompletedDurationSeconds()
