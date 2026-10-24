@@ -65,11 +65,6 @@ public class WeeklyRoutineSaveRequestDto {
         @Schema(description = "해당 운동일의 주요 운동 부위", example = "FULL_BODY")
         private MainTarget mainTarget;
 
-        @NotBlank
-        @Size(max = 255)
-        @Schema(description = "운동일의 핵심 구성 설명", example = "전신·하체 중심")
-        private String focus;
-
         @NotNull
         @Positive
         @Schema(description = "예상 운동 소요 시간(분)", example = "52")
@@ -86,7 +81,6 @@ public class WeeklyRoutineSaveRequestDto {
                     .weeklyRoutine(weeklyRoutine)
                     .routineDate(routineDate)
                     .mainTarget(this.mainTarget)
-                    .focus(this.focus)
                     .workoutEnvironment(environment)
                     .estimatedDurationMinutes(this.estimatedMinutes)
                     .build();
