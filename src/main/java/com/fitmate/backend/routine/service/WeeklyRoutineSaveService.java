@@ -9,7 +9,6 @@ import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.member.repository.MemberRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.domain.DailyRoutine;
-import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.routine.domain.WeeklyRoutine;
 import com.fitmate.backend.routine.dto.request.WeeklyRoutineSaveRequestDto;
 import com.fitmate.backend.routine.repository.DailyRoutineRepository;
