@@ -65,8 +65,7 @@ public class WeeklyRoutineValidator {
         if (routineOutputDto.getWeeklyPlan()
                 .stream()
                 .anyMatch(day -> day.getMainTarget() == null || day.getFocus() == null ||
-                        day.getFocus().isBlank() || day.getDaySummary() == null ||
-                        day.getDaySummary().isBlank() || day.getDailyReason() == null ||
+                        day.getFocus().isBlank() || day.getDailyReason() == null ||
                         day.getDailyReason().isBlank() || day.getExercises() == null ||
                         day.getExercises().isEmpty() || day.getExercises().contains(null) ||
                         day.getExercises()

@@ -39,9 +39,6 @@ public class DailyRoutine extends BaseEntity {
     @Column(name = "focus")
     private String focus;
 
-    @Column(name = "day_summary")
-    private String daySummary;
-
     @Column(name = "daily_reason", length = 70)
     private String dailyReason;
 
@@ -57,7 +54,6 @@ public class DailyRoutine extends BaseEntity {
                         LocalDate routineDate,
                         MainTarget mainTarget,
                         String focus,
-                        String daySummary,
                         String dailyReason,
                         WorkoutEnvironment workoutEnvironment,
                         Integer estimatedDurationMinutes) {
@@ -65,7 +61,6 @@ public class DailyRoutine extends BaseEntity {
         this.routineDate = routineDate;
         this.mainTarget = mainTarget;
         this.focus = focus;
-        this.daySummary = daySummary;
         this.dailyReason = dailyReason;
         this.workoutEnvironment = workoutEnvironment;
         this.estimatedDurationMinutes = estimatedDurationMinutes;

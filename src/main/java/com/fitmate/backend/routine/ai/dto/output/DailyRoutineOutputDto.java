@@ -16,7 +16,6 @@ public class DailyRoutineOutputDto {
     private DayOfWeek day;
     private MainTarget mainTarget;
     private String focus;
-    private String daySummary;
     private Integer estimatedMinutes;
     private String dailyReason;
     private List<RoutineExerciseOutputDto> exercises;
