@@ -448,7 +448,7 @@ public class WorkoutService {
             WorkoutExerciseRecord exerciseRecord =
                     WorkoutExerciseRecord.builder()
                             .workoutRecord(workoutRecord)
-                            .routineExercise(exerciseRoutine)
+                            .exerciseRoutine(exerciseRoutine)
                             .completedSetCount(exerciseDto.getCompletedSetCount())
                             .completedDurationSeconds(
                                     exerciseDto.getCompletedDurationSeconds()
@@ -505,7 +505,7 @@ public class WorkoutService {
 
         List<WorkoutExerciseRecord> exerciseRecords =
                 workoutExerciseRecordRepository
-                        .findByWorkoutRecord_IdOrderByRoutineExercise_ExerciseOrderAsc(
+                        .findByWorkoutRecord_IdOrderByExerciseRoutine_ExerciseOrderAsc(
                                 workoutRecord.getId()
                         );
 

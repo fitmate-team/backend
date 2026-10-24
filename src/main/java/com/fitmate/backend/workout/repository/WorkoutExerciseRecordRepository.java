@@ -1,3 +1,4 @@
+
 package com.fitmate.backend.workout.repository;
 
 import com.fitmate.backend.workout.domain.WorkoutExerciseRecord;
@@ -27,7 +28,7 @@ public interface WorkoutExerciseRecordRepository
             "exerciseRoutine",
             "exerciseRoutine.exercise"
     })
-    List<WorkoutExerciseRecord> findByWorkoutRecord_IdOrderByRoutineExercise_ExerciseOrderAsc(
+    List<WorkoutExerciseRecord> findByWorkoutRecord_IdOrderByExerciseRoutine_ExerciseOrderAsc(
             Long workoutRecordId
     );
 
