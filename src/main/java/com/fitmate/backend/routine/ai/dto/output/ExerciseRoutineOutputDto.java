@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+// 재사용
 public class ExerciseRoutineOutputDto {
 
     private String exerciseCode;

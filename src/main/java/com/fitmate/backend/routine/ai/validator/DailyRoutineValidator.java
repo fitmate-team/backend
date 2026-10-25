@@ -56,6 +56,16 @@ public class DailyRoutineValidator {
                 throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
             }
 
+            // 기존 운동이 새 환경에서도 가능하면 반드시 유지
+            boolean originalEligible = input.getEligibleExercises()
+                    .stream()
+                    .anyMatch(e -> e.getExerciseCode().equals(original.getExerciseCode()));
+
+            if (originalEligible &&
+                    !original.getExerciseCode().equals(exercise.getExerciseCode())) {
+                throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
+            }
+
             // 운동별 처방 검사
             AiEligibleExerciseDto candidate = input.getEligibleExercises()
                     .stream()

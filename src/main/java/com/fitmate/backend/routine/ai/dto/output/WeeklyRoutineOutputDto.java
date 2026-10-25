@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 public class WeeklyRoutineOutputDto {
     private RecommendationReasons recommendationReason;
-    private List<WeeklyDayOutputDto> weeklyPlan;
+    private List<WeeklyRoutineDayOutputDto> weeklyPlan;
 
     @Getter
     @NoArgsConstructor

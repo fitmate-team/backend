@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class WeeklyDayOutputDto {
+public class WeeklyRoutineDayOutputDto {
     private DayOfWeek day;
     private MainTarget mainTarget;
     private String focus;

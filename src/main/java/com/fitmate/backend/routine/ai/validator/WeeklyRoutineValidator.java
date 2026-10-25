@@ -1,18 +1,16 @@
 package com.fitmate.backend.routine.ai.validator;
 
-import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
 import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.routine.ai.dto.input.AiEligibleExerciseDto;
 import com.fitmate.backend.routine.ai.dto.input.WeeklyRoutineInputDto;
-import com.fitmate.backend.routine.ai.dto.output.WeeklyDayOutputDto;
+import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineDayOutputDto;
 import com.fitmate.backend.routine.ai.dto.output.ExerciseRoutineOutputDto;
 import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -42,7 +40,7 @@ public class WeeklyRoutineValidator {
                 .getAvailableDays()
                 .containsAll(routineOutputDto.getWeeklyPlan()
                                      .stream()
-                                     .map(WeeklyDayOutputDto::getDay)
+                                     .map(WeeklyRoutineDayOutputDto::getDay)
                                      .toList())) {
             throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
         }
@@ -50,7 +48,7 @@ public class WeeklyRoutineValidator {
         // 동일한 요일이 중복되지 않았는지
         if (routineOutputDto.getWeeklyPlan()
                 .stream()
-                .map(WeeklyDayOutputDto::getDay)
+                .map(WeeklyRoutineDayOutputDto::getDay)
                 .distinct()
                 .count() != routineOutputDto.getWeeklyPlan().size()) {
             throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
