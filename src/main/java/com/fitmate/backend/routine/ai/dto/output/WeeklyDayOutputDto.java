@@ -4,21 +4,16 @@ import com.fitmate.backend.routine.domain.MainTarget;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class DailyReplacementOutputDto {
-
+public class WeeklyDayOutputDto {
+    private DayOfWeek day;
     private MainTarget mainTarget;
+    private String focus;
     private Integer estimatedMinutes;
-    private List<ReplacementDto> replacements;
-
-    @Getter
-    @NoArgsConstructor
-    public static class ReplacementDto {
-
-        private String originalExerciseCode;
-        private RoutineExerciseOutputDto replacementExercise;
-    }
+    private String dailyReason;
+    private List<ExerciseRoutineOutputDto> exercises;
 }

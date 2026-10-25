@@ -1,7 +1,7 @@
 package com.fitmate.backend.routine.ai.controller;
 
 import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.request.WeeklyGenerationRequestDto;
+import com.fitmate.backend.routine.ai.dto.request.WeeklyRoutineRequestDto;
 import com.fitmate.backend.routine.ai.service.WeeklyRoutineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +21,7 @@ public class AiRoutineController {
     @Operation(summary = "주간 루틴 생성 프롬포트")
     @PostMapping("/prompt")
     public ResponseEntity<String> getAiPrompt(@AuthenticationPrincipal Long memberId,
-                                              @Valid @RequestBody WeeklyGenerationRequestDto requestDto) {
+                                              @Valid @RequestBody WeeklyRoutineRequestDto requestDto) {
 
         return ResponseEntity.ok(weeklyRoutineService.createAiPrompt(memberId, requestDto));
     }
@@ -29,7 +29,7 @@ public class AiRoutineController {
     @Operation(summary = "주간 루틴 생성 (프리뷰)")
     @PostMapping("/weekly-routines/preview")
     public ResponseEntity<WeeklyRoutineOutputDto> generateWeeklyRoutine(@AuthenticationPrincipal Long memberId,
-                                                                        @Valid @RequestBody WeeklyGenerationRequestDto requestDto) {
+                                                                        @Valid @RequestBody WeeklyRoutineRequestDto requestDto) {
         return ResponseEntity.ok(weeklyRoutineService.generateWeeklyRoutine(memberId, requestDto));
     }
 }

@@ -5,9 +5,9 @@ import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.routine.ai.dto.input.AiEligibleExerciseDto;
-import com.fitmate.backend.routine.ai.dto.input.WeeklyGenerationInputDto;
-import com.fitmate.backend.routine.ai.dto.output.DailyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.output.RoutineExerciseOutputDto;
+import com.fitmate.backend.routine.ai.dto.input.WeeklyRoutineInputDto;
+import com.fitmate.backend.routine.ai.dto.output.WeeklyDayOutputDto;
+import com.fitmate.backend.routine.ai.dto.output.ExerciseRoutineOutputDto;
 import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 @Component
 public class WeeklyRoutineValidator {
-    public void validate(WeeklyGenerationInputDto generationInputDto,
+    public void validate(WeeklyRoutineInputDto generationInputDto,
                          WeeklyRoutineOutputDto routineOutputDto) {
 
         // AI가 생성한 weeklyPlan이 비어 있거나 null인지
@@ -38,7 +38,7 @@ public class WeeklyRoutineValidator {
                 .getAvailableDays()
                 .containsAll(routineOutputDto.getWeeklyPlan()
                                      .stream()
-                                     .map(DailyRoutineOutputDto::getDay)
+                                     .map(WeeklyDayOutputDto::getDay)
                                      .toList())) {
             throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
         }
@@ -46,7 +46,7 @@ public class WeeklyRoutineValidator {
         // 동일한 요일이 중복되지 않았는지
         if (routineOutputDto.getWeeklyPlan()
                 .stream()
-                .map(DailyRoutineOutputDto::getDay)
+                .map(WeeklyDayOutputDto::getDay)
                 .distinct()
                 .count() != routineOutputDto.getWeeklyPlan().size()) {
             throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
@@ -127,12 +127,12 @@ public class WeeklyRoutineValidator {
         }
 
         // 운동 기록 유형에 맞게 세트, 반복 횟수, 시간, 중량, 휴식값이 설정됐는지
-        List<RoutineExerciseOutputDto> exercises = routineOutputDto.getWeeklyPlan()
+        List<ExerciseRoutineOutputDto> exercises = routineOutputDto.getWeeklyPlan()
                 .stream()
                 .flatMap(day -> day.getExercises().stream())
                 .toList();
 
-        for (RoutineExerciseOutputDto exercise : exercises) {
+        for (ExerciseRoutineOutputDto exercise : exercises) {
             AiEligibleExerciseDto candidate = generationInputDto.getEligibleExercises()
                     .stream()
                     .filter(v -> v.getExerciseCode().equals(exercise.getExerciseCode()))

@@ -10,14 +10,14 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class WeeklyGenerationInputDto {
+public class WeeklyRoutineInputDto {
     private AiUserProfileDto userProfile;
     private List<AiEligibleExerciseDto> eligibleExercises;
     private List<AiRecentExerciseRecordDto> recentExerciseRecords;
 
-    public static WeeklyGenerationInputDto of(AiUserProfileDto userProfile,
-                                              List<AiEligibleExerciseDto> eligibleExercises,
-                                              List<AiRecentExerciseRecordDto> recentExerciseRecords) {
-        return new WeeklyGenerationInputDto(userProfile, eligibleExercises, recentExerciseRecords);
+    public static WeeklyRoutineInputDto of(AiUserProfileDto userProfile,
+                                           List<AiEligibleExerciseDto> eligibleExercises,
+                                           List<AiRecentExerciseRecordDto> recentExerciseRecords) {
+        return new WeeklyRoutineInputDto(userProfile, eligibleExercises, recentExerciseRecords);
     }
 }

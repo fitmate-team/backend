@@ -13,12 +13,10 @@ import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.ai.client.OpenAiClient;
 import com.fitmate.backend.routine.ai.dto.input.*;
-import com.fitmate.backend.routine.ai.dto.output.DailyReplacementOutputDto;
 import com.fitmate.backend.routine.ai.dto.output.DailyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.request.DailyReplacementRequestDto;
+import com.fitmate.backend.routine.ai.dto.request.DailyRoutineRequestDto;
 import com.fitmate.backend.routine.ai.prompt.AiPromptBuilder;
 import com.fitmate.backend.routine.ai.validator.DailyRoutineValidator;
-import com.fitmate.backend.routine.ai.validator.WeeklyRoutineValidator;
 import com.fitmate.backend.routine.domain.DailyRoutine;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.routine.repository.DailyRoutineRepository;
@@ -32,7 +30,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -51,23 +48,23 @@ public class DailyRoutineService {
     private final OpenAiClient openAiClient;
     private final DailyRoutineValidator validator;
 
-    public String createAiPrompt(Long memberId, DailyReplacementRequestDto requestDto) {
-        DailyReplacementInputDto input = buildGenerationInput(memberId, requestDto);
+    public String createAiPrompt(Long memberId, DailyRoutineRequestDto requestDto) {
+        DailyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
         return aiPromptBuilder.build(input);
     }
 
-    public DailyReplacementOutputDto generateDailyRoutine(Long memberId,
-                                                          DailyReplacementRequestDto requestDto) {
-        DailyReplacementInputDto input = buildGenerationInput(memberId, requestDto);
+    public DailyRoutineOutputDto generateDailyRoutine(Long memberId,
+                                                      DailyRoutineRequestDto requestDto) {
+        DailyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
         String prompt = aiPromptBuilder.build(input);
-        DailyReplacementOutputDto output = openAiClient.generate(prompt,
-                                                                 DailyReplacementOutputDto.class);
+        DailyRoutineOutputDto output = openAiClient.generate(prompt,
+                                                             DailyRoutineOutputDto.class);
         validator.validate(input, output);
         return output;
     }
 
-    private DailyReplacementInputDto buildGenerationInput(Long memberId,
-                                                          DailyReplacementRequestDto requestDto) {
+    private DailyRoutineInputDto buildGenerationInput(Long memberId,
+                                                      DailyRoutineRequestDto requestDto) {
         // DB 조회
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -115,13 +112,13 @@ public class DailyRoutineService {
         List<AiRecentExerciseRecordDto> aiRecentExerciseRecordDtos = baselines.stream()
                 .map(AiRecentExerciseRecordDto::from)
                 .toList();
-        List<DailyOriginalExerciseDto> originalExerciseDtos = exerciseRoutine.stream()
-                .map(DailyOriginalExerciseDto::from)
+        List<AiDailyOriginalExerciseDto> originalExerciseDtos = exerciseRoutine.stream()
+                .map(AiDailyOriginalExerciseDto::from)
                 .toList();
 
-        return DailyReplacementInputDto.of(aiUserProfileDto,
-                                           aiEligibleExerciseDtos,
-                                           aiRecentExerciseRecordDtos,
-                                           originalExerciseDtos);
+        return DailyRoutineInputDto.of(aiUserProfileDto,
+                                       aiEligibleExerciseDtos,
+                                       aiRecentExerciseRecordDtos,
+                                       originalExerciseDtos);
     }
 }

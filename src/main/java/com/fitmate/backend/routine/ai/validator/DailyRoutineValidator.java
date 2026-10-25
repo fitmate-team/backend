@@ -3,10 +3,10 @@ package com.fitmate.backend.routine.ai.validator;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.routine.ai.dto.input.AiEligibleExerciseDto;
-import com.fitmate.backend.routine.ai.dto.input.DailyOriginalExerciseDto;
-import com.fitmate.backend.routine.ai.dto.input.DailyReplacementInputDto;
-import com.fitmate.backend.routine.ai.dto.output.DailyReplacementOutputDto;
-import com.fitmate.backend.routine.ai.dto.output.RoutineExerciseOutputDto;
+import com.fitmate.backend.routine.ai.dto.input.AiDailyOriginalExerciseDto;
+import com.fitmate.backend.routine.ai.dto.input.DailyRoutineInputDto;
+import com.fitmate.backend.routine.ai.dto.output.DailyRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.output.ExerciseRoutineOutputDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,8 +14,8 @@ import java.util.List;
 @Component
 public class DailyRoutineValidator {
 
-    public void validate(DailyReplacementInputDto input,
-                         DailyReplacementOutputDto output) {
+    public void validate(DailyRoutineInputDto input,
+                         DailyRoutineOutputDto output) {
 
         // AI 응답 및 운동 목록 검사
         if (output == null || output.getMainTarget() == null ||
@@ -32,8 +32,8 @@ public class DailyRoutineValidator {
             throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
         }
 
-        List<DailyOriginalExerciseDto> originals = input.getOriginalExercises();
-        List<DailyReplacementOutputDto.ReplacementDto> replacements =
+        List<AiDailyOriginalExerciseDto> originals = input.getOriginalExercises();
+        List<DailyRoutineOutputDto.ReplacementDto> replacements =
                 output.getReplacements();
 
         // 기존 운동과 추천 운동 개수 검사
@@ -43,8 +43,8 @@ public class DailyRoutineValidator {
         }
 
         for (int i = 0; i < originals.size(); i++) {
-            DailyOriginalExerciseDto original = originals.get(i);
-            DailyReplacementOutputDto.ReplacementDto replacement =
+            AiDailyOriginalExerciseDto original = originals.get(i);
+            DailyRoutineOutputDto.ReplacementDto replacement =
                     replacements.get(i);
 
             // 기존 운동 코드와 순서 검사
@@ -53,7 +53,7 @@ public class DailyRoutineValidator {
                 throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
             }
 
-            RoutineExerciseOutputDto exercise = replacement.getReplacementExercise();
+            ExerciseRoutineOutputDto exercise = replacement.getReplacementExercise();
 
             if (exercise == null ||
                     exercise.getExerciseCode() == null ||

@@ -1,9 +1,9 @@
 package com.fitmate.backend.routine.ai.prompt;
 
-import com.fitmate.backend.routine.ai.dto.input.DailyReplacementInputDto;
+import com.fitmate.backend.routine.ai.dto.input.DailyRoutineInputDto;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import com.fitmate.backend.routine.ai.dto.input.WeeklyGenerationInputDto;
+import com.fitmate.backend.routine.ai.dto.input.WeeklyRoutineInputDto;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,7 @@ public class AiPromptBuilder {
         this.dailyPromptTemplate = loadPromptTemplate(PROMPT_PATH2);
     }
 
-    public String build(WeeklyGenerationInputDto request) {
+    public String build(WeeklyRoutineInputDto request) {
         try {
             String userProfileJson = objectMapper.writeValueAsString(request.getUserProfile());
 
@@ -45,7 +45,7 @@ public class AiPromptBuilder {
         }
     }
 
-    public String build(DailyReplacementInputDto request){
+    public String build(DailyRoutineInputDto request){
         try {
             String userProfileJson = objectMapper.writeValueAsString(request.getUserProfile());
 

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class WeeklyGenerationRequestDto {
+public class WeeklyRoutineRequestDto {
 
     @NotEmpty
     private List<@NotNull DayOfWeek> selectedDays;

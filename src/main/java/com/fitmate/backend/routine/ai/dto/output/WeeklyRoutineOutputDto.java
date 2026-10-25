@@ -2,8 +2,6 @@ package com.fitmate.backend.routine.ai.dto.output;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import tools.jackson.databind.PropertyNamingStrategies;
-import tools.jackson.databind.annotation.JsonNaming;
 
 import java.util.List;
 
@@ -11,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 public class WeeklyRoutineOutputDto {
     private RecommendationReasons recommendationReason;
-    private List<DailyRoutineOutputDto> weeklyPlan;
+    private List<WeeklyDayOutputDto> weeklyPlan;
 
     @Getter
     @NoArgsConstructor
