@@ -60,6 +60,7 @@ public enum ErrorCode {
     INVALID_FIRST_SELECTED_ROUTINE_DAY("최초 선택한 운동 요일이 주간 루틴에 포함되어 있지 않습니다.", HttpStatus.BAD_REQUEST),
     EXERCISE_NOT_AVAILABLE_IN_ENVIRONMENT("선택한 운동 환경에서 수행할 수 없는 운동이 포함되어 있습니다.", HttpStatus.BAD_REQUEST),
     INVALID_CUSTOM_ROUTINE_PRESCRIPTION("운동 유형에 맞지 않는 운동 처방 정보입니다.", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_CUSTOM_EXERCISE_CANDIDATES("AI 운동 종목 추천을 위한 운동 후보가 3개 미만입니다.", HttpStatus.BAD_REQUEST),
 
     // 기록
     DUPLICATE_BODY_COMPOSITION("오늘의 신체 기록이 이미 존재합니다.", HttpStatus.CONFLICT),

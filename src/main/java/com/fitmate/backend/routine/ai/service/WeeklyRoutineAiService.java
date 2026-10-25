@@ -41,12 +41,6 @@ public class WeeklyRoutineAiService {
     private final OpenAiClient openAiClient;
     private final WeeklyRoutineValidator validator;
 
-    public String createAiPrompt(Long memberId, WeeklyAiRoutineRequestDto requestDto) {
-        // 프롬포트 완성
-        WeeklyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
-        return aiPromptBuilder.build(input);
-    }
-
     public WeeklyRoutineOutputDto generateWeeklyRoutine(Long memberId,
                                                         WeeklyAiRoutineRequestDto requestDto) {
         WeeklyRoutineInputDto input = buildGenerationInput(memberId, requestDto);

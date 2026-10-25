@@ -52,11 +52,6 @@ public class DailyRoutineAiService {
     private final OpenAiClient openAiClient;
     private final DailyRoutineValidator validator;
 
-    public String createAiPrompt(Long memberId, DailyAiRoutineRequestDto requestDto) {
-        DailyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
-        return aiPromptBuilder.build(input);
-    }
-
     public DailyRoutineOutputDto generateDailyRoutine(Long memberId,
                                                       DailyAiRoutineRequestDto requestDto) {
         DailyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
