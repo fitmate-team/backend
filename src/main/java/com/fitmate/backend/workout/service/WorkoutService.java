@@ -277,6 +277,11 @@ public class WorkoutService {
                 .findByWeeklyRoutine_Member_IdAndRoutineDate(memberId, today)
                 .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
+        // 이미 운동을 시작했으면 환경 변경 불가
+        if (workoutRecordRepository.existsByDailyRoutine_Id(dailyRoutine.getId())) {
+            throw new CustomException(ErrorCode.WORKOUT_ALREADY_STARTED);
+        }
+
         // 2. 변경할 운동 환경 조회 및 소유권 확인
         WorkoutEnvironment selectedEnvironment = workoutEnvironmentRepository
                 .findByIdAndMemberId(workoutEnvironmentId, memberId)

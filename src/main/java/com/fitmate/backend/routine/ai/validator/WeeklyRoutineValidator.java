@@ -1,23 +1,25 @@
 package com.fitmate.backend.routine.ai.validator;
 
-import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
 import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.routine.ai.dto.input.AiEligibleExerciseDto;
-import com.fitmate.backend.routine.ai.dto.input.WeeklyGenerationInputDto;
-import com.fitmate.backend.routine.ai.dto.output.DailyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.output.RoutineExerciseOutputDto;
+import com.fitmate.backend.routine.ai.dto.input.WeeklyRoutineInputDto;
+import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineDayOutputDto;
+import com.fitmate.backend.routine.ai.dto.output.ExerciseRoutineOutputDto;
 import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
 
 @Component
+@RequiredArgsConstructor
 public class WeeklyRoutineValidator {
-    public void validate(WeeklyGenerationInputDto generationInputDto,
+    private final ExercisePrescriptionValidator prescriptionValidator;
+
+    public void validate(WeeklyRoutineInputDto generationInputDto,
                          WeeklyRoutineOutputDto routineOutputDto) {
 
         // AI가 생성한 weeklyPlan이 비어 있거나 null인지
@@ -38,7 +40,7 @@ public class WeeklyRoutineValidator {
                 .getAvailableDays()
                 .containsAll(routineOutputDto.getWeeklyPlan()
                                      .stream()
-                                     .map(DailyRoutineOutputDto::getDay)
+                                     .map(WeeklyRoutineDayOutputDto::getDay)
                                      .toList())) {
             throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
         }
@@ -46,7 +48,7 @@ public class WeeklyRoutineValidator {
         // 동일한 요일이 중복되지 않았는지
         if (routineOutputDto.getWeeklyPlan()
                 .stream()
-                .map(DailyRoutineOutputDto::getDay)
+                .map(WeeklyRoutineDayOutputDto::getDay)
                 .distinct()
                 .count() != routineOutputDto.getWeeklyPlan().size()) {
             throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
@@ -127,86 +129,27 @@ public class WeeklyRoutineValidator {
         }
 
         // 운동 기록 유형에 맞게 세트, 반복 횟수, 시간, 중량, 휴식값이 설정됐는지
-        List<RoutineExerciseOutputDto> exercises = routineOutputDto.getWeeklyPlan()
+        List<ExerciseRoutineOutputDto> exercises = routineOutputDto.getWeeklyPlan()
                 .stream()
                 .flatMap(day -> day.getExercises().stream())
                 .toList();
 
-        for (RoutineExerciseOutputDto exercise : exercises) {
+        // 운동별 처방 검사
+        for (ExerciseRoutineOutputDto exercise : exercises) {
             AiEligibleExerciseDto candidate = generationInputDto.getEligibleExercises()
                     .stream()
                     .filter(v -> v.getExerciseCode().equals(exercise.getExerciseCode()))
                     .findFirst()
                     .orElseThrow(() -> new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE));
 
-            // 모든 운동의 세트 수가 0보다 큰지
-            if (exercise.getSets() == null || exercise.getSets() <= 0) {
-                throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
-            }
-
-            // 중량 + 반복 횟수 + 세트
-            if (candidate.getBaselineRecordType() == ExerciseBaselineType.WEIGHT_REPS_SETS) {
-                if (exercise.getReps() == null || exercise.getReps() <= 0 ||
-                        exercise.getDurationSeconds() != null) {
-                    throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
-                }
-
-                // 동일 운동의 최근 중량 기록 조회
-                Integer recentWeightKg = generationInputDto.getRecentExerciseRecords()
-                        .stream()
-                        .filter(record -> exercise.getExerciseCode()
-                                .equals(record.getExerciseCode()) && record.getWeightKg() != null)
-                        .map(record -> record.getWeightKg())
-                        .findFirst()
-                        .orElse(null);
-
-                // 최근 중량 기록이 없으면 추천 중량도 null이어야 함
-                if (recentWeightKg == null) {
-                    if (exercise.getWeightKg() != null) {
-                        throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
-                    }
-                } else {
-                    // 최근 중량 기록이 있으면 양수이며 해당 중량과 일치해야 함
-                    if (exercise.getWeightKg() == null ||
-                            exercise.getWeightKg().compareTo(BigDecimal.ZERO) <= 0 ||
-                            exercise.getWeightKg().compareTo(BigDecimal.valueOf(recentWeightKg)) !=
-                                    0) {
-                        throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
-                    }
-                }
-            }
-
-            // 반복 횟수 + 세트
-            if (candidate.getBaselineRecordType() == ExerciseBaselineType.REPS_SETS) {
-                if (exercise.getReps() == null || exercise.getReps() <= 0 ||
-                        exercise.getDurationSeconds() != null || exercise.getWeightKg() != null) {
-                    throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
-                }
-            }
-
-            // 시간 기반 운동
-            if (candidate.getBaselineRecordType() == ExerciseBaselineType.DURATION) {
-                if (exercise.getReps() != null || exercise.getDurationSeconds() == null ||
-                        exercise.getDurationSeconds() <= 0 || exercise.getWeightKg() != null) {
-                    throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
-                }
-            }
-
-            // CARDIO 운동
-            if (candidate.getExerciseType() == ExerciseType.CARDIO) {
-                if (exercise.getSets() != 1 || exercise.getReps() != null ||
-                        exercise.getDurationSeconds() == null ||
-                        exercise.getDurationSeconds() <= 0 || exercise.getWeightKg() != null ||
-                        exercise.getRestSeconds() == null || exercise.getRestSeconds() != 0) {
-                    throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
-                }
-            } else {
-                // CARDIO 외 운동의 휴식 시간 검사
-                if (exercise.getRestSeconds() == null || exercise.getRestSeconds() < 0) {
-                    throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
-                }
-            }
+            prescriptionValidator.validateFormat(exercise, candidate);
+            prescriptionValidator.validateWeeklyWeight(
+                    exercise,
+                    candidate,
+                    generationInputDto.getRecentExerciseRecords()
+            );
         }
+
 
 
     }

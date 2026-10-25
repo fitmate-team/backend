@@ -66,4 +66,15 @@ public class DailyRoutine extends BaseEntity {
     ) {
         this.workoutEnvironment = workoutEnvironment;
     }
+
+
+    // 당일 루틴 재추천 결과 반영
+    public void updateRoutine(MainTarget mainTarget,
+                              WorkoutEnvironment workoutEnvironment,
+                              Integer estimatedDurationMinutes) {
+        this.mainTarget = mainTarget;
+        this.workoutEnvironment = workoutEnvironment;
+        this.estimatedDurationMinutes = estimatedDurationMinutes;
+    }
+
 }

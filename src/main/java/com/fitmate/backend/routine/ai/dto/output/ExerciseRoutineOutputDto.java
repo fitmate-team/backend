@@ -1,15 +1,16 @@
 package com.fitmate.backend.routine.ai.dto.output;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import tools.jackson.databind.PropertyNamingStrategies;
-import tools.jackson.databind.annotation.JsonNaming;
 
 import java.math.BigDecimal;
 
 @Getter
 @NoArgsConstructor
-public class RoutineExerciseOutputDto {
+@AllArgsConstructor
+// 재사용
+public class ExerciseRoutineOutputDto {
 
     private String exerciseCode;
     private String nameKo;

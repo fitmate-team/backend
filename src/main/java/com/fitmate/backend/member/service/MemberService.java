@@ -66,7 +66,30 @@ public class MemberService {
         if (requestDto.getEquipmentCodes().size() != equipmentSet.size()) {
             throw new CustomException(ErrorCode.INVALID_EQUIPMENT_CODE); // 개수 유효 검사
         }
-        workoutEnvironmentRepository.save(requestDto.toWorkoutEnvironment(savedMember, equipmentSet));
+
+        // 기본 운동 환경 생성
+        List<WorkoutEnvironment> environments = new ArrayList<>();
+        environments.add(WorkoutEnvironment.builder()
+                                 .member(savedMember)
+                                 .locationType(ExerciseLocation.HOME)
+                                 .equipment(requestDto.getExerciseLocation() ==
+                                                    ExerciseLocation.HOME ? equipmentSet : Set.of())
+                                 .build());
+
+        environments.add(WorkoutEnvironment.builder()
+                                 .member(savedMember)
+                                 .locationType(ExerciseLocation.OUTDOOR)
+                                 .equipment(requestDto.getExerciseLocation() ==
+                                                    ExerciseLocation.OUTDOOR ? equipmentSet :
+                                                    Set.of())
+                                 .build());
+
+        // 헬스장 선택 시 추가 생성
+        if (requestDto.getExerciseLocation() == ExerciseLocation.GYM) {
+            environments.add(requestDto.toWorkoutEnvironment(savedMember, equipmentSet));
+        }
+
+        workoutEnvironmentRepository.saveAll(environments);
 
         Set<Exercise> excludedExerciseSet = // 제외 운동 코드로 Exercise 조회
                 exerciseRepository.findAllByExerciseCodeIn(requestDto.getExcludedExerciseCodes());
@@ -98,26 +121,20 @@ public class MemberService {
             ExerciseBaselineType type = exercise.getBaselineRecordType();
 
             if (type == ExerciseBaselineType.WEIGHT_REPS_SETS &&
-                    (record.getWeight() == null ||
-                            record.getReps() == null ||
-                            record.getSets() == null ||
-                            record.getDurationSeconds() != null)) {
+                    (record.getWeight() == null || record.getReps() == null ||
+                            record.getSets() == null || record.getDurationSeconds() != null)) {
 
                 throw new CustomException(ErrorCode.INVALID_EXERCISE_BASELINE);
 
             } else if (type == ExerciseBaselineType.REPS_SETS &&
-                    (record.getWeight() != null ||
-                            record.getReps() == null ||
-                            record.getSets() == null ||
-                            record.getDurationSeconds() != null)) {
+                    (record.getWeight() != null || record.getReps() == null ||
+                            record.getSets() == null || record.getDurationSeconds() != null)) {
 
                 throw new CustomException(ErrorCode.INVALID_EXERCISE_BASELINE);
 
             } else if (type == ExerciseBaselineType.DURATION &&
-                    (record.getWeight() != null ||
-                            record.getReps() != null ||
-                            record.getSets() != null ||
-                            record.getDurationSeconds() == null)) {
+                    (record.getWeight() != null || record.getReps() != null ||
+                            record.getSets() != null || record.getDurationSeconds() == null)) {
 
                 throw new CustomException(ErrorCode.INVALID_EXERCISE_BASELINE);
             }
@@ -151,8 +168,9 @@ public class MemberService {
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        BodyComposition bodyComposition = bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        BodyComposition bodyComposition =
+                bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(
+                memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         return MemberResponseDto.from(member, memberProfile, bodyComposition);
     }
@@ -167,9 +185,7 @@ public class MemberService {
         validateGoalStrategy(requestDto.getPrimaryGoal(), requestDto.getGoalStrategy());
 
         Set<Exercise> excludedExercises =
-                exerciseRepository.findAllByExerciseCodeIn(
-                        requestDto.getExcludedExerciseCodes()
-                );
+                exerciseRepository.findAllByExerciseCodeIn(requestDto.getExcludedExerciseCodes());
         if (requestDto.getExcludedExerciseCodes().size() != excludedExercises.size()) {
             throw new CustomException(ErrorCode.INVALID_EXERCISE_CODE);
         }
@@ -188,8 +204,9 @@ public class MemberService {
                                           requestDto.getAvailableDays(),
                                           requestDto.getAvoidBodyAreas());
 
-        BodyComposition bodyComposition = bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        BodyComposition bodyComposition =
+                bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(
+                memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         return MemberResponseDto.from(member, memberProfile, bodyComposition);
 
@@ -210,19 +227,18 @@ public class MemberService {
         memberRepository.delete(member);
     }
 
-    private void validateWorkoutEnvironment(SignUpRequestDto requestDto){
+    private void validateWorkoutEnvironment(SignUpRequestDto requestDto) {
         boolean hasGymName = StringUtils.hasText(requestDto.getGymName());
 
-        if(requestDto.getExerciseLocation() == ExerciseLocation.GYM && !hasGymName){
+        if (requestDto.getExerciseLocation() == ExerciseLocation.GYM && !hasGymName) {
             throw new CustomException(ErrorCode.INVALID_WORKOUT_ENVIRONMENT);
-        }else if(requestDto.getExerciseLocation() != ExerciseLocation.GYM && hasGymName){
+        } else if (requestDto.getExerciseLocation() != ExerciseLocation.GYM && hasGymName) {
             throw new CustomException(ErrorCode.INVALID_WORKOUT_ENVIRONMENT);
         }
     }
 
-    private void validateGoalStrategy(PrimaryGoal primaryGoal,
-                                      GoalStrategy goalStrategy){
-        if(goalStrategy.getPrimaryGoal() != primaryGoal){
+    private void validateGoalStrategy(PrimaryGoal primaryGoal, GoalStrategy goalStrategy) {
+        if (goalStrategy.getPrimaryGoal() != primaryGoal) {
             throw new CustomException(ErrorCode.INVALID_GOAL_STRATEGY);
         }
     }
