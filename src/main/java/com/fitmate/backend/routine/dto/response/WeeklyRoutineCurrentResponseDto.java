@@ -38,7 +38,6 @@ public class WeeklyRoutineCurrentResponseDto {
         private LocalDate routineDate;
         private DayOfWeek day;
         private MainTarget mainTarget;
-        private String focus;
         private Integer estimatedMinutes;
         private List<ExerciseDto> exercises;
 
@@ -47,7 +46,6 @@ public class WeeklyRoutineCurrentResponseDto {
                                 dailyRoutine.getRoutineDate(),
                                 dailyRoutine.getRoutineDate().getDayOfWeek(),
                                 dailyRoutine.getMainTarget(),
-                                dailyRoutine.getFocus(),
                                 dailyRoutine.getEstimatedDurationMinutes(),
                                 exercises);
         }

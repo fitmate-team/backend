@@ -36,9 +36,6 @@ public class DailyRoutine extends BaseEntity {
     @Column(name = "main_target", nullable = false)
     private MainTarget mainTarget;
 
-    @Column(name = "focus")
-    private String focus;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workout_environment_id", nullable = false)
     private WorkoutEnvironment workoutEnvironment;
@@ -50,13 +47,11 @@ public class DailyRoutine extends BaseEntity {
     public DailyRoutine(WeeklyRoutine weeklyRoutine,
                         LocalDate routineDate,
                         MainTarget mainTarget,
-                        String focus,
                         WorkoutEnvironment workoutEnvironment,
                         Integer estimatedDurationMinutes) {
         this.weeklyRoutine = weeklyRoutine;
         this.routineDate = routineDate;
         this.mainTarget = mainTarget;
-        this.focus = focus;
         this.workoutEnvironment = workoutEnvironment;
         this.estimatedDurationMinutes = estimatedDurationMinutes;
     }
