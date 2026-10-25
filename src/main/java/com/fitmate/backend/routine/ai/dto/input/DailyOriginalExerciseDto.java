@@ -1,6 +1,5 @@
 package com.fitmate.backend.routine.ai.dto.input;
 
-import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.exercise.domain.MovementPattern;
 import com.fitmate.backend.exercise.domain.PrimaryMuscle;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;

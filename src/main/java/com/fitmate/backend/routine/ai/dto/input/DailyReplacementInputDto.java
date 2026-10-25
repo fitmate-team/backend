@@ -2,14 +2,11 @@ package com.fitmate.backend.routine.ai.dto.input;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import tools.jackson.databind.PropertyNamingStrategies;
-import tools.jackson.databind.annotation.JsonNaming;
 
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class DailyReplacementInputDto {
     private AiUserProfileDto userProfile;
     private List<AiEligibleExerciseDto> eligibleExercises;
