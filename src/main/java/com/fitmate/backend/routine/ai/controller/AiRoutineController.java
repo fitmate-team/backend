@@ -2,8 +2,8 @@ package com.fitmate.backend.routine.ai.controller;
 
 import com.fitmate.backend.routine.ai.dto.output.DailyRoutineOutputDto;
 import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.request.DailyRoutineRequestDto;
-import com.fitmate.backend.routine.ai.dto.request.WeeklyRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.request.DailyAiRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.request.WeeklyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.service.DailyRoutineAiService;
 import com.fitmate.backend.routine.ai.service.WeeklyRoutineAiService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +25,7 @@ public class AiRoutineController {
     @Operation(summary = "주간 루틴 생성 프롬포트")
     @PostMapping("/weekly-routines/prompt")
     public ResponseEntity<String> getWeeklyAiPrompt(@AuthenticationPrincipal Long memberId,
-                                                    @Valid @RequestBody WeeklyRoutineRequestDto requestDto) {
+                                                    @Valid @RequestBody WeeklyAiRoutineRequestDto requestDto) {
 
         return ResponseEntity.ok(weeklyRoutineAiService.createAiPrompt(memberId, requestDto));
     }
@@ -33,14 +33,14 @@ public class AiRoutineController {
     @Operation(summary = "주간 루틴 생성 (프리뷰)")
     @PostMapping("/weekly-routines/preview")
     public ResponseEntity<WeeklyRoutineOutputDto> generateWeeklyRoutine(@AuthenticationPrincipal Long memberId,
-                                                                        @Valid @RequestBody WeeklyRoutineRequestDto requestDto) {
+                                                                        @Valid @RequestBody WeeklyAiRoutineRequestDto requestDto) {
         return ResponseEntity.ok(weeklyRoutineAiService.generateWeeklyRoutine(memberId, requestDto));
     }
 
     @Operation(summary = "당일 루틴 생성 프롬포트")
     @PostMapping("/daily-routines/prompt")
     public ResponseEntity<String> getDailyPrompt(@AuthenticationPrincipal Long memberId,
-                                                 @Valid @RequestBody DailyRoutineRequestDto requestDto) {
+                                                 @Valid @RequestBody DailyAiRoutineRequestDto requestDto) {
 
         return ResponseEntity.ok(dailyRoutineAiService.createAiPrompt(memberId, requestDto));
     }
@@ -48,7 +48,7 @@ public class AiRoutineController {
     @Operation(summary = "당일 루틴 생성 (프리뷰)")
     @PostMapping("/daily-routines/preview")
     public ResponseEntity<DailyRoutineOutputDto> generateDailyRoutine(@AuthenticationPrincipal Long memberId,
-                                                                      @Valid @RequestBody DailyRoutineRequestDto requestDto) {
+                                                                      @Valid @RequestBody DailyAiRoutineRequestDto requestDto) {
         return ResponseEntity.ok(dailyRoutineAiService.generateDailyRoutine(memberId, requestDto));
     }
 }

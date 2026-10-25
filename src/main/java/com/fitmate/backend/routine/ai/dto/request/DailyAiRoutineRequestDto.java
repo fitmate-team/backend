@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class DailyRoutineRequestDto {
+public class DailyAiRoutineRequestDto {
 
     @NotNull
     @Positive

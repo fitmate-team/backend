@@ -14,7 +14,7 @@ import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.ai.client.OpenAiClient;
 import com.fitmate.backend.routine.ai.dto.input.*;
 import com.fitmate.backend.routine.ai.dto.output.DailyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.request.DailyRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.request.DailyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.prompt.AiPromptBuilder;
 import com.fitmate.backend.routine.ai.validator.DailyRoutineValidator;
 import com.fitmate.backend.routine.domain.DailyRoutine;
@@ -48,13 +48,13 @@ public class DailyRoutineAiService {
     private final OpenAiClient openAiClient;
     private final DailyRoutineValidator validator;
 
-    public String createAiPrompt(Long memberId, DailyRoutineRequestDto requestDto) {
+    public String createAiPrompt(Long memberId, DailyAiRoutineRequestDto requestDto) {
         DailyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
         return aiPromptBuilder.build(input);
     }
 
     public DailyRoutineOutputDto generateDailyRoutine(Long memberId,
-                                                      DailyRoutineRequestDto requestDto) {
+                                                      DailyAiRoutineRequestDto requestDto) {
         DailyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
         String prompt = aiPromptBuilder.build(input);
         DailyRoutineOutputDto output = openAiClient.generate(prompt,
@@ -64,7 +64,7 @@ public class DailyRoutineAiService {
     }
 
     private DailyRoutineInputDto buildGenerationInput(Long memberId,
-                                                      DailyRoutineRequestDto requestDto) {
+                                                      DailyAiRoutineRequestDto requestDto) {
         // DB 조회
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
