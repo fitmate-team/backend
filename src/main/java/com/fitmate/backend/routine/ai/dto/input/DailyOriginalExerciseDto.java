@@ -22,7 +22,7 @@ public class DailyOriginalExerciseDto {
     private Integer durationSeconds;
     private Integer restSeconds;
 
-    public static DailyOriginalExerciseDto of(ExerciseRoutine exerciseRoutine) {
+    public static DailyOriginalExerciseDto from(ExerciseRoutine exerciseRoutine) {
         return new DailyOriginalExerciseDto(exerciseRoutine.getExerciseOrder(),
                                             exerciseRoutine.getExercise().getExerciseCode(),
                                             exerciseRoutine.getExercise().getNameKo(),
