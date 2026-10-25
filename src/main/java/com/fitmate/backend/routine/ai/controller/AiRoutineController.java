@@ -6,6 +6,7 @@ import com.fitmate.backend.routine.ai.dto.request.DailyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.dto.request.WeeklyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.service.DailyRoutineAiService;
 import com.fitmate.backend.routine.ai.service.WeeklyRoutineAiService;
+import com.fitmate.backend.routine.service.CustomRoutineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -51,4 +52,19 @@ public class AiRoutineController {
                                                                       @Valid @RequestBody DailyAiRoutineRequestDto requestDto) {
         return ResponseEntity.ok(dailyRoutineAiService.generateDailyRoutine(memberId, requestDto));
     }
+
+//    @Operation(summary = "AI와 함께 만드는 루틴 생성 프롬포트")
+//    @PostMapping("/custom-routines/prompt")
+//    public ResponseEntity<String> getCustomPrompt(@AuthenticationPrincipal Long memberId,
+//                                                 @Valid @RequestBody DailyAiRoutineRequestDto requestDto) {
+//
+//        return ResponseEntity.ok(customRoutineService.createAiPrompt(memberId, requestDto));
+//    }
+//
+//    @Operation(summary = "AI와 함께 만드는 루틴 생성 (프리뷰)")
+//    @PostMapping("/custom-routines/preview")
+//    public ResponseEntity<DailyRoutineOutputDto> generateCustomRoutine(@AuthenticationPrincipal Long memberId,
+//                                                                      @Valid @RequestBody DailyAiRoutineRequestDto requestDto) {
+//        return ResponseEntity.ok(customRoutineService.generateDailyRoutine(memberId, requestDto));
+//    }
 }

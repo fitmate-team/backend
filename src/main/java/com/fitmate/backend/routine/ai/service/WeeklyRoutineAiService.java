@@ -60,7 +60,7 @@ public class WeeklyRoutineAiService {
                                                        WeeklyAiRoutineRequestDto requestDto) {
         // DB 조회
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_PROFILE_NOT_FOUND));
         BodyComposition composition =
                 bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(
                 memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
