@@ -1,5 +1,6 @@
 package com.fitmate.backend.routine.ai.prompt;
 
+import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseInputDto;
 import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineInputDto;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
@@ -15,24 +16,28 @@ public class AiPromptBuilder {
 
     private static final String PROMPT_PATH1 = "prompts/fitmate-production.txt";
     private static final String PROMPT_PATH2 = "prompts/fitmate-daily-replacement.txt";
+    private static final String PROMPT_PATH3 = "prompts/fitmate-custom-exercises.txt";
+//    private static final String PROMPT_PATH3 = "prompts/fitmate-custom-prescription.txt";
+//    private static final String PROMPT_PATH3 = "fitmate-custom-summary.txt";
 
     private final ObjectMapper objectMapper;
     private final String weeklyPromptTemplate;
     private final String dailyPromptTemplate;
+    private final String customPromptTemplate;
 
     public AiPromptBuilder(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.weeklyPromptTemplate = loadPromptTemplate(PROMPT_PATH1);
         this.dailyPromptTemplate = loadPromptTemplate(PROMPT_PATH2);
+        this.customPromptTemplate = loadPromptTemplate(PROMPT_PATH3);
     }
 
     public String build(WeeklyRoutineInputDto request) {
         try {
-            String userProfileJson = objectMapper.writeValueAsString(request.getUserProfile());
 
+            String userProfileJson = objectMapper.writeValueAsString(request.getUserProfile());
             String eligibleExercisesJson =
                     objectMapper.writeValueAsString(request.getEligibleExercises());
-
             String recentExerciseRecordsJson =
                     objectMapper.writeValueAsString(request.getRecentExerciseRecords());
 
@@ -47,11 +52,10 @@ public class AiPromptBuilder {
 
     public String build(DailyRoutineInputDto request){
         try {
-            String userProfileJson = objectMapper.writeValueAsString(request.getUserProfile());
 
+            String userProfileJson = objectMapper.writeValueAsString(request.getUserProfile());
             String eligibleExercisesJson =
                     objectMapper.writeValueAsString(request.getEligibleExercises());
-
             String recentExerciseRecordsJson =
                     objectMapper.writeValueAsString(request.getRecentExerciseRecords());
             String originalExerciseRecordsJson =
@@ -61,6 +65,21 @@ public class AiPromptBuilder {
                     .replace("{{ELIGIBLE_EXERCISES}}", eligibleExercisesJson)
                     .replace("{{RECENT_EXERCISE_RECORDS}}", recentExerciseRecordsJson)
                     .replace("{{ORIGINAL_EXERCISES}}", originalExerciseRecordsJson);
+
+        } catch (JacksonException e) {
+            throw new IllegalStateException("AI 요청 데이터를 JSON으로 변환하지 못했습니다.", e);
+        }
+    }
+
+    public String build(CustomExerciseInputDto request){
+        try {
+
+            String userProfileJson = objectMapper.writeValueAsString(request.getUserProfile());
+            String eligibleExercisesJson =
+                    objectMapper.writeValueAsString(request.getEligibleExercises());
+
+            return customPromptTemplate.replace("{{USER_PROFILE}}", userProfileJson)
+                    .replace("{{ELIGIBLE_EXERCISES}}", eligibleExercisesJson);
 
         } catch (JacksonException e) {
             throw new IllegalStateException("AI 요청 데이터를 JSON으로 변환하지 못했습니다.", e);
