@@ -4,7 +4,6 @@ import com.fitmate.backend.routine.domain.DailyRoutine;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.routine.domain.MainTarget;
 import com.fitmate.backend.routine.domain.WeeklyRoutine;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,20 +14,20 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class WeeklyRoutineCurrentResponseDto {
+public class WeeklyRoutineResponseDto {
     private Long weeklyRoutineId;
     private LocalDate weekStartDate;
     private Integer sessionMinutes;
     private Long workoutEnvironmentId;
     private List<DailyDto> weeklyPlan;
 
-    public static WeeklyRoutineCurrentResponseDto of(WeeklyRoutine weeklyRoutine,
-                                                     List<DailyDto> weeklyPlan) {
-        return new WeeklyRoutineCurrentResponseDto(weeklyRoutine.getId(),
-                                                   weeklyRoutine.getWeekStartDate(),
-                                                   weeklyRoutine.getSessionMinutes(),
-                                                   weeklyRoutine.getWorkoutEnvironment().getId(),
-                                                   weeklyPlan);
+    public static WeeklyRoutineResponseDto of(WeeklyRoutine weeklyRoutine,
+                                              List<DailyDto> weeklyPlan) {
+        return new WeeklyRoutineResponseDto(weeklyRoutine.getId(),
+                                            weeklyRoutine.getWeekStartDate(),
+                                            weeklyRoutine.getSessionMinutes(),
+                                            weeklyRoutine.getWorkoutEnvironment().getId(),
+                                            weeklyPlan);
     }
 
     @Getter

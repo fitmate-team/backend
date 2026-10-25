@@ -9,8 +9,10 @@ import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.member.repository.MemberRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.domain.DailyRoutine;
+import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.routine.domain.WeeklyRoutine;
 import com.fitmate.backend.routine.dto.request.WeeklyRoutineSaveRequestDto;
+import com.fitmate.backend.routine.dto.response.WeeklyRoutineResponseDto;
 import com.fitmate.backend.routine.repository.DailyRoutineRepository;
 import com.fitmate.backend.routine.repository.ExerciseRoutineRepository;
 import com.fitmate.backend.routine.repository.WeeklyRoutineRepository;
@@ -22,13 +24,15 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class WeeklyRoutineSaveService {
+public class WeeklyRoutineService {
     private final MemberRepository memberRepository;
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
     private final ExerciseRepository exerciseRepository;
@@ -37,7 +41,8 @@ public class WeeklyRoutineSaveService {
     private final ExerciseRoutineRepository exerciseRoutineRepository;
 
     @Transactional
-    public void save(Long memberId, WeeklyRoutineSaveRequestDto requestDto) {
+    public void saveRoutine(Long memberId, WeeklyRoutineSaveRequestDto requestDto) {
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         WorkoutEnvironment environment =
@@ -78,6 +83,43 @@ public class WeeklyRoutineSaveService {
                                                                              exerciseOrder));
             }
         }
+
+    }
+
+    public WeeklyRoutineResponseDto getRoutine(Long memberId) {
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        LocalDate weekStartDate = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        WeeklyRoutine weeklyRoutine = weeklyRoutineRepository.findByMember_IdAndWeekStartDate(
+                        memberId,
+                        weekStartDate)
+                .orElseThrow(() -> new CustomException(ErrorCode.WEEKLY_ROUTINE_NOT_FOUND));
+
+        List<DailyRoutine> dailyRoutines =
+                dailyRoutineRepository.findByWeeklyRoutine_IdOrderByRoutineDateAsc(
+                        weeklyRoutine.getId());
+
+        List<WeeklyRoutineResponseDto.DailyDto> weeklyPlan = new ArrayList<>();
+
+        for (DailyRoutine dailyRoutine : dailyRoutines) {
+
+            List<ExerciseRoutine> exerciseRoutines =
+                    exerciseRoutineRepository.findByDailyRoutine_IdOrderByExerciseOrderAsc(
+                            dailyRoutine.getId());
+
+            List<WeeklyRoutineResponseDto.ExerciseDto> exercises = exerciseRoutines.stream()
+                    .map(exerciseRoutine -> WeeklyRoutineResponseDto.ExerciseDto.from(
+                            exerciseRoutine))
+                    .toList();
+
+            WeeklyRoutineResponseDto.DailyDto dailyPlan =
+                    WeeklyRoutineResponseDto.DailyDto.of(dailyRoutine, exercises);
+
+            weeklyPlan.add(dailyPlan);
+
+        }
+
+        return WeeklyRoutineResponseDto.of(weeklyRoutine, weeklyPlan);
 
     }
 

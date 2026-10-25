@@ -35,7 +35,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class DailyRoutineService {
+public class DailyRoutineAiService {
     private final MemberProfileRepository memberProfileRepository;
     private final BodyCompositionRepository bodyCompositionRepository;
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
