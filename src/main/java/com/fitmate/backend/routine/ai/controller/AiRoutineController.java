@@ -2,8 +2,10 @@ package com.fitmate.backend.routine.ai.controller;
 
 import com.fitmate.backend.routine.ai.dto.output.DailyRoutineOutputDto;
 import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.request.CustomAiExerciseRequestDto;
 import com.fitmate.backend.routine.ai.dto.request.DailyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.dto.request.WeeklyAiRoutineRequestDto;
+import com.fitmate.backend.routine.ai.service.CustomRoutineAiService;
 import com.fitmate.backend.routine.ai.service.DailyRoutineAiService;
 import com.fitmate.backend.routine.ai.service.WeeklyRoutineAiService;
 import com.fitmate.backend.routine.service.CustomRoutineService;
@@ -22,8 +24,9 @@ import org.springframework.web.bind.annotation.*;
 public class AiRoutineController {
     private final WeeklyRoutineAiService weeklyRoutineAiService;
     private final DailyRoutineAiService dailyRoutineAiService;
+    private final CustomRoutineAiService customRoutineAiService;
 
-    @Operation(summary = "주간 루틴 생성 프롬포트")
+    @Operation(summary = "주간 루틴 생성 (프롬포트)")
     @PostMapping("/weekly-routines/prompt")
     public ResponseEntity<String> getWeeklyAiPrompt(@AuthenticationPrincipal Long memberId,
                                                     @Valid @RequestBody WeeklyAiRoutineRequestDto requestDto) {
@@ -38,7 +41,7 @@ public class AiRoutineController {
         return ResponseEntity.ok(weeklyRoutineAiService.generateWeeklyRoutine(memberId, requestDto));
     }
 
-    @Operation(summary = "당일 루틴 생성 프롬포트")
+    @Operation(summary = "당일 루틴 생성 (프롬포트)")
     @PostMapping("/daily-routines/prompt")
     public ResponseEntity<String> getDailyPrompt(@AuthenticationPrincipal Long memberId,
                                                  @Valid @RequestBody DailyAiRoutineRequestDto requestDto) {
@@ -53,18 +56,18 @@ public class AiRoutineController {
         return ResponseEntity.ok(dailyRoutineAiService.generateDailyRoutine(memberId, requestDto));
     }
 
-//    @Operation(summary = "AI와 함께 만드는 루틴 생성 프롬포트")
-//    @PostMapping("/custom-routines/prompt")
-//    public ResponseEntity<String> getCustomPrompt(@AuthenticationPrincipal Long memberId,
-//                                                 @Valid @RequestBody DailyAiRoutineRequestDto requestDto) {
-//
-//        return ResponseEntity.ok(customRoutineService.createAiPrompt(memberId, requestDto));
-//    }
-//
-//    @Operation(summary = "AI와 함께 만드는 루틴 생성 (프리뷰)")
-//    @PostMapping("/custom-routines/preview")
-//    public ResponseEntity<DailyRoutineOutputDto> generateCustomRoutine(@AuthenticationPrincipal Long memberId,
-//                                                                      @Valid @RequestBody DailyAiRoutineRequestDto requestDto) {
-//        return ResponseEntity.ok(customRoutineService.generateDailyRoutine(memberId, requestDto));
-//    }
+    @Operation(summary = "직접 만들기 - 운동 추천받기 (프롬포트)")
+    @PostMapping("/custom-routines/prompt")
+    public ResponseEntity<String> getCustomPrompt(@AuthenticationPrincipal Long memberId,
+                                                 @Valid @RequestBody CustomAiExerciseRequestDto requestDto) {
+
+        return ResponseEntity.ok(customRoutineAiService.createAiPrompt(memberId, requestDto));
+    }
+
+    @Operation(summary = "직접 만들기 - 운동 추천받기 (프리뷰)")
+    @PostMapping("/custom-routines/preview")
+    public ResponseEntity<DailyRoutineOutputDto> generateCustomRoutine(@AuthenticationPrincipal Long memberId,
+                                                                      @Valid @RequestBody CustomAiExerciseRequestDto requestDto) {
+        return ResponseEntity.ok(customRoutineAiService.generateCustomRoutine(memberId, requestDto));
+    }
 }
