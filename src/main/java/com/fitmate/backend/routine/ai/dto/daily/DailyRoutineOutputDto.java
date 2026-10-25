@@ -1,5 +1,6 @@
-package com.fitmate.backend.routine.ai.dto.output;
+package com.fitmate.backend.routine.ai.dto.daily;
 
+import com.fitmate.backend.routine.ai.dto.common.ExerciseRoutineOutputDto;
 import com.fitmate.backend.routine.domain.MainTarget;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

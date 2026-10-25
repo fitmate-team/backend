@@ -1,4 +1,4 @@
-package com.fitmate.backend.routine.ai.dto.output;
+package com.fitmate.backend.routine.ai.dto.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

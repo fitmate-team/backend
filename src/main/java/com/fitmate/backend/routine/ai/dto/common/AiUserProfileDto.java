@@ -1,7 +1,5 @@
-package com.fitmate.backend.routine.ai.dto.input;
+package com.fitmate.backend.routine.ai.dto.common;
 
-import tools.jackson.databind.PropertyNamingStrategies;
-import tools.jackson.databind.annotation.JsonNaming;
 import com.fitmate.backend.member.domain.BodyComposition;
 import com.fitmate.backend.member.domain.MemberProfile;
 import com.fitmate.backend.member.domain.WorkoutEnvironment;

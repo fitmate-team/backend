@@ -1,4 +1,4 @@
-package com.fitmate.backend.routine.ai.dto.request;
+package com.fitmate.backend.routine.ai.dto.daily;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

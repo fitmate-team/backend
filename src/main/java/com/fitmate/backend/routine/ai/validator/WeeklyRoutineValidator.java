@@ -3,11 +3,12 @@ package com.fitmate.backend.routine.ai.validator;
 import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
-import com.fitmate.backend.routine.ai.dto.input.AiEligibleExerciseDto;
-import com.fitmate.backend.routine.ai.dto.input.WeeklyRoutineInputDto;
-import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineDayOutputDto;
-import com.fitmate.backend.routine.ai.dto.output.ExerciseRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.common.AiEligibleExerciseDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineInputDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineDayOutputDto;
+import com.fitmate.backend.routine.ai.dto.common.ExerciseRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineOutputDto;
+import com.fitmate.backend.routine.domain.MainTarget;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -66,7 +67,8 @@ public class WeeklyRoutineValidator {
         // 각 운동일과 운동의 필수 필드가 null이거나 비어 있지 않은지
         if (routineOutputDto.getWeeklyPlan()
                 .stream()
-                .anyMatch(day -> day.getMainTarget() == null || day.getFocus() == null ||
+                .anyMatch(day -> day.getMainTarget() == null ||
+                        day.getMainTarget() == MainTarget.CORE || day.getFocus() == null ||
                         day.getFocus().isBlank() || day.getDailyReason() == null ||
                         day.getDailyReason().isBlank() || day.getExercises() == null ||
                         day.getExercises().isEmpty() || day.getExercises().contains(null) ||
@@ -143,13 +145,10 @@ public class WeeklyRoutineValidator {
                     .orElseThrow(() -> new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE));
 
             prescriptionValidator.validateFormat(exercise, candidate);
-            prescriptionValidator.validateWeeklyWeight(
-                    exercise,
-                    candidate,
-                    generationInputDto.getRecentExerciseRecords()
-            );
+            prescriptionValidator.validateWeeklyWeight(exercise,
+                                                       candidate,
+                                                       generationInputDto.getRecentExerciseRecords());
         }
-
 
 
     }

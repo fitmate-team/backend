@@ -1,9 +1,11 @@
 package com.fitmate.backend.routine.controller;
 
+import com.fitmate.backend.routine.dto.request.CustomRoutineSaveRequestDto;
 import com.fitmate.backend.routine.dto.request.DailyRoutineSaveRequestDto;
 import com.fitmate.backend.routine.dto.request.RoutineWeightUpdateRequestDto;
 import com.fitmate.backend.routine.dto.request.WeeklyRoutineSaveRequestDto;
 import com.fitmate.backend.routine.dto.response.WeeklyRoutineResponseDto;
+import com.fitmate.backend.routine.service.CustomRoutineService;
 import com.fitmate.backend.routine.service.DailyRoutineService;
 import com.fitmate.backend.routine.service.RoutineWeightService;
 import com.fitmate.backend.routine.service.WeeklyRoutineService;
@@ -26,6 +28,7 @@ public class RoutineController {
     private final RoutineWeightService routineWeightService;
     private final WeeklyRoutineService weeklyRoutineService;
     private final DailyRoutineService dailyRoutineService;
+    private final CustomRoutineService customRoutineService;
 
     @Operation(summary = "오늘의 운동 중량 설정", description = "AI가 중량을 추천하지 못한 운동에 대해 사용자가 직접 중량을 설정합니다.")
     @PatchMapping("/weights")
@@ -56,6 +59,15 @@ public class RoutineController {
                                                  @Valid @RequestBody DailyRoutineSaveRequestDto request) {
         dailyRoutineService.saveRoutine(memberId, request);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "AI와 함께 만든 주간 루틴 저장", description = "사용자가 최종 확정한 요일별 운동 환경과 운동 처방을 이번 주 " +
+            "루틴으로 저장합니다.")
+    @PostMapping("/custom")
+    public ResponseEntity<Void> saveCustomRoutine(@AuthenticationPrincipal Long memberId,
+                                                  @Valid @RequestBody CustomRoutineSaveRequestDto request) {
+        customRoutineService.saveRoutine(memberId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }

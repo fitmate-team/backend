@@ -4,8 +4,10 @@ import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
 import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
-import com.fitmate.backend.routine.ai.dto.input.*;
-import com.fitmate.backend.routine.ai.dto.output.ExerciseRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.common.AiEligibleExerciseDto;
+import com.fitmate.backend.routine.ai.dto.common.AiRecentExerciseRecordDto;
+import com.fitmate.backend.routine.ai.dto.daily.AiDailyOriginalExerciseDto;
+import com.fitmate.backend.routine.ai.dto.common.ExerciseRoutineOutputDto;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

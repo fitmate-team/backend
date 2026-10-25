@@ -33,6 +33,7 @@ public class WeeklyRoutineResponseDto {
     @Getter
     @AllArgsConstructor
     public static class DailyDto {
+        private Long workoutEnvironmentId;
         private Long dailyRoutineId;
         private LocalDate routineDate;
         private DayOfWeek day;
@@ -41,7 +42,8 @@ public class WeeklyRoutineResponseDto {
         private List<ExerciseDto> exercises;
 
         public static DailyDto of(DailyRoutine dailyRoutine, List<ExerciseDto> exercises) {
-            return new DailyDto(dailyRoutine.getId(),
+            return new DailyDto(dailyRoutine.getWorkoutEnvironment().getId(),
+                                dailyRoutine.getId(),
                                 dailyRoutine.getRoutineDate(),
                                 dailyRoutine.getRoutineDate().getDayOfWeek(),
                                 dailyRoutine.getMainTarget(),

@@ -12,9 +12,13 @@ import com.fitmate.backend.member.repository.ExerciseBaselineRepository;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.ai.client.OpenAiClient;
-import com.fitmate.backend.routine.ai.dto.input.*;
-import com.fitmate.backend.routine.ai.dto.output.DailyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.request.DailyAiRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.common.AiEligibleExerciseDto;
+import com.fitmate.backend.routine.ai.dto.common.AiRecentExerciseRecordDto;
+import com.fitmate.backend.routine.ai.dto.common.AiUserProfileDto;
+import com.fitmate.backend.routine.ai.dto.daily.AiDailyOriginalExerciseDto;
+import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineInputDto;
+import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.daily.DailyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.prompt.AiPromptBuilder;
 import com.fitmate.backend.routine.ai.validator.DailyRoutineValidator;
 import com.fitmate.backend.routine.domain.DailyRoutine;
@@ -47,11 +51,6 @@ public class DailyRoutineAiService {
     private final AiPromptBuilder aiPromptBuilder;
     private final OpenAiClient openAiClient;
     private final DailyRoutineValidator validator;
-
-    public String createAiPrompt(Long memberId, DailyAiRoutineRequestDto requestDto) {
-        DailyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
-        return aiPromptBuilder.build(input);
-    }
 
     public DailyRoutineOutputDto generateDailyRoutine(Long memberId,
                                                       DailyAiRoutineRequestDto requestDto) {

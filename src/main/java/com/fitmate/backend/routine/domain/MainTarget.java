@@ -14,6 +14,7 @@ public enum MainTarget {
     ARMS("팔"),
     UPPER_BODY("상체"),
     FULL_BODY("전신"),
+    CORE("코어"),
     CARDIO("유산소");
 
     private final String displayTitle;

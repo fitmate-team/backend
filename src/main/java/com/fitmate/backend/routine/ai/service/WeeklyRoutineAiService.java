@@ -9,13 +9,13 @@ import com.fitmate.backend.member.repository.ExerciseBaselineRepository;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.ai.client.OpenAiClient;
-import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineOutputDto;
 import com.fitmate.backend.routine.ai.prompt.AiPromptBuilder;
-import com.fitmate.backend.routine.ai.dto.input.AiEligibleExerciseDto;
-import com.fitmate.backend.routine.ai.dto.input.AiRecentExerciseRecordDto;
-import com.fitmate.backend.routine.ai.dto.input.WeeklyRoutineInputDto;
-import com.fitmate.backend.routine.ai.dto.input.AiUserProfileDto;
-import com.fitmate.backend.routine.ai.dto.request.WeeklyAiRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.common.AiEligibleExerciseDto;
+import com.fitmate.backend.routine.ai.dto.common.AiRecentExerciseRecordDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineInputDto;
+import com.fitmate.backend.routine.ai.dto.common.AiUserProfileDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.validator.WeeklyRoutineValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,12 +41,6 @@ public class WeeklyRoutineAiService {
     private final OpenAiClient openAiClient;
     private final WeeklyRoutineValidator validator;
 
-    public String createAiPrompt(Long memberId, WeeklyAiRoutineRequestDto requestDto) {
-        // 프롬포트 완성
-        WeeklyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
-        return aiPromptBuilder.build(input);
-    }
-
     public WeeklyRoutineOutputDto generateWeeklyRoutine(Long memberId,
                                                         WeeklyAiRoutineRequestDto requestDto) {
         WeeklyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
@@ -60,7 +54,7 @@ public class WeeklyRoutineAiService {
                                                        WeeklyAiRoutineRequestDto requestDto) {
         // DB 조회
         MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_PROFILE_NOT_FOUND));
         BodyComposition composition =
                 bodyCompositionRepository.findTopByMemberIdOrderByCreatedAtDesc(
                 memberId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
