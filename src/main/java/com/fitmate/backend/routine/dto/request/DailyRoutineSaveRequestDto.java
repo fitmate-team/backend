@@ -1,7 +1,6 @@
 package com.fitmate.backend.routine.dto.request;
 
 import com.fitmate.backend.exercise.domain.Exercise;
-import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.routine.domain.DailyRoutine;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.routine.domain.MainTarget;
@@ -39,13 +38,8 @@ public class DailyRoutineSaveRequestDto {
     private Integer estimatedMinutes;
 
     @NotEmpty
-    @Schema(description = "기존 운동과 대체 운동의 1:1 대응 목록 (배열 순서가 운동 순서)")
+    @Schema(description = "기존 운동과 재추천 운동의 1:1 대응 목록")
     private List<@NotNull @Valid ReplacementDto> replacements;
-
-    // 기존 당일 루틴 수정
-    public void updateDailyRoutine(DailyRoutine dailyRoutine, WorkoutEnvironment environment) {
-        dailyRoutine.updateRoutine(this.mainTarget, environment, this.estimatedMinutes);
-    }
 
     @Getter
     @NoArgsConstructor
@@ -75,22 +69,22 @@ public class DailyRoutineSaveRequestDto {
         @Schema(description = "운동 마스터에 등록된 한글 운동명", example = "맨몸 스쿼트")
         private String nameKo;
 
-        @Positive
-        @Schema(description = "추천 중량(kg). 기록이 없거나 중량을 사용하지 않으면 null", example = "22")
-        private BigDecimal weightKg;
-
-        @Positive
-        @Schema(description = "목표 반복 횟수. 시간 기반 운동은 null", example = "10")
-        private Integer reps;
-
         @NotNull
         @Positive
         @Schema(description = "운동 세트 수. CARDIO는 1", example = "3")
         private Integer sets;
 
         @Positive
+        @Schema(description = "목표 반복 횟수. 시간 기반 운동은 null", example = "10")
+        private Integer reps;
+
+        @Positive
         @Schema(description = "시간 기반 운동의 수행 시간(초). 반복 기반 운동은 null", example = "45")
         private Integer durationSeconds;
+
+        @Positive
+        @Schema(description = "추천 중량(kg). 기록이 없거나 중량을 사용하지 않으면 null", example = "22")
+        private BigDecimal weightKg;
 
         @NotNull
         @PositiveOrZero
@@ -105,10 +99,10 @@ public class DailyRoutineSaveRequestDto {
                     .dailyRoutine(dailyRoutine)
                     .exercise(exercise)
                     .exerciseOrder(exerciseOrder)
-                    .weight(this.weightKg)
-                    .reps(this.reps)
                     .setCount(this.sets)
+                    .reps(this.reps)
                     .durationSeconds(this.durationSeconds)
+                    .weight(this.weightKg)
                     .restSeconds(this.restSeconds)
                     .build();
         }
