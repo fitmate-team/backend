@@ -1,11 +1,14 @@
 package com.fitmate.backend.exercise.service;
 
+import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.exercise.domain.PrimaryMuscle;
 import com.fitmate.backend.exercise.dto.ExerciseGuideResponseDto;
 import com.fitmate.backend.exercise.dto.ExerciseResponseDto;
 import com.fitmate.backend.exercise.repository.ExerciseRepository;
 import com.fitmate.backend.global.exception.CustomException;
+import com.fitmate.backend.member.domain.WorkoutEnvironment;
+import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import lombok.RequiredArgsConstructor;
 import com.fitmate.backend.global.exception.ErrorCode;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ import static java.util.Locale.filter;
 @Transactional(readOnly = true)
 public class ExerciseService {
     private final ExerciseRepository exerciseRepository;
+    private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
 
     public List<ExerciseResponseDto> getExercises(String keyword, PrimaryMuscle muscle) {
 
@@ -35,9 +39,7 @@ public class ExerciseService {
                 .toList();
     }
 
-    public List<ExerciseGuideResponseDto> getExerciseGuides(
-            List<Long> exerciseIds
-    ) {
+    public List<ExerciseGuideResponseDto> getExerciseGuides(List<Long> exerciseIds) {
         // 중복 ID 제거 및 요청 순서 유지
         Set<Long> uniqueIds = new LinkedHashSet<>(exerciseIds);
 
@@ -55,15 +57,33 @@ public class ExerciseService {
 
         // 운동 ID를 기준으로 매핑
         Map<Long, Exercise> exerciseMap = exercises.stream()
-                .collect(Collectors.toMap(
-                        Exercise::getId,
-                        Function.identity()
-                ));
+                .collect(Collectors.toMap(Exercise::getId, Function.identity()));
 
         // 요청한 ID 순서대로 응답
         return uniqueIds.stream()
                 .map(exerciseMap::get)
                 .map(ExerciseGuideResponseDto::from)
+                .toList();
+    }
+
+    public List<ExerciseResponseDto> getAvailableExercises(Long memberId,
+                                                           Long environmentId,
+                                                           String keyword,
+                                                           PrimaryMuscle muscle) {
+        WorkoutEnvironment environment =
+                workoutEnvironmentRepository.findWithEquipmentByIdAndMemberId(
+                        environmentId,
+                        memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
+
+        return exerciseRepository.findAll()
+                .stream()
+                .filter(e -> e.getAvailableLocations().contains(environment.getLocationType()))
+                .filter(e-> environment.getEquipment().containsAll(e.getEquipment()))
+                .filter(exercise -> !StringUtils.hasText(keyword) ||
+                        exercise.getNameKo().contains(keyword.trim()))
+                .filter(exercise -> muscle == null || exercise.getPrimaryMuscle() == muscle)
+                .map(ExerciseResponseDto::from)
                 .toList();
     }
 }
