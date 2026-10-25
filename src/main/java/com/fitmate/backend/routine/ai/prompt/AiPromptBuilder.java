@@ -1,9 +1,9 @@
 package com.fitmate.backend.routine.ai.prompt;
 
-import com.fitmate.backend.routine.ai.dto.input.DailyRoutineInputDto;
+import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineInputDto;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import com.fitmate.backend.routine.ai.dto.input.WeeklyRoutineInputDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineInputDto;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 

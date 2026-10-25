@@ -1,5 +1,8 @@
-package com.fitmate.backend.routine.ai.dto.input;
+package com.fitmate.backend.routine.ai.dto.daily;
 
+import com.fitmate.backend.routine.ai.dto.common.AiEligibleExerciseDto;
+import com.fitmate.backend.routine.ai.dto.common.AiRecentExerciseRecordDto;
+import com.fitmate.backend.routine.ai.dto.common.AiUserProfileDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

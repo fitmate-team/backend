@@ -1,4 +1,4 @@
-package com.fitmate.backend.routine.ai.dto.output;
+package com.fitmate.backend.routine.ai.dto.custom.exercise;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

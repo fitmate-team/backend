@@ -1,4 +1,4 @@
-package com.fitmate.backend.routine.ai.dto.input;
+package com.fitmate.backend.routine.ai.dto.daily;
 
 import com.fitmate.backend.exercise.domain.MovementPattern;
 import com.fitmate.backend.exercise.domain.PrimaryMuscle;

@@ -12,13 +12,13 @@ import com.fitmate.backend.member.repository.ExerciseBaselineRepository;
 import com.fitmate.backend.member.repository.MemberProfileRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.ai.client.OpenAiClient;
-import com.fitmate.backend.routine.ai.dto.input.AiEligibleExerciseDto;
-import com.fitmate.backend.routine.ai.dto.input.AiRecentExerciseRecordDto;
-import com.fitmate.backend.routine.ai.dto.input.AiUserProfileDto;
-import com.fitmate.backend.routine.ai.dto.input.WeeklyRoutineInputDto;
-import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.request.CustomAiExerciseRequestDto;
-import com.fitmate.backend.routine.ai.dto.request.WeeklyAiRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.common.AiEligibleExerciseDto;
+import com.fitmate.backend.routine.ai.dto.common.AiRecentExerciseRecordDto;
+import com.fitmate.backend.routine.ai.dto.common.AiUserProfileDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineInputDto;
+import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseOutputDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomAiExerciseRequestDto;
 import com.fitmate.backend.routine.ai.prompt.AiPromptBuilder;
 import com.fitmate.backend.routine.ai.validator.WeeklyRoutineValidator;
 import lombok.RequiredArgsConstructor;
@@ -51,8 +51,8 @@ public class CustomRoutineAiService {
         return aiPromptBuilder.build(input);
     }
 
-    public WeeklyRoutineOutputDto generateCustomRoutine(Long memberId,
-                                                        CustomAiExerciseRequestDto requestDto) {
+    public CustomExerciseOutputDto generateCustomRoutine(Long memberId,
+                                                         CustomAiExerciseRequestDto requestDto) {
         WeeklyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
         String prompt = aiPromptBuilder.build(input);
         WeeklyRoutineOutputDto output = openAiClient.generate(prompt, WeeklyRoutineOutputDto.class);

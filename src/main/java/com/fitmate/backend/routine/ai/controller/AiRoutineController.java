@@ -1,14 +1,13 @@
 package com.fitmate.backend.routine.ai.controller;
 
-import com.fitmate.backend.routine.ai.dto.output.DailyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.output.WeeklyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.request.CustomAiExerciseRequestDto;
-import com.fitmate.backend.routine.ai.dto.request.DailyAiRoutineRequestDto;
-import com.fitmate.backend.routine.ai.dto.request.WeeklyAiRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomAiExerciseRequestDto;
+import com.fitmate.backend.routine.ai.dto.daily.DailyAiRoutineRequestDto;
+import com.fitmate.backend.routine.ai.dto.weekly.WeeklyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.service.CustomRoutineAiService;
 import com.fitmate.backend.routine.ai.service.DailyRoutineAiService;
 import com.fitmate.backend.routine.ai.service.WeeklyRoutineAiService;
-import com.fitmate.backend.routine.service.CustomRoutineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

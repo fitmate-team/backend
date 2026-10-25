@@ -2,11 +2,11 @@ package com.fitmate.backend.routine.ai.validator;
 
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
-import com.fitmate.backend.routine.ai.dto.input.AiEligibleExerciseDto;
-import com.fitmate.backend.routine.ai.dto.input.AiDailyOriginalExerciseDto;
-import com.fitmate.backend.routine.ai.dto.input.DailyRoutineInputDto;
-import com.fitmate.backend.routine.ai.dto.output.DailyRoutineOutputDto;
-import com.fitmate.backend.routine.ai.dto.output.ExerciseRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.common.AiEligibleExerciseDto;
+import com.fitmate.backend.routine.ai.dto.daily.AiDailyOriginalExerciseDto;
+import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineInputDto;
+import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.common.ExerciseRoutineOutputDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

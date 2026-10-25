@@ -1,4 +1,4 @@
-package com.fitmate.backend.routine.ai.dto.request;
+package com.fitmate.backend.routine.ai.dto.daily;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -7,10 +7,13 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CustomAiExerciseRequestDto {
+public class DailyAiRoutineRequestDto {
 
     @NotNull
     @Positive
     private Long environmentId;
 
+    @NotNull
+    @Positive
+    private Integer sessionMinutes;
 }
