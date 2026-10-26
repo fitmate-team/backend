@@ -17,6 +17,7 @@ import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomAiExerciseReques
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseInputDto;
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseOutputDto;
 import com.fitmate.backend.routine.ai.dto.custom.prescription.*;
+import com.fitmate.backend.routine.ai.dto.custom.summary.AiCustomSummaryExerciseDto;
 import com.fitmate.backend.routine.ai.dto.custom.summary.CustomAiSummaryRequestDto;
 import com.fitmate.backend.routine.ai.dto.custom.summary.CustomSummaryInputDto;
 import com.fitmate.backend.routine.ai.dto.custom.summary.CustomSummaryOutputDto;
@@ -253,17 +254,36 @@ public class CustomRoutineAiService {
     }
 
     public CustomSummaryOutputDto generateSummary(Long memberId,
-                                                  CustomAiSummaryRequestDto requestDto){
+                                                  CustomAiSummaryRequestDto requestDto) {
         CustomSummaryInputDto input = buildSummaryInput(memberId, requestDto);
         String prompt = aiPromptBuilder.build(input);
-        CustomSummaryOutputDto output = openAiClient.generate(prompt,
-                                                               CustomSummaryOutputDto.class);
+        CustomSummaryOutputDto output = openAiClient.generate(prompt, CustomSummaryOutputDto.class);
         customSummaryValidator.validate(input, output);
         return output;
     }
 
     private CustomSummaryInputDto buildSummaryInput(Long memberId,
-                                                          CustomAiSummaryRequestDto requestDto){
+                                                    CustomAiSummaryRequestDto requestDto) {
+        List<CustomAiSummaryRequestDto.ExerciseDto> requestExercises = requestDto.getExercises();
 
+        Set<String> exerciseCodes = requestExercises.stream()
+                .map(CustomAiSummaryRequestDto.ExerciseDto::getExerciseCode)
+                .collect(Collectors.toSet());
+
+        Set<Exercise> exercises = exerciseRepository.findAllByExerciseCodeIn(exerciseCodes);
+
+        if (exercises.size() != exerciseCodes.size()) {
+            throw new CustomException(ErrorCode.INVALID_EXERCISE_CODE);
+        }
+
+        Map<String, Exercise> exerciseMap = exercises.stream()
+                .collect(Collectors.toMap(Exercise::getExerciseCode, Function.identity()));
+
+        List<AiCustomSummaryExerciseDto> summaryExercises = requestExercises.stream()
+                .map(dto -> AiCustomSummaryExerciseDto.from(exerciseMap.get(dto.getExerciseCode()),
+                                                            dto))
+                .toList();
+
+        return CustomSummaryInputDto.of(summaryExercises);
     }
 }

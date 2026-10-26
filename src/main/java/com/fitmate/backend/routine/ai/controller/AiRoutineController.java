@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/ai")
-@Tag(name = "루틴 AI API", description = "AI 기반 운동 루틴 생성 및 추천")
+@Tag(name = "루틴 AI API", description = "AI 운동 루틴 생성 및 추천")
 public class AiRoutineController {
 
     private final WeeklyRoutineAiService weeklyRoutineAiService;
@@ -63,10 +63,12 @@ public class AiRoutineController {
                                                                                             requestDto));
     }
 
-    @Operation(summary = "직접 만들기 - 운동 이름 AI 추천", description = "")
+    @Operation(summary = "직접 만들기 - 운동 제목 AI", description = "사용자가 확정한 운동 목록과 처방값을 바탕으로 " +
+            "하루의 대표 운동 부위와 예상 운동 시간을 산출합니다.")
     @PostMapping("/custom-routines/summary")
-    public ResponseEntity<CustomSummaryOutputDto> previewCustomPrescription(@AuthenticationPrincipal Long memberId,
-                                                                            @Valid @RequestBody CustomAiSummaryRequestDto requestDto) {
+    public ResponseEntity<CustomSummaryOutputDto> previewCustomSummary(@AuthenticationPrincipal Long memberId,
+                                                                       @Valid @RequestBody CustomAiSummaryRequestDto requestDto) {
+
         return ResponseEntity.ok(customRoutineAiService.generateSummary(memberId, requestDto));
     }
 }
