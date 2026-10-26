@@ -96,7 +96,7 @@ public class AiPromptBuilder {
             String exercisesJson = objectMapper.writeValueAsString(request.getExercises());
 
             return customPrescriptionPromptTemplate.replace("{{USER_PROFILE}}", userProfileJson)
-                    .replace("{{{EXERCISES}}", exercisesJson);
+                    .replace("{{EXERCISES}}", exercisesJson);
 
         } catch (JacksonException e) {
             throw new IllegalStateException("AI 요청 데이터를 JSON으로 변환하지 못했습니다.", e);

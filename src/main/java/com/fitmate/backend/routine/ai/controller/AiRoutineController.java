@@ -2,6 +2,8 @@ package com.fitmate.backend.routine.ai.controller;
 
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomAiExerciseRequestDto;
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseOutputDto;
+import com.fitmate.backend.routine.ai.dto.custom.prescription.CustomAiPrescriptionRequestDto;
+import com.fitmate.backend.routine.ai.dto.custom.prescription.CustomPrescriptionResponseDto;
 import com.fitmate.backend.routine.ai.dto.daily.DailyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineOutputDto;
 import com.fitmate.backend.routine.ai.dto.weekly.WeeklyAiRoutineRequestDto;
@@ -44,14 +46,6 @@ public class AiRoutineController {
         return ResponseEntity.ok(dailyRoutineAiService.generateDailyRoutine(memberId, requestDto));
     }
 
-    @Operation(summary = "직접 만들기 - 운동 종목 추천 프롬프트", description = "AI 운동 추천 프롬프트를 반환합니다. (테스트용)")
-    @PostMapping("/custom-routines/exercises/prompt")
-    public ResponseEntity<String> getCustomPrompt(@AuthenticationPrincipal Long memberId,
-                                                  @Valid @RequestBody CustomAiExerciseRequestDto requestDto) {
-
-        return ResponseEntity.ok(customRoutineAiService.createAiPrompt(memberId, requestDto));
-    }
-
     @Operation(summary = "직접 만들기 - 운동 종목 AI 추천", description = "선택한 환경에 맞는 운동 3~4개를 추천합니다.")
     @PostMapping("/custom-routines/exercises")
     public ResponseEntity<CustomExerciseOutputDto> previewCustomExercises(@AuthenticationPrincipal Long memberId,
@@ -59,5 +53,15 @@ public class AiRoutineController {
 
         return ResponseEntity.ok(customRoutineAiService.generateExerciseRecommendations(memberId,
                                                                                         requestDto));
+    }
+
+    @Operation(summary = "직접 만들기 - 처방값 AI 추천", description = "선택한 운동들의 실제 수행 기록 또는 Baseline을 참고하여" +
+            " 처방값을 추천합니다.")
+    @PostMapping("/custom-routines/prescription")
+    public ResponseEntity<CustomPrescriptionResponseDto> previewCustomPrescription(@AuthenticationPrincipal Long memberId,
+                                                                                   @Valid @RequestBody CustomAiPrescriptionRequestDto requestDto) {
+
+        return ResponseEntity.ok(customRoutineAiService.generatePrescriptionRecommendations(memberId,
+                                                                                            requestDto));
     }
 }
