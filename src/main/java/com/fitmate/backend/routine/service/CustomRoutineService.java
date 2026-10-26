@@ -187,10 +187,6 @@ public class CustomRoutineService {
                 if (invalidPrescription) {
                     throw new CustomException(ErrorCode.INVALID_CUSTOM_ROUTINE_PRESCRIPTION);
                 }
-
-                if (invalidPrescription) {
-                    throw new CustomException(ErrorCode.INVALID_CUSTOM_ROUTINE_PRESCRIPTION);
-                }
             }
         }
     }
