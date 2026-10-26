@@ -1,6 +1,7 @@
 package com.fitmate.backend.routine.ai.service;
 
 import com.fitmate.backend.exercise.domain.Exercise;
+import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.exercise.repository.ExerciseRepository;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
@@ -224,7 +225,6 @@ public class CustomRoutineAiService {
 
             // 실제 수행 기록이 있는 운동
             if (recentRecords != null && !recentRecords.isEmpty()) {
-
                 prescriptionExercises.add(AiCustomPrescriptionExerciseDto.from(exercise,
                                                                                recentRecords,
                                                                                null));
@@ -233,11 +233,9 @@ public class CustomRoutineAiService {
 
             // 실제 수행 기록이 없으면 Baseline 확인
             ExerciseBaseline baseline = baselineMap.get(exerciseCode);
-
             if (baseline != null) {
                 AiCustomPrescriptionBaselineDto baselineDto = AiCustomPrescriptionBaselineDto.from(
                         baseline);
-
                 prescriptionExercises.add(AiCustomPrescriptionExerciseDto.from(exercise,
                                                                                List.of(),
                                                                                baselineDto));
@@ -264,25 +262,71 @@ public class CustomRoutineAiService {
 
     private CustomSummaryInputDto buildSummaryInput(Long memberId,
                                                     CustomAiSummaryRequestDto requestDto) {
+
         List<CustomAiSummaryRequestDto.ExerciseDto> requestExercises = requestDto.getExercises();
 
+        // 요청 운동 코드 추출
         Set<String> exerciseCodes = requestExercises.stream()
                 .map(CustomAiSummaryRequestDto.ExerciseDto::getExerciseCode)
                 .collect(Collectors.toSet());
 
+        // Exercise Master에서 운동 조회
         Set<Exercise> exercises = exerciseRepository.findAllByExerciseCodeIn(exerciseCodes);
 
         if (exercises.size() != exerciseCodes.size()) {
             throw new CustomException(ErrorCode.INVALID_EXERCISE_CODE);
         }
 
+        // 운동 코드로 Exercise 조회할 수 있도록 Map 생성
         Map<String, Exercise> exerciseMap = exercises.stream()
                 .collect(Collectors.toMap(Exercise::getExerciseCode, Function.identity()));
 
-        List<AiCustomSummaryExerciseDto> summaryExercises = requestExercises.stream()
-                .map(dto -> AiCustomSummaryExerciseDto.from(exerciseMap.get(dto.getExerciseCode()),
-                                                            dto))
-                .toList();
+        // 운동별 처방 검증 및 AI 입력 DTO 생성
+        List<AiCustomSummaryExerciseDto> summaryExercises = requestExercises.stream().map(dto -> {
+
+            Exercise exercise = exerciseMap.get(dto.getExerciseCode());
+
+            if (exercise == null) {
+                throw new CustomException(ErrorCode.INVALID_EXERCISE_CODE);
+            }
+
+            // 공통 처방 수치 검증
+            if (dto.getSets() == null || dto.getSets() <= 0 || dto.getRestSeconds() == null ||
+                    dto.getRestSeconds() < 0 ||
+                    (dto.getWeightKg() != null && dto.getWeightKg().signum() <= 0) ||
+                    (dto.getReps() != null && dto.getReps() <= 0) ||
+                    (dto.getDurationSeconds() != null && dto.getDurationSeconds() <= 0)) {
+
+                throw new CustomException(ErrorCode.INVALID_CUSTOM_ROUTINE_PRESCRIPTION);
+            }
+
+            // 운동 유형 정보 검증
+            if (exercise.getBaselineRecordType() == null || exercise.getExerciseType() == null) {
+                throw new CustomException(ErrorCode.INVALID_CUSTOM_ROUTINE_PRESCRIPTION);
+            }
+
+            // 기록 유형별 처방 형식 검증
+            boolean invalidPrescription = switch (exercise.getBaselineRecordType()) {
+
+                case WEIGHT_REPS_SETS ->
+                        dto.getReps() == null || dto.getDurationSeconds() != null ||
+                                exercise.getExerciseType() == ExerciseType.CARDIO;
+                case REPS_SETS -> dto.getReps() == null || dto.getWeightKg() != null ||
+                        dto.getDurationSeconds() != null ||
+                        exercise.getExerciseType() == ExerciseType.CARDIO;
+                case DURATION -> exercise.getExerciseType() != ExerciseType.CARDIO ||
+                        dto.getDurationSeconds() == null || dto.getReps() != null ||
+                        dto.getWeightKg() != null || dto.getSets() != 1 ||
+                        dto.getRestSeconds() != 0;
+            };
+
+            if (invalidPrescription) {
+                throw new CustomException(ErrorCode.INVALID_CUSTOM_ROUTINE_PRESCRIPTION);
+            }
+
+            // 검증된 운동을 AI 입력 DTO로 변환
+            return AiCustomSummaryExerciseDto.from(exercise, dto);
+        }).toList();
 
         return CustomSummaryInputDto.of(summaryExercises);
     }
