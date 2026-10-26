@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.awt.print.Pageable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -46,4 +47,36 @@ public interface WorkoutExerciseRecordRepository
     List<WorkoutExerciseRecord> findAllByWorkoutRecordIds(
             @Param("workoutRecordIds") List<Long> workoutRecordIds
     );
+
+
+    /**
+     * 동일 운동의 최근 유효 수행 기록 조회
+     * - 운동을 종료한 기록만 조회
+     * - 실제 수행량이 0인 기록 제외
+     * - 운동 종료 시각 최신순 정렬
+     */
+    @Query("""
+        select exerciseRecord
+        from WorkoutExerciseRecord exerciseRecord
+        join fetch exerciseRecord.workoutRecord workoutRecord
+        join workoutRecord.dailyRoutine dailyRoutine
+        join dailyRoutine.weeklyRoutine weeklyRoutine
+        join fetch exerciseRecord.exerciseRoutine exerciseRoutine
+        join fetch exerciseRoutine.exercise exercise
+        where weeklyRoutine.member.id = :memberId
+          and exercise.exerciseCode = :exerciseCode
+          and workoutRecord.isFinished = true
+          and workoutRecord.endedAt is not null
+          and (exerciseRecord.completedSetCount > 0
+               or exerciseRecord.completedDurationSeconds > 0)
+        order by workoutRecord.endedAt desc,
+                 workoutRecord.id desc,
+                 exerciseRecord.id desc
+        """)
+    List<WorkoutExerciseRecord> findRecentPerformedRecordsByMemberIdAndExerciseCode(
+            @Param("memberId") Long memberId,
+            @Param("exerciseCode") String exerciseCode,
+            Pageable pageable
+    );
+
 }
