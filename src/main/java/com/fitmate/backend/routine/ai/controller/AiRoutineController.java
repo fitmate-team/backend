@@ -4,6 +4,8 @@ import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomAiExerciseReques
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseOutputDto;
 import com.fitmate.backend.routine.ai.dto.custom.prescription.CustomAiPrescriptionRequestDto;
 import com.fitmate.backend.routine.ai.dto.custom.prescription.CustomPrescriptionResponseDto;
+import com.fitmate.backend.routine.ai.dto.custom.summary.CustomAiSummaryRequestDto;
+import com.fitmate.backend.routine.ai.dto.custom.summary.CustomSummaryOutputDto;
 import com.fitmate.backend.routine.ai.dto.daily.DailyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineOutputDto;
 import com.fitmate.backend.routine.ai.dto.weekly.WeeklyAiRoutineRequestDto;
@@ -33,7 +35,6 @@ public class AiRoutineController {
     @PostMapping("/weekly-routines")
     public ResponseEntity<WeeklyRoutineOutputDto> previewWeeklyRoutine(@AuthenticationPrincipal Long memberId,
                                                                        @Valid @RequestBody WeeklyAiRoutineRequestDto requestDto) {
-
         return ResponseEntity.ok(weeklyRoutineAiService.generateWeeklyRoutine(memberId,
                                                                               requestDto));
     }
@@ -42,7 +43,6 @@ public class AiRoutineController {
     @PostMapping("/daily-routines")
     public ResponseEntity<DailyRoutineOutputDto> previewDailyRoutine(@AuthenticationPrincipal Long memberId,
                                                                      @Valid @RequestBody DailyAiRoutineRequestDto requestDto) {
-
         return ResponseEntity.ok(dailyRoutineAiService.generateDailyRoutine(memberId, requestDto));
     }
 
@@ -50,7 +50,6 @@ public class AiRoutineController {
     @PostMapping("/custom-routines/exercises")
     public ResponseEntity<CustomExerciseOutputDto> previewCustomExercises(@AuthenticationPrincipal Long memberId,
                                                                           @Valid @RequestBody CustomAiExerciseRequestDto requestDto) {
-
         return ResponseEntity.ok(customRoutineAiService.generateExerciseRecommendations(memberId,
                                                                                         requestDto));
     }
@@ -60,8 +59,14 @@ public class AiRoutineController {
     @PostMapping("/custom-routines/prescription")
     public ResponseEntity<CustomPrescriptionResponseDto> previewCustomPrescription(@AuthenticationPrincipal Long memberId,
                                                                                    @Valid @RequestBody CustomAiPrescriptionRequestDto requestDto) {
-
         return ResponseEntity.ok(customRoutineAiService.generatePrescriptionRecommendations(memberId,
                                                                                             requestDto));
+    }
+
+    @Operation(summary = "직접 만들기 - 운동 이름 AI 추천", description = "")
+    @PostMapping("/custom-routines/summary")
+    public ResponseEntity<CustomSummaryOutputDto> previewCustomPrescription(@AuthenticationPrincipal Long memberId,
+                                                                            @Valid @RequestBody CustomAiSummaryRequestDto requestDto) {
+        return ResponseEntity.ok(customRoutineAiService.generateSummary(memberId, requestDto));
     }
 }

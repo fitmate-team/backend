@@ -17,10 +17,13 @@ import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomAiExerciseReques
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseInputDto;
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseOutputDto;
 import com.fitmate.backend.routine.ai.dto.custom.prescription.*;
+import com.fitmate.backend.routine.ai.dto.custom.summary.CustomAiSummaryRequestDto;
+import com.fitmate.backend.routine.ai.dto.custom.summary.CustomSummaryInputDto;
 import com.fitmate.backend.routine.ai.dto.custom.summary.CustomSummaryOutputDto;
 import com.fitmate.backend.routine.ai.prompt.AiPromptBuilder;
 import com.fitmate.backend.routine.ai.validator.CustomExerciseValidator;
 import com.fitmate.backend.routine.ai.validator.CustomPrescriptionValidator;
+import com.fitmate.backend.routine.ai.validator.CustomSummaryValidator;
 import com.fitmate.backend.workout.domain.WorkoutExerciseRecord;
 import com.fitmate.backend.workout.repository.WorkoutExerciseRecordRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +49,7 @@ public class CustomRoutineAiService {
     private final OpenAiClient openAiClient;
     private final CustomExerciseValidator customExerciseValidator;
     private final CustomPrescriptionValidator customPrescriptionValidator;
+    private final CustomSummaryValidator customSummaryValidator;
 
     public CustomExerciseOutputDto generateExerciseRecommendations(Long memberId,
                                                                    CustomAiExerciseRequestDto requestDto) {
@@ -248,11 +252,18 @@ public class CustomRoutineAiService {
         return CustomPrescriptionInputDto.of(userProfileDto, prescriptionExercises);
     }
 
-//    public CustomSummaryOutputDto generateSummary(){
-//
-//    }
-//
-//    private CustomSummaryOutputDto buildSummaryInput(){
-//
-//    }
+    public CustomSummaryOutputDto generateSummary(Long memberId,
+                                                  CustomAiSummaryRequestDto requestDto){
+        CustomSummaryInputDto input = buildSummaryInput(memberId, requestDto);
+        String prompt = aiPromptBuilder.build(input);
+        CustomSummaryOutputDto output = openAiClient.generate(prompt,
+                                                               CustomSummaryOutputDto.class);
+        customSummaryValidator.validate(input, output);
+        return output;
+    }
+
+    private CustomSummaryInputDto buildSummaryInput(Long memberId,
+                                                          CustomAiSummaryRequestDto requestDto){
+
+    }
 }
