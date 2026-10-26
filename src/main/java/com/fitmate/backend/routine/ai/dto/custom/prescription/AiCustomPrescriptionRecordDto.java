@@ -1,8 +1,7 @@
 package com.fitmate.backend.routine.ai.dto.custom.prescription;
 
-import com.fitmate.backend.routine.domain.ExerciseRoutine;
+import com.fitmate.backend.workout.domain.CalculatedDifficulty;
 import com.fitmate.backend.workout.domain.WorkoutExerciseRecord;
-import com.fitmate.backend.workout.domain.WorkoutRecord;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class AiCustomPrescriptionRecordDto {
+
     private LocalDateTime performedAt;
     private BigDecimal plannedWeightKg;
     private Integer plannedReps;
@@ -20,8 +20,10 @@ public class AiCustomPrescriptionRecordDto {
     private Integer plannedRestSeconds;
     private Integer completedSetCount;
     private Integer completedDurationSeconds;
+    private CalculatedDifficulty calculatedDifficulty;
 
     public static AiCustomPrescriptionRecordDto from(WorkoutExerciseRecord record) {
+
         return new AiCustomPrescriptionRecordDto(record.getWorkoutRecord().getEndedAt(),
                                                  record.getExerciseRoutine().getWeight(),
                                                  record.getExerciseRoutine().getReps(),
@@ -29,7 +31,7 @@ public class AiCustomPrescriptionRecordDto {
                                                  record.getExerciseRoutine().getDurationSeconds(),
                                                  record.getExerciseRoutine().getRestSeconds(),
                                                  record.getCompletedSetCount(),
-                                                 record.getCompletedDurationSeconds());
+                                                 record.getCompletedDurationSeconds(),
+                                                 record.getCalculatedDifficulty());
     }
-
 }
