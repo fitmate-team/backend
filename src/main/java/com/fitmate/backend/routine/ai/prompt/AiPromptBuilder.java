@@ -2,6 +2,7 @@ package com.fitmate.backend.routine.ai.prompt;
 
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseInputDto;
 import com.fitmate.backend.routine.ai.dto.custom.prescription.CustomPrescriptionInputDto;
+import com.fitmate.backend.routine.ai.dto.custom.summary.CustomSummaryInputDto;
 import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineInputDto;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
@@ -19,13 +20,14 @@ public class AiPromptBuilder {
     private static final String PROMPT_PATH2 = "prompts/fitmate-daily-replacement.txt";
     private static final String PROMPT_PATH3 = "prompts/fitmate-custom-exercises.txt";
     private static final String PROMPT_PATH4 = "prompts/fitmate-custom-prescription.txt";
-//    private static final String PROMPT_PATH3 = "fitmate-custom-summary.txt";
+    private static final String PROMPT_PATH5 = "fitmate-custom-summary.txt";
 
     private final ObjectMapper objectMapper;
     private final String weeklyPromptTemplate;
     private final String dailyPromptTemplate;
     private final String customExercisePromptTemplate;
     private final String customPrescriptionPromptTemplate;
+    private final String customSummaryPromptTemplate;
 
     public AiPromptBuilder(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -33,6 +35,7 @@ public class AiPromptBuilder {
         this.dailyPromptTemplate = loadPromptTemplate(PROMPT_PATH2);
         this.customExercisePromptTemplate = loadPromptTemplate(PROMPT_PATH3);
         this.customPrescriptionPromptTemplate = loadPromptTemplate(PROMPT_PATH4);
+        this.customSummaryPromptTemplate = loadPromptTemplate(PROMPT_PATH5);
     }
 
     public String build(WeeklyRoutineInputDto request) {
@@ -97,6 +100,18 @@ public class AiPromptBuilder {
 
             return customPrescriptionPromptTemplate.replace("{{USER_PROFILE}}", userProfileJson)
                     .replace("{{EXERCISES}}", exercisesJson);
+
+        } catch (JacksonException e) {
+            throw new IllegalStateException("AI 요청 데이터를 JSON으로 변환하지 못했습니다.", e);
+        }
+    }
+
+    public String build(CustomSummaryInputDto request) {
+        try {
+
+            String exercisesJson = objectMapper.writeValueAsString(request.getExercises());
+
+            return customSummaryPromptTemplate.replace("{{EXERCISES}}", exercisesJson);
 
         } catch (JacksonException e) {
             throw new IllegalStateException("AI 요청 데이터를 JSON으로 변환하지 못했습니다.", e);

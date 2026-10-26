@@ -17,6 +17,7 @@ import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomAiExerciseReques
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseInputDto;
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseOutputDto;
 import com.fitmate.backend.routine.ai.dto.custom.prescription.*;
+import com.fitmate.backend.routine.ai.dto.custom.summary.CustomSummaryOutputDto;
 import com.fitmate.backend.routine.ai.prompt.AiPromptBuilder;
 import com.fitmate.backend.routine.ai.validator.CustomExerciseValidator;
 import com.fitmate.backend.routine.ai.validator.CustomPrescriptionValidator;
@@ -247,5 +248,11 @@ public class CustomRoutineAiService {
         return CustomPrescriptionInputDto.of(userProfileDto, prescriptionExercises);
     }
 
-
+//    public CustomSummaryOutputDto generateSummary(){
+//
+//    }
+//
+//    private CustomSummaryOutputDto buildSummaryInput(){
+//
+//    }
 }

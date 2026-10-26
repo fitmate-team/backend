@@ -1,6 +1,7 @@
 package com.fitmate.backend.routine.service;
 
 import com.fitmate.backend.exercise.domain.Exercise;
+import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.exercise.repository.ExerciseRepository;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
