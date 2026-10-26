@@ -20,7 +20,7 @@ public class AiPromptBuilder {
     private static final String PROMPT_PATH2 = "prompts/fitmate-daily-replacement.txt";
     private static final String PROMPT_PATH3 = "prompts/fitmate-custom-exercises.txt";
     private static final String PROMPT_PATH4 = "prompts/fitmate-custom-prescription.txt";
-    private static final String PROMPT_PATH5 = "fitmate-custom-summary.txt";
+    private static final String PROMPT_PATH5 = "prompts/fitmate-custom-summary.txt";
 
     private final ObjectMapper objectMapper;
     private final String weeklyPromptTemplate;

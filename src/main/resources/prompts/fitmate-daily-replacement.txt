@@ -120,7 +120,7 @@ baselineRecordType과 exerciseType에 맞게 처방한다.
 공통:
 - sets: 1 이상의 정수
 - reps: 필요한 경우 1 이상의 정수 하나. 범위 문자열 금지
-- durationSeconds: 필요한 경우 1 이상의 정수, 초 단위
+- durationSeconds: CARDIO의 전체 수행시간(초)은 1 이상의 정수, 그 외 운동은 null
 - weightKg: kg 단위 숫자 또는 null
 - restSeconds: 0 이상의 정수, 초 단위
 
@@ -157,22 +157,15 @@ B. REPS_SETS
 - weightKg: null
 - restSeconds: 0 이상의 정수
 
-C. DURATION
-- sets: 양의 정수
-- reps: null
-- durationSeconds: 양의 정수
-- weightKg: null
-- restSeconds: 0 이상의 정수
-
-D. exerciseType이 CARDIO인 운동
+C. DURATION (CARDIO)
 - sets: 1
 - reps: null
-- durationSeconds: 양의 정수
+- durationSeconds: 전체 수행시간(초), 양의 정수
 - weightKg: null
 - restSeconds: 0
 
-CARDIO 조건이 다른 처방 조건과 겹치면 CARDIO 조건을 우선한다.
-모든 DURATION과 CARDIO의 운동 수행시간은 초 단위이다.
+현재 Exercise Master(v0.6.2)에서 DURATION 운동은 모두 CARDIO이다.
+CARDIO 외 운동은 해당 운동의 WEIGHT_REPS_SETS 또는 REPS_SETS 규칙을 따른다.
 
 ==================================================
 4. 시간 제한
