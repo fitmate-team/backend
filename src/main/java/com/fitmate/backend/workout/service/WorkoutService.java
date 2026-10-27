@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fitmate.backend.equipment.domain.Equipment;
+import com.fitmate.backend.routine.repository.ExerciseRoutineAdjustmentRepository;
 
 import java.time.*;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public class WorkoutService {
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
     private final MemberProfileRepository memberProfileRepository;
     private final WorkoutExerciseRecordRepository workoutExerciseRecordRepository;
+    private final ExerciseRoutineAdjustmentRepository exerciseRoutineAdjustmentRepository;
 
     /**
      * 오늘의 운동 조회
@@ -446,6 +448,13 @@ public class WorkoutService {
                     exerciseMaxHeartRate,
                     memberProfile.getAge(),
                     request.getPerceivedDifficulty()
+            );
+
+            // 운동 종료 시 해당 운동의 기존 조정값을 삭제합니다.
+            // EASY·HARD 운동은 사용자가 새 추천값을 적용하면 다시 저장합니다.
+            exerciseRoutineAdjustmentRepository.deleteByMember_IdAndExercise_Id(
+                    memberId,
+                    exerciseRoutine.getExercise().getId()
             );
 
             // 운동별 심박수는 난이도 계산에 사용하고,

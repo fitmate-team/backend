@@ -21,7 +21,7 @@ import java.time.LocalDate;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/workouts")
-@Tag(name = "오늘의 운동 API", description = "오늘의 운동 조회, 오늘의 운동 조건 변경, 운동 기록, 다음 운동 추천")
+@Tag(name = "오늘의 운동 API, 기록 API", description = "오늘의 운동 조회, 오늘의 운동 조건 변경, 운동 기록, 다음 운동 추천")
 public class WorkoutController {
 
     private final WorkoutService workoutService;
