@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.fitmate.backend.routine.dto.request.ExerciseAdjustmentSelectionsRequestDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,40 +50,19 @@ public class ExerciseRoutineAdjustmentController {
     }
 
     @Operation(
-            summary = "운동별 조정 추천값 적용",
-            description = "선택한 운동의 조정값을 저장하거나 기존 조정값을 수정합니다."
+            summary = "운동별 조정 추천 선택 결과 적용",
+            description = "운동별 적용 여부를 한 번에 전달받아 선택한 조정값을 저장합니다."
     )
-    @PutMapping("/{workoutRecordId}/exercises/{exerciseId}")
-    public ResponseEntity<Void> applyAdjustment(
+    @PutMapping("/{workoutRecordId}/exercises")
+    public ResponseEntity<Void> applyAdjustments(
             @AuthenticationPrincipal Long memberId,
             @PathVariable Long workoutRecordId,
-            @PathVariable Long exerciseId,
-            @Valid @RequestBody ExerciseAdjustmentApplyRequestDto request
+            @Valid @RequestBody ExerciseAdjustmentSelectionsRequestDto request
     ) {
-        exerciseRoutineAdjustmentService.applyAdjustment(
+        exerciseRoutineAdjustmentService.applyAdjustments(
                 memberId,
                 workoutRecordId,
-                exerciseId,
                 request
-        );
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(
-            summary = "운동별 기존 조정값 삭제",
-            description = "선택한 운동의 기존 조정값을 삭제하고 이후 루틴에서 AI 추천값을 사용합니다."
-    )
-    @DeleteMapping("/{workoutRecordId}/exercises/{exerciseId}")
-    public ResponseEntity<Void> deleteAdjustment(
-            @AuthenticationPrincipal Long memberId,
-            @PathVariable Long workoutRecordId,
-            @PathVariable Long exerciseId
-    ) {
-        exerciseRoutineAdjustmentService.deleteAdjustment(
-                memberId,
-                workoutRecordId,
-                exerciseId
         );
 
         return ResponseEntity.noContent().build();

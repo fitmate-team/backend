@@ -18,6 +18,13 @@ import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.fitmate.backend.routine.dto.request.ExerciseAdjustmentSelectionsRequestDto;
+import com.fitmate.backend.routine.dto.request.ExerciseAdjustmentSelectionsRequestDto.ExerciseSelectionDto;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -29,91 +36,123 @@ public class ExerciseRoutineAdjustmentService {
     private final WorkoutExerciseRecordRepository workoutExerciseRecordRepository;
 
     /**
-     * 사용자가 선택한 운동 조정값을 저장하거나 기존 조정값을 갱신한다.
+     * 사용자가 선택한 운동별 조정 추천 결과를 한 번에 적용한다.
      */
     @Transactional
-    public void applyAdjustment(
+    public void applyAdjustments(
             Long memberId,
             Long workoutRecordId,
-            Long exerciseId,
-            ExerciseAdjustmentApplyRequestDto request
+            ExerciseAdjustmentSelectionsRequestDto request
     ) {
-        // 회원의 종료된 운동 기록인지 확인한다.
+        // 회원의 종료된 운동 기록인지 확인합니다.
         WorkoutRecord workoutRecord = getFinishedWorkoutRecord(
                 memberId,
                 workoutRecordId
         );
 
-        // 해당 운동이 이 운동 기록에 포함되어 있는지 확인한다.
-        WorkoutExerciseRecord exerciseRecord = getExerciseRecord(
-                workoutRecordId,
-                exerciseId
-        );
+        if (request == null || request.getExercises() == null) {
+            throw new CustomException(ErrorCode.INVALID_EXERCISE_ADJUSTMENT);
+        }
 
-        // EASY·HARD 운동만 사용자가 조정값을 적용할 수 있다.
-        validateAdjustmentTarget(exerciseRecord);
+        // 종료된 운동 기록에서 EASY·HARD 운동만 조회합니다.
+        List<WorkoutExerciseRecord> workoutExerciseRecords =
+                workoutExerciseRecordRepository
+                        .findByWorkoutRecord_IdOrderByExerciseRoutine_ExerciseOrderAsc(
+                                workoutRecordId
+                        );
 
-        // 운동 기록 방식에 맞는 값인지 확인한다.
-        validateRequestFormat(exerciseRecord, request);
+        Map<Long, WorkoutExerciseRecord> targetRecords = new HashMap<>();
 
-        // 기존 운동값을 기준으로 조정 방향을 확인한다.
-        validateAdjustmentDirection(exerciseRecord, request);
+        for (WorkoutExerciseRecord exerciseRecord : workoutExerciseRecords) {
+            CalculatedDifficulty difficulty = exerciseRecord.getCalculatedDifficulty();
 
-        ExerciseRoutine exerciseRoutine = exerciseRecord.getExerciseRoutine();
-        Exercise exercise = exerciseRoutine.getExercise();
+            if (difficulty != CalculatedDifficulty.EASY
+                    && difficulty != CalculatedDifficulty.HARD) {
+                continue;
+            }
+
+            Long exerciseId = exerciseRecord.getExerciseRoutine()
+                    .getExercise()
+                    .getId();
+
+            // 동일 운동이 한 기록에 중복되면 운동 ID만으로 구분할 수 없습니다.
+            if (targetRecords.putIfAbsent(exerciseId, exerciseRecord) != null) {
+                throw new CustomException(ErrorCode.INVALID_EXERCISE_ADJUSTMENT);
+            }
+        }
+
+        Set<Long> selectedExerciseIds = new HashSet<>();
+
+        // 저장하기 전에 요청된 모든 선택 결과를 검증합니다.
+        for (ExerciseSelectionDto selection : request.getExercises()) {
+            if (selection == null
+                    || selection.getExerciseId() == null
+                    || selection.getApply() == null) {
+                throw new CustomException(ErrorCode.INVALID_EXERCISE_ADJUSTMENT);
+            }
+
+            Long exerciseId = selection.getExerciseId();
+
+            // 같은 운동에 대한 선택 결과가 중복되지 않아야 합니다.
+            if (!selectedExerciseIds.add(exerciseId)) {
+                throw new CustomException(ErrorCode.INVALID_EXERCISE_ADJUSTMENT);
+            }
+
+            WorkoutExerciseRecord exerciseRecord = targetRecords.get(exerciseId);
+
+            // 해당 운동 기록의 EASY·HARD 운동인지 확인합니다.
+            if (exerciseRecord == null) {
+                throw new CustomException(ErrorCode.INVALID_EXERCISE_ADJUSTMENT);
+            }
+
+            // 적용을 선택한 운동만 조정값과 조정 방향을 검증합니다.
+            if (selection.getApply()) {
+                validateRequestFormat(exerciseRecord, selection);
+                validateAdjustmentDirection(exerciseRecord, selection);
+            }
+        }
+
+        // 추천 대상 운동 모두에 대한 선택 결과가 전달되어야 합니다.
+        if (!selectedExerciseIds.equals(targetRecords.keySet())) {
+            throw new CustomException(ErrorCode.INVALID_EXERCISE_ADJUSTMENT);
+        }
 
         Member member = workoutRecord.getDailyRoutine()
                 .getWeeklyRoutine()
                 .getMember();
 
-        // 기존 조정값이 있으면 갱신하고, 없으면 새로 저장한다.
-        adjustmentRepository.findByMember_IdAndExercise_Id(memberId, exerciseId)
-                .ifPresentOrElse(
-                        adjustment -> adjustment.update(
-                                request.getWeightKg(),
-                                request.getReps(),
-                                request.getSetCount(),
-                                request.getDurationSeconds()
-                        ),
-                        () -> adjustmentRepository.save(
-                                ExerciseRoutineAdjustment.builder()
-                                        .member(member)
-                                        .exercise(exercise)
-                                        .weight(request.getWeightKg())
-                                        .reps(request.getReps())
-                                        .setCount(request.getSetCount())
-                                        .durationSeconds(request.getDurationSeconds())
-                                        .build()
-                        )
-                );
-    }
+        // 적용을 선택한 운동만 조정값을 저장하거나 갱신합니다.
+        for (ExerciseSelectionDto selection : request.getExercises()) {
+            if (!selection.getApply()) {
+                continue;
+            }
 
-    /**
-     * 사용자가 AI 추천 사용을 선택한 운동의 기존 조정값을 삭제한다.
-     */
-    @Transactional
-    public void deleteAdjustment(
-            Long memberId,
-            Long workoutRecordId,
-            Long exerciseId
-    ) {
-        // 회원의 종료된 운동 기록인지 확인한다.
-        getFinishedWorkoutRecord(memberId, workoutRecordId);
+            Long exerciseId = selection.getExerciseId();
 
-        // 해당 운동이 이 운동 기록에 포함되어 있는지 확인한다.
-        WorkoutExerciseRecord exerciseRecord = getExerciseRecord(
-                workoutRecordId,
-                exerciseId
-        );
+            Exercise exercise = targetRecords.get(exerciseId)
+                    .getExerciseRoutine()
+                    .getExercise();
 
-        // 사용자 선택은 EASY·HARD 운동에 대해서만 허용한다.
-        validateAdjustmentTarget(exerciseRecord);
-
-        // 기존 조정값이 없으면 삭제할 데이터 없이 종료된다.
-        adjustmentRepository.deleteByMember_IdAndExercise_Id(
-                memberId,
-                exerciseId
-        );
+            adjustmentRepository.findByMember_IdAndExercise_Id(memberId, exerciseId)
+                    .ifPresentOrElse(
+                            adjustment -> adjustment.update(
+                                    selection.getWeightKg(),
+                                    selection.getReps(),
+                                    selection.getSetCount(),
+                                    selection.getDurationSeconds()
+                            ),
+                            () -> adjustmentRepository.save(
+                                    ExerciseRoutineAdjustment.builder()
+                                            .member(member)
+                                            .exercise(exercise)
+                                            .weight(selection.getWeightKg())
+                                            .reps(selection.getReps())
+                                            .setCount(selection.getSetCount())
+                                            .durationSeconds(selection.getDurationSeconds())
+                                            .build()
+                            )
+                    );
+        }
     }
 
     /**
