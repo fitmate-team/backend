@@ -31,9 +31,9 @@ public enum ErrorCode {
 
     // 오늘의 운동
     TODAY_ROUTINE_NOT_FOUND("오늘의 운동 루틴이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
-    WORKOUT_LOCATION_RERECOMMENDATION_REQUIRED("선택한 운동 환경에서 수행할 수 없는 운동이 포함되어 있습니다. 루틴 재추천이 필요합니다.",
-                                               HttpStatus.CONFLICT),
+    WORKOUT_LOCATION_RERECOMMENDATION_REQUIRED("선택한 운동 환경에서 수행할 수 없는 운동이 포함되어 있습니다. 루틴 재추천이 필요합니다.", HttpStatus.CONFLICT),
     WORKOUT_ALREADY_STARTED("이미 시작한 운동입니다.", HttpStatus.CONFLICT),
+    INVALID_EXERCISE_ADJUSTMENT("운동 조정값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
 
     // 운동 기록
     WORKOUT_RECORD_NOT_FOUND("해당 운동 기록을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
