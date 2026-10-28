@@ -38,4 +38,17 @@ public interface DailyRoutineRepository extends JpaRepository<DailyRoutine, Long
                                        @Param("routineDate") LocalDate routineDate);
 
     List<DailyRoutine> findByWeeklyRoutine_IdOrderByRoutineDateAsc(Long weeklyRoutineId);
+
+    /**
+     * 데일리 루틴 ID와 회원 ID로 해당 회원의 데일리 루틴을 조회합니다.
+     * 운동 환경과 보유 기구를 함께 조회합니다.
+     */
+    @EntityGraph(attributePaths = {
+            "workoutEnvironment",
+            "workoutEnvironment.equipment"
+    })
+    Optional<DailyRoutine> findByIdAndWeeklyRoutine_Member_Id(
+            Long dailyRoutineId,
+            Long memberId
+    );
 }

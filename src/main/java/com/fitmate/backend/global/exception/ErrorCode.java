@@ -34,6 +34,7 @@ public enum ErrorCode {
     WORKOUT_LOCATION_RERECOMMENDATION_REQUIRED("선택한 운동 환경에서 수행할 수 없는 운동이 포함되어 있습니다. 루틴 재추천이 필요합니다.", HttpStatus.CONFLICT),
     WORKOUT_ALREADY_STARTED("이미 시작한 운동입니다.", HttpStatus.CONFLICT),
     INVALID_EXERCISE_ADJUSTMENT("운동 조정값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+    DAILY_ROUTINE_NOT_FOUND("해당 데일리 루틴을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // 운동 기록
     WORKOUT_RECORD_NOT_FOUND("해당 운동 기록을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
