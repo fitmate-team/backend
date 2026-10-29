@@ -56,7 +56,7 @@ public class CustomPrescriptionValidator {
         // 1. 공통 수치 검사
         if (prescription.getSets() == null || prescription.getSets() <= 0 ||
                 prescription.getRestSeconds() == null || prescription.getRestSeconds() < 0 ||
-                (prescription.getWeightKg() != null && prescription.getWeightKg().signum() <= 0) ||
+                (prescription.getWeightKg() != null && prescription.getWeightKg() <= 0) ||
                 (prescription.getReps() != null && prescription.getReps() <= 0) ||
                 (prescription.getDurationSeconds() != null &&
                         prescription.getDurationSeconds() <= 0)) {
@@ -109,7 +109,7 @@ public class CustomPrescriptionValidator {
 
             return records.stream()
                     .anyMatch(record -> record != null && record.getPlannedWeightKg() != null &&
-                            record.getPlannedWeightKg().signum() > 0);
+                            record.getPlannedWeightKg() > 0);
         }
 
         // 실제 수행 기록이 없을 때만 Baseline 확인

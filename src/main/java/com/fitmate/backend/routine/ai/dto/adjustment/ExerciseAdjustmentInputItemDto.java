@@ -5,7 +5,6 @@ import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.workout.domain.CalculatedDifficulty;
 import com.fitmate.backend.workout.domain.WorkoutExerciseRecord;
-import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +21,7 @@ public class ExerciseAdjustmentInputItemDto {
 
     private CalculatedDifficulty calculatedDifficulty;
 
-    private BigDecimal weightKg;
+    private Integer weightKg;
 
     private Integer reps;
 

@@ -5,6 +5,10 @@ spring:
   application:
     name: fitmate
 
+  jackson:
+    deserialization:
+      accept-float-as-int: false
+
   profiles:
     default: local
 

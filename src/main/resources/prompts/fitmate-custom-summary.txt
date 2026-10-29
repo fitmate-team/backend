@@ -36,7 +36,7 @@
 - primaryMuscle: CHEST, TRICEPS, BACK, SHOULDERS, LEGS_GLUTES,
   BICEPS, CORE, FULL_BODY, CARDIO 중 하나
 - baselineRecordType: WEIGHT_REPS_SETS, REPS_SETS, DURATION 중 하나
-- weightKg: 확정된 중량(kg), 해당하지 않으면 null
+- weightKg: 사용자가 확정한 운동 중량(kg), 1 이상의 정수이며 해당하지 않으면 null
 - reps: 세트당 목표 반복 횟수, 해당하지 않으면 null
 - sets: 목표 세트 수, 1 이상의 정수
 - durationSeconds: 시간 기반 운동의 목표 수행 시간(초), 해당하지 않으면 null

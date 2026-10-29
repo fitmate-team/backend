@@ -37,18 +37,31 @@ public class WeeklyRoutineAiService {
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
     private final ExerciseBaselineRepository exerciseBaselineRepository;
     private final HardFilterService hardFilterService;
+    private final WeeklyAdjustmentApplyService weeklyAdjustmentApplyService;
     private final AiPromptBuilder aiPromptBuilder;
     private final OpenAiClient openAiClient;
     private final WeeklyRoutineValidator validator;
 
+
     public WeeklyRoutineOutputDto generateWeeklyRoutine(Long memberId,
                                                         WeeklyAiRoutineRequestDto requestDto) {
         WeeklyRoutineInputDto input = buildGenerationInput(memberId, requestDto);
+
         String prompt = aiPromptBuilder.build(input);
+
         WeeklyRoutineOutputDto output = openAiClient.generate(prompt, WeeklyRoutineOutputDto.class);
+
+        // ① 기존 AI 생성 결과 검증
         validator.validate(input, output);
+
+        // ② 검증이 끝난 AI 결과에 ⑤ 대기 조정값 반영
+        weeklyAdjustmentApplyService.applyPendingAdjustments(memberId,
+                                                             output,
+                                                             requestDto.getSessionMinutes());
+
         return output;
     }
+
 
     private WeeklyRoutineInputDto buildGenerationInput(Long memberId,
                                                        WeeklyAiRoutineRequestDto requestDto) {

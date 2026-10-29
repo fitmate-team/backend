@@ -4,12 +4,12 @@ import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
 import com.fitmate.backend.routine.ai.dto.adjustment.ExerciseAdjustmentInputItemDto;
 import com.fitmate.backend.routine.ai.dto.adjustment.ExerciseAdjustmentOutputItemDto;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -161,7 +161,7 @@ public class ExerciseAdjustmentResponseDto {
                 example = "40.0",
                 nullable = true
         )
-        private BigDecimal weightKg;
+        private Integer weightKg;
 
         @Schema(
                 description = "반복 횟수. 반복 횟수를 사용하지 않는 운동은 null",
@@ -184,7 +184,7 @@ public class ExerciseAdjustmentResponseDto {
         private Integer durationSeconds;
 
         public static ExerciseValues of(
-                BigDecimal weightKg,
+                Integer weightKg,
                 Integer reps,
                 Integer setCount,
                 Integer durationSeconds

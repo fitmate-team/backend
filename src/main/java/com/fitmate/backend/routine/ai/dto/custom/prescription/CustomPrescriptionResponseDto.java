@@ -3,7 +3,6 @@ package com.fitmate.backend.routine.ai.dto.custom.prescription;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -31,7 +30,7 @@ public class CustomPrescriptionResponseDto {
     @Getter
     @AllArgsConstructor
     public static class RecommendationDto {
-        private BigDecimal weightKg;
+        private Integer weightKg;
         private Integer reps;
         private Integer sets;
         private Integer durationSeconds;

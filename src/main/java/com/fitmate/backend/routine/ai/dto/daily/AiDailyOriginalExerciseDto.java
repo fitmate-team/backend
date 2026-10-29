@@ -6,8 +6,6 @@ import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.math.BigDecimal;
-
 @Getter
 @AllArgsConstructor
 public class AiDailyOriginalExerciseDto {
@@ -18,7 +16,7 @@ public class AiDailyOriginalExerciseDto {
     private MovementPattern movementPattern;
     private Integer sets;
     private Integer reps;
-    private BigDecimal weightKg;
+    private Integer weightKg;
     private Integer durationSeconds;
     private Integer restSeconds;
 

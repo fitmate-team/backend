@@ -161,7 +161,7 @@ public class CustomRoutineService {
                 if (exerciseDto.getSets() == null || exerciseDto.getSets() <= 0 ||
                         exerciseDto.getRestSeconds() == null || exerciseDto.getRestSeconds() < 0 ||
                         (exerciseDto.getWeightKg() != null &&
-                                exerciseDto.getWeightKg().signum() <= 0) ||
+                                exerciseDto.getWeightKg() <= 0) ||
                         (exerciseDto.getReps() != null && exerciseDto.getReps() <= 0) ||
                         (exerciseDto.getDurationSeconds() != null &&
                                 exerciseDto.getDurationSeconds() <= 0)) {

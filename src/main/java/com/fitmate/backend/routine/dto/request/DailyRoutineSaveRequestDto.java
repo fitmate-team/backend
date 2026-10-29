@@ -10,7 +10,6 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -84,7 +83,7 @@ public class DailyRoutineSaveRequestDto {
 
         @Positive
         @Schema(description = "추천 중량(kg). 기록이 없거나 중량을 사용하지 않으면 null", example = "22")
-        private BigDecimal weightKg;
+        private Integer weightKg;
 
         @NotNull
         @PositiveOrZero

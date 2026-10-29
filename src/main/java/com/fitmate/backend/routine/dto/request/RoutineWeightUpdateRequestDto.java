@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,9 +31,9 @@ public class RoutineWeightUpdateRequestDto {
         @NotNull(message = "개별 루틴 운동 ID는 필수입니다.")
         private Long routineExerciseId;
 
-        @Schema(description = "설정할 운동 중량 (kg)", example = "8.0")
+        @Schema(description = "설정할 운동 중량 (kg, 정수)", example = "8")
         @NotNull(message = "중량 kg은 필수입니다.")
-        @DecimalMin(value = "0.0", message = "중량은 0 이상이어야 합니다.")
-        private BigDecimal weightKg;
+        @Positive(message = "중량은 1 이상의 정수여야 합니다.")
+        private Integer weightKg;
     }
 }

@@ -1,6 +1,5 @@
 package com.fitmate.backend.routine.ai.dto.adjustment;
 
-import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +9,7 @@ public class ExerciseAdjustmentOutputItemDto {
 
     private Long exerciseId;
 
-    private BigDecimal weightKg;
+    private Integer weightKg;
 
     private Integer reps;
 

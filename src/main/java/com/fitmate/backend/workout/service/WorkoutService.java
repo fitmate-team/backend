@@ -29,13 +29,9 @@ import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.routine.repository.ExerciseRoutineAdjustmentRepository;
 
 import java.time.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -450,12 +446,50 @@ public class WorkoutService {
                     request.getPerceivedDifficulty()
             );
 
-            // 운동 종료 시 해당 운동의 기존 조정값을 삭제합니다.
-            // EASY·HARD 운동은 사용자가 새 추천값을 적용하면 다시 저장합니다.
-            exerciseRoutineAdjustmentRepository.deleteByMember_IdAndExercise_Id(
-                    memberId,
-                    exerciseRoutine.getExercise().getId()
-            );
+            // 실제 수행했고, 적용된 조정값인 경우에만 삭제 여부를 확인합니다.
+            // 세트 기반은 완료 세트 수, 시간 기반은 완료 시간을 기준으로 합니다.
+            if (completedAmount > 0 &&
+                    exerciseRoutine.getAppliedAdjustmentId() != null) {
+
+                exerciseRoutineAdjustmentRepository
+                        .findByMember_IdAndExercise_Id(
+                                memberId,
+                                exerciseRoutine.getExercise().getId()
+                        )
+                        .ifPresent(adjustment -> {
+
+                            // 적용된 조정값과 현재 대기 조정값의 ID 비교
+                            boolean sameAdjustmentId = Objects.equals(
+                                    exerciseRoutine.getAppliedAdjustmentId(),
+                                    adjustment.getId()
+                            );
+
+                            // 적용 당시 처방과 현재 대기 처방 비교
+                            boolean samePrescription =
+                                    Objects.equals(
+                                            exerciseRoutine.getWeight(),
+                                            adjustment.getWeight()
+                                    ) &&
+                                            Objects.equals(
+                                                    exerciseRoutine.getReps(),
+                                                    adjustment.getReps()
+                                            ) &&
+                                            Objects.equals(
+                                                    exerciseRoutine.getSetCount(),
+                                                    adjustment.getSetCount()
+                                            ) &&
+                                            Objects.equals(
+                                                    exerciseRoutine.getDurationSeconds(),
+                                                    adjustment.getDurationSeconds()
+                                            );
+
+                            // 실제 적용된 조정값을 수행한 경우에만 삭제
+                            if (sameAdjustmentId && samePrescription) {
+                                exerciseRoutineAdjustmentRepository.delete(adjustment);
+                            }
+                        });
+            }
+
 
             // 운동별 심박수는 난이도 계산에 사용하고,
             // 운동별 DB 기록에는 수행량과 계산된 난이도를 저장합니다.

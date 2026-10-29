@@ -6,9 +6,6 @@ import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.exercise.domain.PrimaryMuscle;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor
@@ -22,7 +19,7 @@ public class AiCustomSummaryExerciseDto {
 
     // RequestDto에서 가져온 값
     private String exerciseCode;
-    private BigDecimal weightKg;
+    private Integer weightKg;
     private Integer reps;
     private Integer sets;
     private Integer durationSeconds;

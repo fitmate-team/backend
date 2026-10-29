@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -139,8 +138,8 @@ public interface WorkoutGrowthRepository
     interface WeightMonthlyProjection {
         Integer getYear();
         Integer getMonth();
-        BigDecimal getMaxWeight();
-        BigDecimal getMinWeight();
+        Integer getMaxWeight();
+        Integer getMinWeight();
     }
 
     interface AttendanceMonthlyProjection {

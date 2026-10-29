@@ -1,15 +1,10 @@
 package com.fitmate.backend.routine.ai.dto.custom.summary;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -27,7 +22,7 @@ public class CustomAiSummaryRequestDto {
         private String exerciseCode;
 
         @Positive
-        private BigDecimal weightKg;
+        private Integer weightKg;
 
         @Positive
         private Integer reps;
