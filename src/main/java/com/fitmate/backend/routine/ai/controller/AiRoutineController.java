@@ -54,8 +54,9 @@ public class AiRoutineController {
                                                                                         requestDto));
     }
 
-    @Operation(summary = "직접 만들기 - 처방값 AI 추천", description = "선택한 운동들의 실제 수행 기록 또는 Baseline을 참고하여" +
-            " 처방값을 추천합니다.")
+    @Operation(summary = "선택한 운동의 처방값 AI 추천", description = "주간 루틴 직접 만들기 또는 오늘의 루틴 수정 시, "
+            + "선택한 운동들의 실제 수행 기록 또는 Baseline을 참고하여 "
+            + "중량, 횟수, 세트 수, 수행 시간 및 휴식 시간을 추천합니다.")
     @PostMapping("/custom-routines/prescription")
     public ResponseEntity<CustomPrescriptionResponseDto> previewCustomPrescription(@AuthenticationPrincipal Long memberId,
                                                                                    @Valid @RequestBody CustomAiPrescriptionRequestDto requestDto) {
