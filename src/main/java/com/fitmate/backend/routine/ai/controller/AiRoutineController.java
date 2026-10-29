@@ -2,6 +2,10 @@ package com.fitmate.backend.routine.ai.controller;
 
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomAiExerciseRequestDto;
 import com.fitmate.backend.routine.ai.dto.custom.exercise.CustomExerciseOutputDto;
+import com.fitmate.backend.routine.ai.dto.custom.prescription.CustomAiPrescriptionRequestDto;
+import com.fitmate.backend.routine.ai.dto.custom.prescription.CustomPrescriptionResponseDto;
+import com.fitmate.backend.routine.ai.dto.custom.summary.CustomAiSummaryRequestDto;
+import com.fitmate.backend.routine.ai.dto.custom.summary.CustomSummaryOutputDto;
 import com.fitmate.backend.routine.ai.dto.daily.DailyAiRoutineRequestDto;
 import com.fitmate.backend.routine.ai.dto.daily.DailyRoutineOutputDto;
 import com.fitmate.backend.routine.ai.dto.weekly.WeeklyAiRoutineRequestDto;
@@ -20,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/ai")
-@Tag(name = "루틴 AI API", description = "AI 기반 운동 루틴 생성 및 추천")
+@Tag(name = "루틴 AI API", description = "AI 운동 루틴 생성 및 추천")
 public class AiRoutineController {
 
     private final WeeklyRoutineAiService weeklyRoutineAiService;
@@ -31,7 +35,6 @@ public class AiRoutineController {
     @PostMapping("/weekly-routines")
     public ResponseEntity<WeeklyRoutineOutputDto> previewWeeklyRoutine(@AuthenticationPrincipal Long memberId,
                                                                        @Valid @RequestBody WeeklyAiRoutineRequestDto requestDto) {
-
         return ResponseEntity.ok(weeklyRoutineAiService.generateWeeklyRoutine(memberId,
                                                                               requestDto));
     }
@@ -40,24 +43,32 @@ public class AiRoutineController {
     @PostMapping("/daily-routines")
     public ResponseEntity<DailyRoutineOutputDto> previewDailyRoutine(@AuthenticationPrincipal Long memberId,
                                                                      @Valid @RequestBody DailyAiRoutineRequestDto requestDto) {
-
         return ResponseEntity.ok(dailyRoutineAiService.generateDailyRoutine(memberId, requestDto));
-    }
-
-    @Operation(summary = "직접 만들기 - 운동 종목 추천 프롬프트", description = "AI 운동 추천 프롬프트를 반환합니다. (테스트용)")
-    @PostMapping("/custom-routines/exercises/prompt")
-    public ResponseEntity<String> getCustomPrompt(@AuthenticationPrincipal Long memberId,
-                                                  @Valid @RequestBody CustomAiExerciseRequestDto requestDto) {
-
-        return ResponseEntity.ok(customRoutineAiService.createAiPrompt(memberId, requestDto));
     }
 
     @Operation(summary = "직접 만들기 - 운동 종목 AI 추천", description = "선택한 환경에 맞는 운동 3~4개를 추천합니다.")
     @PostMapping("/custom-routines/exercises")
     public ResponseEntity<CustomExerciseOutputDto> previewCustomExercises(@AuthenticationPrincipal Long memberId,
                                                                           @Valid @RequestBody CustomAiExerciseRequestDto requestDto) {
-
         return ResponseEntity.ok(customRoutineAiService.generateExerciseRecommendations(memberId,
                                                                                         requestDto));
+    }
+
+    @Operation(summary = "직접 만들기 - 처방값 AI 추천", description = "선택한 운동들의 실제 수행 기록 또는 Baseline을 참고하여" +
+            " 처방값을 추천합니다.")
+    @PostMapping("/custom-routines/prescription")
+    public ResponseEntity<CustomPrescriptionResponseDto> previewCustomPrescription(@AuthenticationPrincipal Long memberId,
+                                                                                   @Valid @RequestBody CustomAiPrescriptionRequestDto requestDto) {
+        return ResponseEntity.ok(customRoutineAiService.generatePrescriptionRecommendations(memberId,
+                                                                                            requestDto));
+    }
+
+    @Operation(summary = "직접 만들기 - 운동 제목 AI", description = "사용자가 확정한 운동 목록과 처방값을 바탕으로 " +
+            "하루의 대표 운동 부위와 예상 운동 시간을 산출합니다.")
+    @PostMapping("/custom-routines/summary")
+    public ResponseEntity<CustomSummaryOutputDto> previewCustomSummary(@AuthenticationPrincipal Long memberId,
+                                                                       @Valid @RequestBody CustomAiSummaryRequestDto requestDto) {
+
+        return ResponseEntity.ok(customRoutineAiService.generateSummary(memberId, requestDto));
     }
 }

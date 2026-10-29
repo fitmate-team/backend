@@ -1,6 +1,7 @@
 package com.fitmate.backend.routine.service;
 
 import com.fitmate.backend.exercise.domain.Exercise;
+import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.exercise.repository.ExerciseRepository;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
@@ -169,15 +170,18 @@ public class CustomRoutineService {
 
                 // 운동 기록 유형별 처방 형식 검사
                 boolean invalidPrescription = switch (exercise.getBaselineRecordType()) {
-                    case WEIGHT_REPS_SETS -> exerciseDto.getReps() == null ||
-                            exerciseDto.getDurationSeconds() != null;
 
+                    case WEIGHT_REPS_SETS -> exerciseDto.getReps() == null ||
+                            exerciseDto.getDurationSeconds() != null ||
+                            exercise.getExerciseType() == ExerciseType.CARDIO;
                     case REPS_SETS ->
                             exerciseDto.getReps() == null || exerciseDto.getWeightKg() != null ||
-                                    exerciseDto.getDurationSeconds() != null;
-
-                    case DURATION -> exerciseDto.getDurationSeconds() == null ||
-                            exerciseDto.getReps() != null || exerciseDto.getWeightKg() != null;
+                                    exerciseDto.getDurationSeconds() != null ||
+                                    exercise.getExerciseType() == ExerciseType.CARDIO;
+                    case DURATION -> exercise.getExerciseType() != ExerciseType.CARDIO ||
+                            exerciseDto.getDurationSeconds() == null ||
+                            exerciseDto.getReps() != null || exerciseDto.getWeightKg() != null ||
+                            exerciseDto.getSets() != 1 || exerciseDto.getRestSeconds() != 0;
                 };
 
                 if (invalidPrescription) {
