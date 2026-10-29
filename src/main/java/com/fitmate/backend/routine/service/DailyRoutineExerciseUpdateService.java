@@ -220,7 +220,7 @@ public class DailyRoutineExerciseUpdateService {
                 || dto.getRestSeconds() == null
                 || dto.getRestSeconds() < 0
                 || (dto.getWeightKg() != null
-                && dto.getWeightKg().signum() <= 0)
+                && dto.getWeightKg() <= 0)
                 || (dto.getReps() != null && dto.getReps() <= 0)
                 || (dto.getDurationSeconds() != null
                 && dto.getDurationSeconds() <= 0)

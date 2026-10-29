@@ -37,9 +37,9 @@ public class DailyRoutineExerciseUpdateRequestDto {
         @Positive
         @Schema(
                 description = "운동 중량(kg). 중량이 없거나 해당하지 않으면 null입니다.",
-                example = "10.0"
+                example = "10"
         )
-        private BigDecimal weightKg;
+        private Integer weightKg;
 
         @Positive
         @Schema(
