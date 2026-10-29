@@ -17,4 +17,10 @@ public class WeeklyRoutineDayOutputDto {
     private Integer estimatedMinutes;
     private String dailyReason;
     private List<ExerciseRoutineOutputDto> exercises;
+
+
+    public void updateEstimatedMinutes(Integer estimatedMinutes) {
+        this.estimatedMinutes = estimatedMinutes;
+    }
+
 }

@@ -11,10 +11,12 @@ import com.fitmate.backend.member.repository.MemberRepository;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.domain.DailyRoutine;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;
+import com.fitmate.backend.routine.domain.ExerciseRoutineAdjustment;
 import com.fitmate.backend.routine.domain.WeeklyRoutine;
 import com.fitmate.backend.routine.dto.request.WeeklyRoutineSaveRequestDto;
 import com.fitmate.backend.routine.dto.response.WeeklyRoutineResponseDto;
 import com.fitmate.backend.routine.repository.DailyRoutineRepository;
+import com.fitmate.backend.routine.repository.ExerciseRoutineAdjustmentRepository;
 import com.fitmate.backend.routine.repository.ExerciseRoutineRepository;
 import com.fitmate.backend.routine.repository.WeeklyRoutineRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +27,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +39,8 @@ public class WeeklyRoutineService {
     private final WeeklyRoutineRepository weeklyRoutineRepository;
     private final DailyRoutineRepository dailyRoutineRepository;
     private final ExerciseRoutineRepository exerciseRoutineRepository;
+    private final ExerciseRoutineAdjustmentRepository adjustmentRepository;
+
 
     @Transactional
     public void saveRoutine(Long memberId, WeeklyRoutineSaveRequestDto requestDto) {
@@ -58,6 +59,8 @@ public class WeeklyRoutineService {
             throw new CustomException(ErrorCode.DUPLICATE_WEEKLY_ROUTINE);
         }
         validateDaysAndTime(requestDto, today);
+
+        Map<String, Long> appliedIdsByExerciseCode = new HashMap<>();
 
         WeeklyRoutine weeklyRoutine = requestDto.toWeeklyRoutine(member,
                                                                  environment,
@@ -82,10 +85,59 @@ public class WeeklyRoutineService {
                 // DB에 저장하기 전에 운동 기록 유형에 맞는 처방인지 검사
                 validateExercisePrescription(exerciseDto, exercise);
 
+
                 Integer exerciseOrder = i + 1;
-                exerciseRoutineRepository.save(exerciseDto.toExerciseRoutine(dailyRoutine,
-                                                                             exercise,
-                                                                             exerciseOrder));
+
+                // 1. 같은 운동 코드의 모든 날짜에서
+                //    조정값 ID가 일관되는지 확인
+                String exerciseCode = exerciseDto.getExerciseCode();
+                Long requestedAdjustmentId = exerciseDto.getAppliedAdjustmentId();
+
+                if (appliedIdsByExerciseCode.containsKey(exerciseCode) && !Objects.equals(
+                        appliedIdsByExerciseCode.get(exerciseCode),
+                        requestedAdjustmentId)) {
+                    throw new CustomException(ErrorCode.INVALID_EXERCISE_ADJUSTMENT);
+                }
+
+                appliedIdsByExerciseCode.put(exerciseCode, requestedAdjustmentId);
+
+                // 2. 기존 방식대로 운동 루틴 엔티티 생성
+                ExerciseRoutine exerciseRoutine = exerciseDto.toExerciseRoutine(dailyRoutine,
+                                                                                exercise,
+                                                                                exerciseOrder);
+
+                // 3. ⑤ 조정값을 적용한 운동인 경우만 검증
+                if (requestedAdjustmentId != null) {
+
+                    ExerciseRoutineAdjustment adjustment = adjustmentRepository.findById(
+                                    requestedAdjustmentId)
+                            .orElseThrow(() -> new CustomException(ErrorCode.INVALID_EXERCISE_ADJUSTMENT));
+
+                    // 회원 ID와 운동 ID가 올바른지,
+                    // 현재 대기 조정값과 처방이 일치하는지 확인
+                    boolean validAdjustment =
+                            Objects.equals(adjustment.getMember().getId(), memberId) &&
+                                    Objects.equals(adjustment.getExercise().getId(),
+                                                   exercise.getId()) &&
+                                    Objects.equals(adjustment.getWeight(),
+                                                   exerciseDto.getWeightKg()) &&
+                                    Objects.equals(adjustment.getReps(), exerciseDto.getReps()) &&
+                                    Objects.equals(adjustment.getSetCount(),
+                                                   exerciseDto.getSets()) && Objects.equals(
+                                    adjustment.getDurationSeconds(),
+                                    exerciseDto.getDurationSeconds());
+
+                    if (!validAdjustment) {
+                        throw new CustomException(ErrorCode.INVALID_EXERCISE_ADJUSTMENT);
+                    }
+
+                    // 4. 검증된 조정값 ID를 운동 루틴에 기록
+                    exerciseRoutine.markAppliedAdjustment(adjustment.getId());
+                }
+
+// 5. 운동 루틴 저장
+                exerciseRoutineRepository.save(exerciseRoutine);
+
             }
         }
 

@@ -118,6 +118,11 @@ public class WeeklyRoutineSaveRequestDto {
         @Schema(description = "세트 간 휴식 시간(초). CARDIO는 0", example = "90")
         private Integer restSeconds;
 
+        @Positive
+        @Schema(description = "⑤ 조정값이 적용된 경우 해당 조정값 ID. 미적용 시 null")
+        private Long appliedAdjustmentId;
+
+
         public ExerciseRoutine toExerciseRoutine(DailyRoutine dailyRoutine,
                                                  Exercise exercise,
                                                  Integer exerciseOrder) {
