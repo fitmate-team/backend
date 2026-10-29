@@ -50,6 +50,12 @@ public class DailyRoutineAvailableExerciseResponseDto {
         @Schema(description = "운동 ID", example = "1")
         private final Long exerciseId;
 
+        @Schema(
+                description = "Exercise Master에 등록된 운동 코드",
+                example = "EX_LEGS_DB_GOBLET_SQUAT"
+        )
+        private final String exerciseCode;
+
         @Schema(description = "운동 한글 이름", example = "벤치 프레스")
         private final String nameKo;
 
@@ -79,6 +85,7 @@ public class DailyRoutineAvailableExerciseResponseDto {
 
             return new ExerciseItem(
                     exercise.getId(),
+                    exercise.getExerciseCode(),
                     exercise.getNameKo(),
                     exercise.getPrimaryMuscle(),
                     equipmentCategories,
