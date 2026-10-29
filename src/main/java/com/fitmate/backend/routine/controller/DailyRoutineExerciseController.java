@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.fitmate.backend.routine.dto.request.DailyRoutineExerciseUpdateRequestDto;
+import com.fitmate.backend.routine.service.DailyRoutineExerciseUpdateService;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DailyRoutineExerciseController {
 
     private final DailyRoutineExerciseService dailyRoutineExerciseService;
+    private final DailyRoutineExerciseUpdateService dailyRoutineExerciseUpdateService;
 
     /**
      * 데일리 루틴의 운동 환경에서 가능한 운동 목록과 루틴 포함 여부를 조회합니다.
@@ -50,5 +56,33 @@ public class DailyRoutineExerciseController {
                         dailyRoutineId
                 )
         );
+    }
+
+    @Operation(
+            summary = "오늘의 루틴 운동 목록 전체 수정",
+            description = "오늘의 미시작 루틴의 운동 목록과 처방값을 전체 교체하고, "
+                    + "AI가 산출한 주요 운동 부위와 예상 운동 시간을 반영합니다."
+    )
+    @PutMapping("/{dailyRoutineId}/exercises")
+    public ResponseEntity<Void> updateExercises(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal Long memberId,
+
+            @Parameter(
+                    description = "수정할 데일리 루틴 ID",
+                    example = "15",
+                    required = true
+            )
+            @PathVariable("dailyRoutineId") Long dailyRoutineId,
+
+            @Valid @RequestBody DailyRoutineExerciseUpdateRequestDto request
+    ) {
+        dailyRoutineExerciseUpdateService.updateExercises(
+                memberId,
+                dailyRoutineId,
+                request
+        );
+
+        return ResponseEntity.noContent().build();
     }
 }
