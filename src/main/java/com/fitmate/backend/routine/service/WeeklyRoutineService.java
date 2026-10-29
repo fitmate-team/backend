@@ -113,8 +113,7 @@ public class WeeklyRoutineService {
                     dailyRoutine.getId());
 
             List<WeeklyRoutineResponseDto.ExerciseDto> exercises = exerciseRoutines.stream()
-                    .map(exerciseRoutine -> WeeklyRoutineResponseDto.ExerciseDto.from(
-                            exerciseRoutine))
+                    .map(WeeklyRoutineResponseDto.ExerciseDto::from)
                     .toList();
 
             WeeklyRoutineResponseDto.DailyDto dailyPlan = WeeklyRoutineResponseDto.DailyDto.of(
