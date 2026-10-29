@@ -3,6 +3,7 @@ package com.fitmate.backend.routine.repository;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -29,6 +30,15 @@ public interface ExerciseRoutineRepository extends JpaRepository<ExerciseRoutine
         where exerciseRoutine.dailyRoutine.id = :dailyRoutineId
         """)
     Set<Long> findExerciseIdsByDailyRoutineId(
+            @Param("dailyRoutineId") Long dailyRoutineId
+    );
+
+    @Modifying
+    @Query("""
+        delete from ExerciseRoutine exerciseRoutine
+        where exerciseRoutine.dailyRoutine.id = :dailyRoutineId
+        """)
+    int deleteAllByDailyRoutineId(
             @Param("dailyRoutineId") Long dailyRoutineId
     );
 }
