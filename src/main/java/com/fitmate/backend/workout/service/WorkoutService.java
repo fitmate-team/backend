@@ -409,31 +409,32 @@ public class WorkoutService {
 
             // 실제 수행한 운동에 한해서 조정 DB 값을 확인합니다.
             // 세트 기반 운동은 완료 세트 수, 시간 기반 운동은 완료 시간을 기준으로 합니다.
-            if (completedAmount > 0) {
+            // 조정값이 적용된 운동인지 확인함
+            if (completedAmount > 0 && exerciseRoutine.getAppliedAdjustmentId() != null) {
 
-                exerciseRoutineAdjustmentRepository.findByMember_IdAndExercise_Id(memberId,
-                                                                                  exerciseRoutine.getExercise()
-                                                                                          .getId())
+                exerciseRoutineAdjustmentRepository
+                        .findByMember_IdAndExercise_Id(
+                                memberId,
+                                exerciseRoutine.getExercise().getId()
+                        )
                         .ifPresent(adjustment -> {
 
-                            // 중량 비교
-                            // 루틴 중량과 조정 DB 중량 비교
-                            boolean sameWeight = Objects.equals(
-                                    exerciseRoutine.getWeight(),
-                                    adjustment.getWeight()
+                            // 실제 적용된 조정값과 현재 대기 조정값의 ID 비교
+                            boolean sameAdjustmentId = Objects.equals(
+                                    exerciseRoutine.getAppliedAdjustmentId(),
+                                    adjustment.getId()
                             );
 
-                            // 루틴에 저장된 처방과 조정 DB 처방 전체 비교
-                            boolean samePrescription = sameWeight &&
-                                    Objects.equals(exerciseRoutine.getReps(),
-                                                   adjustment.getReps()) && Objects.equals(
-                                    exerciseRoutine.getSetCount(),
-                                    adjustment.getSetCount()) &&
-                                    Objects.equals(exerciseRoutine.getDurationSeconds(),
-                                                   adjustment.getDurationSeconds());
+                            // 적용 당시 처방과 현재 대기 조정값 비교
+                            boolean samePrescription =
+                                    Objects.equals(exerciseRoutine.getWeight(), adjustment.getWeight()) &&
+                                            Objects.equals(exerciseRoutine.getReps(), adjustment.getReps()) &&
+                                            Objects.equals(exerciseRoutine.getSetCount(), adjustment.getSetCount()) &&
+                                            Objects.equals(exerciseRoutine.getDurationSeconds(),
+                                                           adjustment.getDurationSeconds());
 
-                            // 처방이 완전히 일치하는 경우에만 조정값 삭제
-                            if (samePrescription) {
+                            // 실제 적용된 조정값을 수행한 경우에만 삭제
+                            if (sameAdjustmentId && samePrescription) {
                                 exerciseRoutineAdjustmentRepository.delete(adjustment);
                             }
                         });

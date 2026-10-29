@@ -48,6 +48,9 @@ public class ExerciseRoutine extends BaseEntity {
     @Column(name = "rest_seconds", nullable = false)
     private Integer restSeconds;
 
+    @Column(name = "applied_adjustment_id")
+    private Long appliedAdjustmentId;
+
     @Builder
     public ExerciseRoutine(DailyRoutine dailyRoutine,
                            Exercise exercise,
@@ -70,5 +73,9 @@ public class ExerciseRoutine extends BaseEntity {
 
     public void updateWeight(Integer weight) {
         this.weight = weight;
+    }
+
+    public void markAppliedAdjustment(Long adjustmentId) {
+        this.appliedAdjustmentId = adjustmentId;
     }
 }
