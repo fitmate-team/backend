@@ -494,12 +494,16 @@ sessionMinutes × 60을 초과할 수 없다.
 
 - WEIGHT_REPS_SETS: weightKg + reps + sets
 - REPS_SETS: reps + sets, weightKg = null
-- DURATION: 시간 기반 처방, weightKg = null, durationSeconds 사용
-- 모든 DURATION 운동은 exerciseType과 관계없이 durationSeconds를 사용한다.
+- DURATION: CARDIO의 시간 기반 처방, weightKg = null, durationSeconds 사용
+- 현재 Exercise Master(v0.6.2)에서 DURATION 운동은 모두 CARDIO이다.
+- CARDIO의 durationSeconds는 세트당 시간이 아닌 전체 수행시간(초)이다.
 
 - sets: 사용자의 목표, 경험 수준, 주간 전체 볼륨, 해당 세션의 운동 수를 고려하여 결정
 - reps: 사용자의 목표, 경험 수준, 운동 종류를 고려하여 정확한 목표 반복 수 하나로 결정
 - weightKg: 동일 exerciseCode에 실제 중량 기록이 있을 때만 그 기록을 근거로 결정
+- 주간 운동 처방(weeklyPlan.exercises[].weightKg)의 중량은 kg 단위 1 이상의 정수 또는 null로 출력한다.
+- 중량을 60.0, 62.5와 같이 소수점이 있는 숫자로 출력하지 않는다.
+- 동일 운동의 최근 정수 중량 기록을 그대로 사용하며, 기록이 없다면 null로 출력한다.
 - durationSeconds: 운동 종류와 사용자의 목표, 최근 동일 운동 수행시간이 있으면 그 수준을 참고하여 결정
 - restSeconds: 운동 종류, 목표, 세트 구성에 맞게 결정
 
@@ -525,9 +529,8 @@ RECENT_EXERCISE_RECORDS는 동일 exerciseCode에 대해서만 활용한다.
 - 최근 수행 수준과 크게 동떨어진 값을 특별한 근거 없이 설정하지 않는다.
 
 2) durationSeconds가 있는 경우:
-- 동일 exerciseCode의 최근 수행시간 참고 근거로 사용할 수 있다.
-- 모든 DURATION 운동의 시간 기반 처방은 durationSeconds 형식을 따른다.
-- CARDIO의 최근 durationSeconds도 동일 운동 수행시간 참고 근거로 사용할 수 있다.
+- 동일 exerciseCode의 최근 CARDIO 수행시간을 참고 근거로 사용할 수 있다.
+- 이 값은 해당 운동의 전체 수행시간(초)으로 해석한다.
 - 최종 수행시간은 sessionMinutes × 60을 초과할 수 없다.
 
 3) weightKg가 있는 경우:
@@ -608,13 +611,6 @@ REPS_SETS인 STRENGTH:
 - weightKg: null
 - restSeconds: 정수
 
-DURATION인 STRENGTH가 제공되는 경우:
-- sets: 정수
-- reps: null
-- durationSeconds: 정확한 수행 시간(초) 정수
-- weightKg: null
-- restSeconds: 정수
-
 반복 수를 "6~8회", "8~12회"처럼 범위 문자열로 출력하지 않는다.
 반드시 하나의 목표 반복 수 정수로 출력한다.
 
@@ -639,16 +635,6 @@ REPS_SETS인 CORE:
 - weightKg: null
 - restSeconds: 정수
 
-DURATION인 CORE:
-- sets: 정수
-- reps: null
-- durationSeconds: 정확한 수행 시간(초) 정수
-- weightKg: null
-- restSeconds: 정수
-
-"30~45초"처럼 범위 문자열로 출력하지 않는다.
-정확한 시간 하나를 정수로 출력한다.
-
 
 --------------------------------------------------
 F. HIIT
@@ -670,13 +656,6 @@ REPS_SETS인 HIIT:
 - weightKg: null
 - restSeconds: 정수
 
-DURATION인 HIIT:
-- sets: 정수
-- reps: null
-- durationSeconds: 정확한 수행 시간(초) 정수
-- weightKg: null
-- restSeconds: 정수
-
 
 --------------------------------------------------
 G. CARDIO
@@ -689,8 +668,8 @@ G. CARDIO
 - restSeconds = 0
 
 
-모든 DURATION 운동의 수행시간은 durationSeconds로 통일한다.
-CARDIO도 분 단위 필드를 별도로 사용하지 않으며 초 단위 정수로 출력한다.
+현재 DURATION 운동은 모두 CARDIO이며, durationSeconds는 해당 운동의 총 수행시간(초)이다.
+CARDIO는 분 단위 필드를 별도로 사용하지 않으며 초 단위 정수로 출력한다.
 
 
 ==================================================
@@ -1003,8 +982,11 @@ JSON 앞뒤에:
 
 baselineRecordType이 WEIGHT_REPS_SETS 또는 REPS_SETS인
 STRENGTH / CORE / HIIT의 reps는 정확한 정수 하나여야 한다.
-baselineRecordType이 DURATION인 STRENGTH / CORE / HIIT / CARDIO의 reps는 null이고 durationSeconds를 사용한다.
+baselineRecordType이 DURATION인 CARDIO의 reps는 null이고
+durationSeconds는 전체 수행시간(초) 정수로 출력한다.
 CARDIO는 sets = 1, weightKg = null, restSeconds = 0으로 출력한다.
+운동 처방의 weightKg가 null이 아니라면 반드시 kg 단위 1 이상의 정수로 출력한다.
+소수점 표기가 포함된 운동 중량은 출력하지 않는다.
 
 WEIGHT_REPS_SETS 운동의 동일 exerciseCode에 null이 아닌 최근 weightKg 기록이 없으면
 weightKg는 null이다.
@@ -1062,7 +1044,7 @@ Backend는 Exercise Master의 baselineRecordType을 기준으로
 
 - WEIGHT_REPS_SETS: 중량을 사용하는 운동
 - REPS_SETS: 외부 중량 없이 횟수/세트로 기록하는 운동
-- DURATION: 시간으로 기록하는 운동
+- DURATION: 현재는 CARDIO 운동의 전체 수행시간(초)을 기록하는 유형
 
 WEIGHT_REPS_SETS 운동에서 weightKg가 null이면
 앱은 이를 "추천 중량 없음"으로 끝내지 않고

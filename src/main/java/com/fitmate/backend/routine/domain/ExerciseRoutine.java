@@ -33,8 +33,8 @@ public class ExerciseRoutine extends BaseEntity {
     @Column(name = "exercise_order", nullable = false)
     private Integer exerciseOrder;
 
-    @Column(name = "weight", precision = 6, scale = 2)
-    private BigDecimal weight;
+    @Column(name = "weight")
+    private Integer weight;
 
     @Column(name = "reps")
     private Integer reps;
@@ -48,11 +48,15 @@ public class ExerciseRoutine extends BaseEntity {
     @Column(name = "rest_seconds", nullable = false)
     private Integer restSeconds;
 
+    @Column(name = "applied_adjustment_id")
+    private Long appliedAdjustmentId;
+
     @Builder
     public ExerciseRoutine(DailyRoutine dailyRoutine,
                            Exercise exercise,
                            Integer exerciseOrder,
-                           BigDecimal weight,
+                           // 생성자 매개변수 중 중량 부분
+                           Integer weight,
                            Integer reps,
                            Integer setCount,
                            Integer durationSeconds,
@@ -67,7 +71,11 @@ public class ExerciseRoutine extends BaseEntity {
         this.restSeconds = restSeconds;
     }
 
-    public void updateWeight(BigDecimal weight) {
+    public void updateWeight(Integer weight) {
         this.weight = weight;
+    }
+
+    public void markAppliedAdjustment(Long adjustmentId) {
+        this.appliedAdjustmentId = adjustmentId;
     }
 }

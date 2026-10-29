@@ -55,16 +55,16 @@ public class HardFilterService {
         // 전주 운동 기록 조회
         List<WorkoutExerciseRecord> previousWeekExerciseRecords =
                 workoutExerciseRecordRepository.findByWorkoutRecord_DailyRoutine_WeeklyRoutine_Member_IdAndWorkoutRecord_DailyRoutine_RoutineDateBetween(
-                        memberId,
-                        previousWeekStart,
-                        previousWeekEnd);
+                memberId,
+                previousWeekStart,
+                previousWeekEnd);
 
         // 전주 운동 기록 중 실제 수행한 기록
         List<WorkoutExerciseRecord> performedPreviousWeekRecords =
                 previousWeekExerciseRecords.stream()
-                        .filter(record -> record.getCompletedSetCount() > 0 ||
-                                record.getCompletedDurationSeconds() > 0)
-                        .toList();
+                .filter(record -> record.getCompletedSetCount() > 0 ||
+                        record.getCompletedDurationSeconds() > 0)
+                .toList();
 
         // 실제 수행한 운동 중 유산소 제거
         // 이번 주 AI 추천에서 사용하면 안되는 운동
@@ -90,5 +90,39 @@ public class HardFilterService {
                 .filter(exercise -> !excludedPreviousWeekExercises.contains(exercise)) // 전주 수행 운동
                 .toList();
     }
+
+
+    public List<Exercise> getCustomEligibleExercises(Long memberId, Long environmentId) {
+
+        // 회원의 운동 환경 및 보유 기구 조회
+        WorkoutEnvironment environment =
+                workoutEnvironmentRepository.findWithEquipmentByIdAndMemberId(
+                        environmentId,
+                        memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
+
+        // 회원 프로필 및 제외 운동 목록 조회
+        MemberProfile memberProfile = memberProfileRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_PROFILE_NOT_FOUND));
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // ④ AI 추천에 사용할 운동 후보 필터링
+        return exerciseRepository.findAll()
+                .stream()
+                .filter(exercise -> exercise.getAvailableLocations()
+                        .contains(environment.getLocationType())) // 운동 장소
+                .filter(exercise -> environment.getEquipment()
+                        .containsAll(exercise.getEquipment())) // 보유 기구
+                .filter(exercise -> memberProfile.getExerciseLevel().getLevel() >=
+                        exercise.getMinimumExperienceLevel().getLevel()) // 운동 수준
+                .filter(exercise -> exercise.getRelatedBodyAreas()
+                        .stream()
+                        .noneMatch(memberProfile.getAvoidBodyAreas()::contains)) // 회피 부위
+                .filter(exercise -> !member.getExcludedExercises().contains(exercise)) // 제외 운동
+                .toList();
+    }
+
 
 }

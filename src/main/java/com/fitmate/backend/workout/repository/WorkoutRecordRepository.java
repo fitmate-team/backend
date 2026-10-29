@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface WorkoutRecordRepository extends JpaRepository<WorkoutRecord, Long> {
 
     boolean existsByDailyRoutine_Id(Long dailyRoutineId);
+    Optional<WorkoutRecord> findByDailyRoutine_Id(Long dailyRoutineId);
 
     @Query("""
     select record

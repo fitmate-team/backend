@@ -1,0 +1,70 @@
+package com.fitmate.backend.routine.controller;
+
+import com.fitmate.backend.routine.ai.service.ExerciseAdjustmentAiService;
+import com.fitmate.backend.routine.dto.request.ExerciseAdjustmentApplyRequestDto;
+import com.fitmate.backend.routine.dto.response.ExerciseAdjustmentResponseDto;
+import com.fitmate.backend.routine.service.ExerciseRoutineAdjustmentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import com.fitmate.backend.routine.dto.request.ExerciseAdjustmentSelectionsRequestDto;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/routine/adjustments")
+@Tag(
+        name = "운동별 루틴 조정 API",
+        description = "운동 결과에 따른 조정값 추천과 적용 및 삭제"
+)
+public class ExerciseRoutineAdjustmentController {
+
+    private final ExerciseAdjustmentAiService exerciseAdjustmentAiService;
+    private final ExerciseRoutineAdjustmentService exerciseRoutineAdjustmentService;
+
+    @Operation(
+            summary = "운동별 AI 조정 추천",
+            description = "종료된 운동 기록을 바탕으로 운동별 조정값을 추천합니다."
+    )
+    @PostMapping("/recommendations/{workoutRecordId}")
+    public ResponseEntity<ExerciseAdjustmentResponseDto> recommendAdjustments(
+            @AuthenticationPrincipal Long memberId,
+            @PathVariable Long workoutRecordId
+    ) {
+        ExerciseAdjustmentResponseDto response =
+                exerciseAdjustmentAiService.recommendAdjustments(
+                        memberId,
+                        workoutRecordId
+                );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "운동별 조정 추천 선택 결과 적용",
+            description = "운동별 적용 여부를 한 번에 전달받아 선택한 조정값을 저장합니다."
+    )
+    @PutMapping("/{workoutRecordId}/exercises")
+    public ResponseEntity<Void> applyAdjustments(
+            @AuthenticationPrincipal Long memberId,
+            @PathVariable Long workoutRecordId,
+            @Valid @RequestBody ExerciseAdjustmentSelectionsRequestDto request
+    ) {
+        exerciseRoutineAdjustmentService.applyAdjustments(
+                memberId,
+                workoutRecordId,
+                request
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+}

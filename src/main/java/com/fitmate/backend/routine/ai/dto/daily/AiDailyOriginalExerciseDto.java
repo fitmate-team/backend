@@ -1,0 +1,35 @@
+package com.fitmate.backend.routine.ai.dto.daily;
+
+import com.fitmate.backend.exercise.domain.MovementPattern;
+import com.fitmate.backend.exercise.domain.PrimaryMuscle;
+import com.fitmate.backend.routine.domain.ExerciseRoutine;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class AiDailyOriginalExerciseDto {
+    private Integer exerciseOrder;
+    private String exerciseCode;
+    private String nameKo;
+    private PrimaryMuscle primaryMuscle;
+    private MovementPattern movementPattern;
+    private Integer sets;
+    private Integer reps;
+    private Integer weightKg;
+    private Integer durationSeconds;
+    private Integer restSeconds;
+
+    public static AiDailyOriginalExerciseDto from(ExerciseRoutine exerciseRoutine) {
+        return new AiDailyOriginalExerciseDto(exerciseRoutine.getExerciseOrder(),
+                                              exerciseRoutine.getExercise().getExerciseCode(),
+                                              exerciseRoutine.getExercise().getNameKo(),
+                                              exerciseRoutine.getExercise().getPrimaryMuscle(),
+                                              exerciseRoutine.getExercise().getMovementPattern(),
+                                              exerciseRoutine.getSetCount(),
+                                              exerciseRoutine.getReps(),
+                                              exerciseRoutine.getWeight(),
+                                              exerciseRoutine.getDurationSeconds(),
+                                              exerciseRoutine.getRestSeconds());
+    }
+}

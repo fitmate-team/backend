@@ -26,15 +26,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fitmate.backend.equipment.domain.Equipment;
+import com.fitmate.backend.routine.repository.ExerciseRoutineAdjustmentRepository;
 
 import java.time.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +46,7 @@ public class WorkoutService {
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
     private final MemberProfileRepository memberProfileRepository;
     private final WorkoutExerciseRecordRepository workoutExerciseRecordRepository;
+    private final ExerciseRoutineAdjustmentRepository exerciseRoutineAdjustmentRepository;
 
     /**
      * 오늘의 운동 조회
@@ -277,6 +275,11 @@ public class WorkoutService {
                 .findByWeeklyRoutine_Member_IdAndRoutineDate(memberId, today)
                 .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
+        // 이미 운동을 시작했으면 환경 변경 불가
+        if (workoutRecordRepository.existsByDailyRoutine_Id(dailyRoutine.getId())) {
+            throw new CustomException(ErrorCode.WORKOUT_ALREADY_STARTED);
+        }
+
         // 2. 변경할 운동 환경 조회 및 소유권 확인
         WorkoutEnvironment selectedEnvironment = workoutEnvironmentRepository
                 .findByIdAndMemberId(workoutEnvironmentId, memberId)
@@ -442,6 +445,51 @@ public class WorkoutService {
                     memberProfile.getAge(),
                     request.getPerceivedDifficulty()
             );
+
+            // 실제 수행했고, 적용된 조정값인 경우에만 삭제 여부를 확인합니다.
+            // 세트 기반은 완료 세트 수, 시간 기반은 완료 시간을 기준으로 합니다.
+            if (completedAmount > 0 &&
+                    exerciseRoutine.getAppliedAdjustmentId() != null) {
+
+                exerciseRoutineAdjustmentRepository
+                        .findByMember_IdAndExercise_Id(
+                                memberId,
+                                exerciseRoutine.getExercise().getId()
+                        )
+                        .ifPresent(adjustment -> {
+
+                            // 적용된 조정값과 현재 대기 조정값의 ID 비교
+                            boolean sameAdjustmentId = Objects.equals(
+                                    exerciseRoutine.getAppliedAdjustmentId(),
+                                    adjustment.getId()
+                            );
+
+                            // 적용 당시 처방과 현재 대기 처방 비교
+                            boolean samePrescription =
+                                    Objects.equals(
+                                            exerciseRoutine.getWeight(),
+                                            adjustment.getWeight()
+                                    ) &&
+                                            Objects.equals(
+                                                    exerciseRoutine.getReps(),
+                                                    adjustment.getReps()
+                                            ) &&
+                                            Objects.equals(
+                                                    exerciseRoutine.getSetCount(),
+                                                    adjustment.getSetCount()
+                                            ) &&
+                                            Objects.equals(
+                                                    exerciseRoutine.getDurationSeconds(),
+                                                    adjustment.getDurationSeconds()
+                                            );
+
+                            // 실제 적용된 조정값을 수행한 경우에만 삭제
+                            if (sameAdjustmentId && samePrescription) {
+                                exerciseRoutineAdjustmentRepository.delete(adjustment);
+                            }
+                        });
+            }
+
 
             // 운동별 심박수는 난이도 계산에 사용하고,
             // 운동별 DB 기록에는 수행량과 계산된 난이도를 저장합니다.
@@ -782,41 +830,57 @@ public class WorkoutService {
             int age,
             PerceivedDifficulty perceivedDifficulty
     ) {
-        // 1. 미수행 운동은 다른 점수를 반영하지 않고 측정 불가로 처리합니다.
+        // 1. 수행량이 0이면 심박수와 체감 난이도를 반영하지 않고 측정 불가로 처리합니다.
         if (completedAmount == 0) {
             return CalculatedDifficulty.UNMEASURABLE;
         }
 
-        // 2. 수행률에 비례해 감점합니다.
-        // 목표량을 초과한 경우에는 수행률을 100%로 제한합니다.
-        // 예: 25% → -7.5점, 50% → -5점, 75% → -2.5점, 100% → 0점
+        // 2. 심박수가 없으면 수행량과 체감 난이도로 판정합니다.
+        if (maxHeartRate == null) {
+            // 목표량을 일부만 수행한 운동은 어려움으로 판정합니다.
+            if (completedAmount < plannedAmount) {
+                return CalculatedDifficulty.HARD;
+            }
+
+            // 목표량 이상 수행한 운동은 하루 전체 체감 난이도를 기준으로 판정합니다.
+            // 심박수가 없는 운동도 EASY, NORMAL, HARD로 판정될 수 있도록 합니다.
+            return switch (perceivedDifficulty) {
+                case UNABLE_TO_COMPLETE, NEAR_LIMIT ->
+                        CalculatedDifficulty.HARD;
+                case APPROPRIATE ->
+                        CalculatedDifficulty.NORMAL;
+                case SLIGHTLY_EASY, TOO_EASY ->
+                        CalculatedDifficulty.EASY;
+            };
+        }
+
+        // 3. 심박수가 있으면 수행률, 운동별 심박수, 하루 전체 체감 난이도를 점수로 합산합니다.
+        // 목표량을 초과해 수행해도 수행률은 100%로 제한하여 추가 가점을 부여하지 않습니다.
         double completionRate = Math.min(
                 1.0,
                 (double) completedAmount / plannedAmount
         );
 
+        // 수행률에 비례해 감점합니다.
+        // 예: 25% → -7.5점, 50% → -5점, 75% → -2.5점, 100% → 0점
         double performanceScore = -10.0 * (1.0 - completionRate);
 
-        // 3. 심박수 미측정 시에는 심박수 점수를 반영하지 않습니다.
-        double heartRateScore = 0.0;
+        // 4. 나이로 추정 최대 심박수를 구하고, 해당 운동에서 측정한 최대 심박수의 비율을 계산합니다.
+        double estimatedMaxHeartRate = 220.0 - age;
+        double heartRateRatio = maxHeartRate / estimatedMaxHeartRate;
 
-        if (maxHeartRate != null) {
-            // 회원의 나이로 추정 최대 심박수를 계산합니다.
-            double estimatedMaxHeartRate = 220.0 - age;
-            double heartRateRatio = maxHeartRate / estimatedMaxHeartRate;
+        // 추정 최대 심박수 대비 60%를 0점으로 설정합니다.
+        // 비율이 낮을수록 쉬움 방향으로 가점하고, 높을수록 어려움 방향으로 감점합니다.
+        // 예: 50% → +2점, 60% → 0점, 70% → -2점
+        double rawHeartRateScore = (0.6 - heartRateRatio) * 20.0;
 
-            // 추정 최대 심박수 대비 60%를 0점으로 설정합니다.
-            // 50% → +2점, 60% → 0점, 70% → -2점
-            double rawHeartRateScore = (0.6 - heartRateRatio) * 20.0;
+        // 심박수 점수는 -3~+3점으로 제한합니다.
+        double heartRateScore = Math.max(
+                -3.0,
+                Math.min(3.0, rawHeartRateScore)
+        );
 
-            // 심박수의 영향력을 -3~+3점으로 제한합니다.
-            heartRateScore = Math.max(
-                    -3.0,
-                    Math.min(3.0, rawHeartRateScore)
-            );
-        }
-
-        // 4. 하루 전체 체감 난이도는 작은 보정값으로 적용합니다.
+        // 5. 하루 전체 체감 난이도는 각 운동의 난이도에 -1~+1점의 보정값으로 반영합니다.
         double perceivedScore = switch (perceivedDifficulty) {
             case UNABLE_TO_COMPLETE -> -1.0;
             case NEAR_LIMIT -> -0.5;
@@ -825,21 +889,24 @@ public class WorkoutService {
             case TOO_EASY -> 1.0;
         };
 
-        // 5. 각 점수를 합산합니다.
+        // 6. 수행률 점수, 심박수 점수, 체감 난이도 보정값을 합산합니다.
         double totalScore =
                 performanceScore + heartRateScore + perceivedScore;
 
-        // 부동소수점 계산 오차로 경계값 판정이 달라지는 것을 방지합니다.
+        // 부동소수점 계산 오차를 고려하여 경계값인 -3점과 +3점의 판정을 보정합니다.
         double epsilon = 1e-9;
 
+        // 총점이 -3점 이하면 어려움으로 판정합니다.
         if (totalScore <= -3.0 + epsilon) {
             return CalculatedDifficulty.HARD;
         }
 
+        // 총점이 +3점 이상이면 쉬움으로 판정합니다.
         if (totalScore >= 3.0 - epsilon) {
             return CalculatedDifficulty.EASY;
         }
 
+        // 두 경계값 사이이면 적절함으로 판정합니다.
         return CalculatedDifficulty.NORMAL;
     }
 }

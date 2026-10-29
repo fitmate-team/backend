@@ -10,10 +10,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,20 +30,22 @@ public class ExerciseController {
         return ResponseEntity.ok(exerciseService.getExercises(keyword, muscle));
     }
 
-    @Operation(
-            summary = "운동 가이드 다건 조회",
-            description = "운동 ID 목록을 전달받아 각 운동의 이름, 가이드 영상, 설명 및 주요 운동 부위를 조회합니다."
-    )
+    @Operation(summary = "운동 가이드 다건 조회", description = "운동 ID 목록을 전달받아 각 운동의 이름, 가이드 영상, 설명 및 주요 " +
+            "운동 부위를 조회합니다.")
     @GetMapping("/guides")
-    public ResponseEntity<List<ExerciseGuideResponseDto>> getExerciseGuides(
-            @Parameter(
-                    description = "조회할 운동 ID 목록",
-                    example = "28,67,69"
-            )
-            @RequestParam List<Long> exerciseIds
-    ) {
-        return ResponseEntity.ok(
-                exerciseService.getExerciseGuides(exerciseIds)
-        );
+    public ResponseEntity<List<ExerciseGuideResponseDto>> getExerciseGuides(@Parameter(description = "조회할 운동 ID 목록", example = "28,67,69") @RequestParam List<Long> exerciseIds) {
+        return ResponseEntity.ok(exerciseService.getExerciseGuides(exerciseIds));
+    }
+
+    @Operation(summary = "선택한 운동 환경에서 가능한 운동 목록 조회")
+    @GetMapping("/available")
+    public ResponseEntity<List<ExerciseResponseDto>> getAvailableExercises(@AuthenticationPrincipal Long memberId,
+                                                                           @RequestParam Long environmentId,
+                                                                           @RequestParam(required = false) String keyword,
+                                                                           @RequestParam(required = false) PrimaryMuscle muscle) {
+        return ResponseEntity.ok(exerciseService.getAvailableExercises(memberId,
+                                                                       environmentId,
+                                                                       keyword,
+                                                                       muscle));
     }
 }
