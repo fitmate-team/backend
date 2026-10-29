@@ -7,6 +7,7 @@ import tools.jackson.databind.ObjectMapper;
 import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineInputDto;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import com.fitmate.backend.routine.ai.dto.adjustment.ExerciseAdjustmentInputDto;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +18,8 @@ public class AiPromptBuilder {
     private static final String PROMPT_PATH1 = "prompts/fitmate-production.txt";
     private static final String PROMPT_PATH2 = "prompts/fitmate-daily-replacement.txt";
     private static final String PROMPT_PATH3 = "prompts/fitmate-custom-exercises.txt";
+    private static final String PROMPT_PATH4 = "prompts/fitmate-exercise-adjustment.txt";
+
 //    private static final String PROMPT_PATH3 = "prompts/fitmate-custom-prescription.txt";
 //    private static final String PROMPT_PATH3 = "fitmate-custom-summary.txt";
 
@@ -24,12 +27,14 @@ public class AiPromptBuilder {
     private final String weeklyPromptTemplate;
     private final String dailyPromptTemplate;
     private final String customPromptTemplate;
+    private final String exerciseAdjustmentPromptTemplate;
 
     public AiPromptBuilder(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.weeklyPromptTemplate = loadPromptTemplate(PROMPT_PATH1);
         this.dailyPromptTemplate = loadPromptTemplate(PROMPT_PATH2);
         this.customPromptTemplate = loadPromptTemplate(PROMPT_PATH3);
+        this.exerciseAdjustmentPromptTemplate = loadPromptTemplate(PROMPT_PATH4);
     }
 
     public String build(WeeklyRoutineInputDto request) {
@@ -86,6 +91,21 @@ public class AiPromptBuilder {
         }
     }
 
+    public String build(ExerciseAdjustmentInputDto request) {
+        try {
+            String exerciseRecordsJson =
+                    objectMapper.writeValueAsString(request.getExerciseRecords());
+
+            return exerciseAdjustmentPromptTemplate
+                    .replace("{{EXERCISE_RECORDS}}", exerciseRecordsJson);
+
+        } catch (JacksonException e) {
+            throw new IllegalStateException(
+                    "AI 요청 데이터를 JSON으로 변환하지 못했습니다.",
+                    e
+            );
+        }
+    }
 
     private String loadPromptTemplate(String path) {
         ClassPathResource resource = new ClassPathResource(path);
