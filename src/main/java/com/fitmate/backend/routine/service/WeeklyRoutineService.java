@@ -1,6 +1,7 @@
 package com.fitmate.backend.routine.service;
 
 import com.fitmate.backend.exercise.domain.Exercise;
+import com.fitmate.backend.exercise.domain.ExerciseType;
 import com.fitmate.backend.exercise.repository.ExerciseRepository;
 import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
@@ -77,6 +78,10 @@ public class WeeklyRoutineService {
                 Exercise exercise =
                         exerciseRepository.findByExerciseCode(exerciseDto.getExerciseCode())
                         .orElseThrow(() -> new CustomException(ErrorCode.INVALID_EXERCISE_CODE));
+
+                // DB에 저장하기 전에 운동 기록 유형에 맞는 처방인지 검사
+                validateExercisePrescription(exerciseDto, exercise);
+
                 Integer exerciseOrder = i + 1;
                 exerciseRoutineRepository.save(exerciseDto.toExerciseRoutine(dailyRoutine,
                                                                              exercise,
@@ -97,7 +102,7 @@ public class WeeklyRoutineService {
 
         List<DailyRoutine> dailyRoutines =
                 dailyRoutineRepository.findByWeeklyRoutine_IdOrderByRoutineDateAsc(
-                        weeklyRoutine.getId());
+                weeklyRoutine.getId());
 
         List<WeeklyRoutineResponseDto.DailyDto> weeklyPlan = new ArrayList<>();
 
@@ -105,15 +110,16 @@ public class WeeklyRoutineService {
 
             List<ExerciseRoutine> exerciseRoutines =
                     exerciseRoutineRepository.findByDailyRoutine_IdOrderByExerciseOrderAsc(
-                            dailyRoutine.getId());
+                    dailyRoutine.getId());
 
             List<WeeklyRoutineResponseDto.ExerciseDto> exercises = exerciseRoutines.stream()
                     .map(exerciseRoutine -> WeeklyRoutineResponseDto.ExerciseDto.from(
                             exerciseRoutine))
                     .toList();
 
-            WeeklyRoutineResponseDto.DailyDto dailyPlan =
-                    WeeklyRoutineResponseDto.DailyDto.of(dailyRoutine, exercises);
+            WeeklyRoutineResponseDto.DailyDto dailyPlan = WeeklyRoutineResponseDto.DailyDto.of(
+                    dailyRoutine,
+                    exercises);
 
             weeklyPlan.add(dailyPlan);
 
@@ -143,4 +149,41 @@ public class WeeklyRoutineService {
             }
         }
     }
+
+
+    private void validateExercisePrescription(WeeklyRoutineSaveRequestDto.ExerciseDto exerciseDto,
+                                              Exercise exercise) {
+        // 1. 기본 처방 수치 검사
+        if (exerciseDto.getSets() == null || exerciseDto.getSets() <= 0 ||
+                exerciseDto.getRestSeconds() == null || exerciseDto.getRestSeconds() < 0 ||
+                (exerciseDto.getWeightKg() != null && exerciseDto.getWeightKg() <= 0) ||
+                (exerciseDto.getReps() != null && exerciseDto.getReps() <= 0) ||
+                (exerciseDto.getDurationSeconds() != null &&
+                        exerciseDto.getDurationSeconds() <= 0) ||
+                exercise.getBaselineRecordType() == null || exercise.getExerciseType() == null) {
+            throw new CustomException(ErrorCode.INVALID_WEEKLY_ROUTINE_PRESCRIPTION);
+        }
+
+        // 2. 운동 기록 방식별 처방 검증
+        boolean invalidPrescription = switch (exercise.getBaselineRecordType()) {
+
+            case WEIGHT_REPS_SETS ->
+                    exerciseDto.getReps() == null || exerciseDto.getDurationSeconds() != null ||
+                            exercise.getExerciseType() == ExerciseType.CARDIO;
+
+            case REPS_SETS -> exerciseDto.getReps() == null || exerciseDto.getWeightKg() != null ||
+                    exerciseDto.getDurationSeconds() != null ||
+                    exercise.getExerciseType() == ExerciseType.CARDIO;
+
+            case DURATION -> exercise.getExerciseType() != ExerciseType.CARDIO ||
+                    exerciseDto.getDurationSeconds() == null || exerciseDto.getReps() != null ||
+                    exerciseDto.getWeightKg() != null || exerciseDto.getSets() != 1 ||
+                    exerciseDto.getRestSeconds() != 0;
+        };
+
+        if (invalidPrescription) {
+            throw new CustomException(ErrorCode.INVALID_WEEKLY_ROUTINE_PRESCRIPTION);
+        }
+    }
+
 }
