@@ -4,8 +4,8 @@ import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.member.domain.Member;
 import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.routine.domain.DailyRoutine;
-import com.fitmate.backend.routine.domain.MainTarget;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;
+import com.fitmate.backend.routine.domain.MainTarget;
 import com.fitmate.backend.routine.domain.WeeklyRoutine;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -13,7 +13,6 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
@@ -99,7 +98,7 @@ public class WeeklyRoutineSaveRequestDto {
 
         @Positive
         @Schema(description = "추천 중량(kg). 개인 중량 기록이 없거나 중량을 사용하지 않는 운동은 null", example = "22")
-        private BigDecimal weightKg;
+        private Integer weightKg;
 
         @Positive
         @Schema(description = "목표 반복 횟수. 시간 기반 운동은 null", example = "10")

@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -67,19 +66,19 @@ public class ExerciseGrowthResponseDto {
                 description = "1세트 이상 수행한 종료 기록의 최대 설정 중량. kg 단위이며 기록이 없으면 null입니다.",
                 example = "55.0"
         )
-        private final BigDecimal maxWeight;
+        private final Integer maxWeight;
 
         @Schema(
                 description = "1세트 이상 수행한 종료 기록의 최소 설정 중량. kg 단위이며 기록이 없으면 null입니다.",
                 example = "45.0"
         )
-        private final BigDecimal minWeight;
+        private final Integer minWeight;
 
         public static WeightMonthlyRecordDto of(
                 int year,
                 int month,
-                BigDecimal maxWeight,
-                BigDecimal minWeight
+                Integer maxWeight,
+                Integer minWeight
         ) {
             return new WeightMonthlyRecordDto(
                     year,

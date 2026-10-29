@@ -11,7 +11,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -52,29 +51,24 @@ public class TodayWorkoutResponseDto {
     // 오늘의 운동 목록
     private List<ExerciseDto> exercises;
 
-    public static TodayWorkoutResponseDto of(
-            DailyRoutine dailyRoutine,
-            String locationName,
-            int averageRestSeconds,
-            boolean hasWorkedOut,
-            List<ExerciseDto> exercises
-    ) {
-        WorkoutEnvironment environment =
-                dailyRoutine.getWorkoutEnvironment();
+    public static TodayWorkoutResponseDto of(DailyRoutine dailyRoutine,
+                                             String locationName,
+                                             int averageRestSeconds,
+                                             boolean hasWorkedOut,
+                                             List<ExerciseDto> exercises) {
+        WorkoutEnvironment environment = dailyRoutine.getWorkoutEnvironment();
 
-        return new TodayWorkoutResponseDto(
-                dailyRoutine.getId(),
-                dailyRoutine.getRoutineDate(),
-                environment.getId(),
-                environment.getLocationType(),
-                locationName,
-                dailyRoutine.getMainTarget().getDisplayTitle(),
-                dailyRoutine.getEstimatedDurationMinutes(),
-                exercises.size(),
-                averageRestSeconds,
-                hasWorkedOut,
-                exercises
-        );
+        return new TodayWorkoutResponseDto(dailyRoutine.getId(),
+                                           dailyRoutine.getRoutineDate(),
+                                           environment.getId(),
+                                           environment.getLocationType(),
+                                           locationName,
+                                           dailyRoutine.getMainTarget().getDisplayTitle(),
+                                           dailyRoutine.getEstimatedDurationMinutes(),
+                                           exercises.size(),
+                                           averageRestSeconds,
+                                           hasWorkedOut,
+                                           exercises);
     }
 
     @Getter
@@ -100,7 +94,7 @@ public class TodayWorkoutResponseDto {
         private Integer exerciseOrder;
 
         // 중량 (kg), 필요 없거나 미설정 시 null
-        private Double weightKg;
+        private Integer weightKg;
 
         // 반복 횟수, 유산소 운동이면 null 가능
         private Integer reps;
@@ -120,29 +114,25 @@ public class TodayWorkoutResponseDto {
         public static ExerciseDto from(ExerciseRoutine exerciseRoutine) {
             Exercise exercise = exerciseRoutine.getExercise();
 
-            ExerciseBaselineType baselineRecordType =
-                    exercise.getBaselineRecordType();
+            ExerciseBaselineType baselineRecordType = exercise.getBaselineRecordType();
 
-            BigDecimal weight = exerciseRoutine.getWeight();
+            Integer weight = exerciseRoutine.getWeight();
 
             boolean weightRequired =
-                    baselineRecordType == ExerciseBaselineType.WEIGHT_REPS_SETS
-                            && weight == null;
+                    baselineRecordType == ExerciseBaselineType.WEIGHT_REPS_SETS && weight == null;
 
-            return new ExerciseDto(
-                    exerciseRoutine.getId(),
-                    exercise.getId(),
-                    exercise.getExerciseType(),
-                    baselineRecordType,
-                    exercise.getNameKo(),
-                    exerciseRoutine.getExerciseOrder(),
-                    weight == null ? null : weight.doubleValue(),
-                    exerciseRoutine.getReps(),
-                    exerciseRoutine.getSetCount(),
-                    exerciseRoutine.getDurationSeconds(),
-                    exerciseRoutine.getRestSeconds(),
-                    weightRequired
-            );
+            return new ExerciseDto(exerciseRoutine.getId(),
+                                   exercise.getId(),
+                                   exercise.getExerciseType(),
+                                   baselineRecordType,
+                                   exercise.getNameKo(),
+                                   exerciseRoutine.getExerciseOrder(),
+                                   weight,
+                                   exerciseRoutine.getReps(),
+                                   exerciseRoutine.getSetCount(),
+                                   exerciseRoutine.getDurationSeconds(),
+                                   exerciseRoutine.getRestSeconds(),
+                                   weightRequired);
         }
     }
 }

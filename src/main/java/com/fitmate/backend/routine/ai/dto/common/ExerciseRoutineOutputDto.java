@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,6 +15,6 @@ public class ExerciseRoutineOutputDto {
     private Integer sets;
     private Integer reps;
     private Integer durationSeconds;
-    private BigDecimal weightKg;
+    private Integer weightKg;
     private Integer restSeconds;
 }

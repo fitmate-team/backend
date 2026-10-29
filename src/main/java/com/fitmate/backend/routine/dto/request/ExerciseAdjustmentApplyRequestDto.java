@@ -1,11 +1,9 @@
 package com.fitmate.backend.routine.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,11 +14,10 @@ public class ExerciseAdjustmentApplyRequestDto {
 
     @Schema(
             description = "적용할 중량(kg). 중량을 사용하지 않는 운동은 null",
-            example = "22.5"
+            example = "22"
     )
-    @DecimalMin(value = "0.00", inclusive = false)
-    @Digits(integer = 4, fraction = 2)
-    private BigDecimal weightKg;
+    @Positive
+    private Integer weightKg;
 
     @Schema(
             description = "적용할 반복 횟수. 반복 횟수를 사용하지 않는 운동은 null",

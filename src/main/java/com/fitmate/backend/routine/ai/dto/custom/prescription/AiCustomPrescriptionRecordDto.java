@@ -5,7 +5,6 @@ import com.fitmate.backend.workout.domain.WorkoutExerciseRecord;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 public class AiCustomPrescriptionRecordDto {
 
     private LocalDateTime performedAt;
-    private BigDecimal plannedWeightKg;
+    private Integer plannedWeightKg;
     private Integer plannedReps;
     private Integer plannedSets;
     private Integer plannedDurationSeconds;

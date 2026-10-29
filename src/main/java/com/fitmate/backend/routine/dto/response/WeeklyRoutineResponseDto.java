@@ -7,7 +7,6 @@ import com.fitmate.backend.routine.domain.WeeklyRoutine;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
@@ -59,7 +58,7 @@ public class WeeklyRoutineResponseDto {
         private String exerciseCode;
         private String nameKo;
         private Integer exerciseOrder;
-        private BigDecimal weightKg;
+        private Integer weightKg;
         private Integer reps;
         private Integer sets;
         private Integer durationSeconds;

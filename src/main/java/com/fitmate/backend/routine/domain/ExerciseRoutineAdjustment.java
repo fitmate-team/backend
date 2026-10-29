@@ -3,17 +3,7 @@ package com.fitmate.backend.routine.domain;
 import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.global.common.BaseEntity;
 import com.fitmate.backend.member.domain.Member;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import java.math.BigDecimal;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,8 +35,8 @@ public class ExerciseRoutineAdjustment extends BaseEntity {
     @JoinColumn(name = "exercise_id", nullable = false)
     private Exercise exercise;
 
-    @Column(name = "weight", precision = 6, scale = 2)
-    private BigDecimal weight;
+    @Column(name = "weight")
+    private Integer weight;
 
     @Column(name = "reps")
     private Integer reps;
@@ -61,7 +51,7 @@ public class ExerciseRoutineAdjustment extends BaseEntity {
     public ExerciseRoutineAdjustment(
             Member member,
             Exercise exercise,
-            BigDecimal weight,
+            Integer weight,
             Integer reps,
             Integer setCount,
             Integer durationSeconds
@@ -75,7 +65,7 @@ public class ExerciseRoutineAdjustment extends BaseEntity {
     }
 
     public void update(
-            BigDecimal weight,
+            Integer weight,
             Integer reps,
             Integer setCount,
             Integer durationSeconds

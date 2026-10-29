@@ -293,7 +293,7 @@ public class CustomRoutineAiService {
             // 공통 처방 수치 검증
             if (dto.getSets() == null || dto.getSets() <= 0 || dto.getRestSeconds() == null ||
                     dto.getRestSeconds() < 0 ||
-                    (dto.getWeightKg() != null && dto.getWeightKg().signum() <= 0) ||
+                    (dto.getWeightKg() != null && dto.getWeightKg() <= 0) ||
                     (dto.getReps() != null && dto.getReps() <= 0) ||
                     (dto.getDurationSeconds() != null && dto.getDurationSeconds() <= 0)) {
 

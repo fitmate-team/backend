@@ -6,12 +6,12 @@ import com.fitmate.backend.global.exception.CustomException;
 import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.routine.ai.dto.common.AiEligibleExerciseDto;
 import com.fitmate.backend.routine.ai.dto.common.AiRecentExerciseRecordDto;
-import com.fitmate.backend.routine.ai.dto.daily.AiDailyOriginalExerciseDto;
 import com.fitmate.backend.routine.ai.dto.common.ExerciseRoutineOutputDto;
+import com.fitmate.backend.routine.ai.dto.daily.AiDailyOriginalExerciseDto;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class ExercisePrescriptionValidator {
@@ -29,8 +29,8 @@ public class ExercisePrescriptionValidator {
 
         if (type == ExerciseBaselineType.WEIGHT_REPS_SETS) {
             if (exercise.getReps() == null || exercise.getReps() <= 0 ||
-                    exercise.getDurationSeconds() != null || (exercise.getWeightKg() != null &&
-                    exercise.getWeightKg().compareTo(BigDecimal.ZERO) <= 0)) {
+                    exercise.getDurationSeconds() != null ||
+                    (exercise.getWeightKg() != null && exercise.getWeightKg() <= 0)) {
                 throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
             }
         }
@@ -63,7 +63,6 @@ public class ExercisePrescriptionValidator {
     public void validateWeeklyWeight(ExerciseRoutineOutputDto exercise,
                                      AiEligibleExerciseDto candidate,
                                      List<AiRecentExerciseRecordDto> records) {
-
         if (candidate.getBaselineRecordType() != ExerciseBaselineType.WEIGHT_REPS_SETS) {
             return;
         }
@@ -75,40 +74,33 @@ public class ExercisePrescriptionValidator {
                 .findFirst()
                 .orElse(null);
 
-        BigDecimal weightKg = exercise.getWeightKg();
-
-        if (recentWeightKg == null) {
-            if (weightKg != null) {
-                throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
-            }
-        } else {
-            if (weightKg == null || weightKg.compareTo(BigDecimal.valueOf(recentWeightKg)) != 0) {
-                throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
-            }
+        if (!Objects.equals(recentWeightKg, exercise.getWeightKg())) {
+            throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
         }
     }
 
     // 당일 재추천 중량 검사
-    public void validateDailyWeight(ExerciseRoutineOutputDto exercise,
-                                    AiEligibleExerciseDto candidate,
-                                    List<AiRecentExerciseRecordDto> records,
-                                    AiDailyOriginalExerciseDto original) {
-
-        if (candidate.getBaselineRecordType() != ExerciseBaselineType.WEIGHT_REPS_SETS) {
+    public void validateDailyWeight(
+            ExerciseRoutineOutputDto exercise,
+            AiEligibleExerciseDto candidate,
+            List<AiRecentExerciseRecordDto> records,
+            AiDailyOriginalExerciseDto original
+    ) {
+        if (candidate.getBaselineRecordType()
+                != ExerciseBaselineType.WEIGHT_REPS_SETS) {
             return;
         }
 
-        // 기존 운동을 유지한 경우
+        // 기존 운동을 유지했다면 중량도 그대로 유지해야 합니다.
         if (exercise.getExerciseCode().equals(original.getExerciseCode())) {
-            BigDecimal originalWeight = original.getWeightKg();
-            BigDecimal newWeight = exercise.getWeightKg();
-
-            if ((originalWeight == null && newWeight != null) || (originalWeight != null &&
-                    (newWeight == null || originalWeight.compareTo(newWeight) != 0))) {
+            if (!Objects.equals(
+                    original.getWeightKg(),
+                    exercise.getWeightKg()
+            )) {
                 throw new CustomException(ErrorCode.OPENAI_INVALID_RESPONSE);
             }
         } else {
-            // 다른 운동으로 치환한 경우
+            // 새로운 운동으로 치환한 경우 최근 기준 기록과 비교합니다.
             validateWeeklyWeight(exercise, candidate, records);
         }
     }

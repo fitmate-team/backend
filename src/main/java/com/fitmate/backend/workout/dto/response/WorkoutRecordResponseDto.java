@@ -10,7 +10,6 @@ import com.fitmate.backend.workout.domain.WorkoutRecord;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -105,7 +104,7 @@ public class WorkoutRecordResponseDto {
         private ExerciseBaselineType baselineRecordType;
 
         // 루틴에 설정된 목표량
-        private BigDecimal weight;
+        private Integer weight;
         private Integer reps;
         private Integer setCount;
         private Integer durationSeconds;

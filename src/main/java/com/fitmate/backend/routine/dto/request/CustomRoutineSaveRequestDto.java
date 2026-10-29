@@ -13,7 +13,6 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
@@ -99,7 +98,7 @@ public class CustomRoutineSaveRequestDto {
 
         @Positive
         @Schema(description = "운동 중량(kg). 해당하지 않으면 null", example = "22")
-        private BigDecimal weightKg;
+        private Integer weightKg;
 
         @Positive
         @Schema(description = "목표 반복 횟수. 시간 기반 운동은 null", example = "10")

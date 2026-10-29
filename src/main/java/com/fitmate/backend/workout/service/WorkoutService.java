@@ -1,5 +1,6 @@
 package com.fitmate.backend.workout.service;
 
+import com.fitmate.backend.equipment.domain.Equipment;
 import com.fitmate.backend.exercise.domain.Exercise;
 import com.fitmate.backend.exercise.domain.ExerciseBaselineType;
 import com.fitmate.backend.global.exception.CustomException;
@@ -12,23 +13,21 @@ import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.domain.DailyRoutine;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.routine.repository.DailyRoutineRepository;
+import com.fitmate.backend.routine.repository.ExerciseRoutineAdjustmentRepository;
 import com.fitmate.backend.routine.repository.ExerciseRoutineRepository;
 import com.fitmate.backend.workout.domain.CalculatedDifficulty;
 import com.fitmate.backend.workout.domain.PerceivedDifficulty;
 import com.fitmate.backend.workout.domain.WorkoutExerciseRecord;
 import com.fitmate.backend.workout.domain.WorkoutRecord;
 import com.fitmate.backend.workout.dto.request.WorkoutFinishRequestDto;
-import com.fitmate.backend.workout.dto.response.*;
 import com.fitmate.backend.workout.dto.request.WorkoutRecordCreateRequestDto;
+import com.fitmate.backend.workout.dto.response.*;
 import com.fitmate.backend.workout.repository.WorkoutExerciseRecordRepository;
 import com.fitmate.backend.workout.repository.WorkoutRecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.fitmate.backend.equipment.domain.Equipment;
-import com.fitmate.backend.routine.repository.ExerciseRoutineAdjustmentRepository;
 
-import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
 import java.util.function.Function;
@@ -63,13 +62,14 @@ public class WorkoutService {
         // 2. 회원의 오늘 운동 루틴 조회
         DailyRoutine dailyRoutine =
                 dailyRoutineRepository.findByWeeklyRoutine_Member_IdAndRoutineDate(
-                memberId,
-                today).orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
+                                memberId,
+                                today)
+                        .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
         // 3. 오늘 루틴에 포함된 운동 목록 조회
         List<ExerciseRoutine> exerciseRoutines =
                 exerciseRoutineRepository.findByDailyRoutine_IdOrderByExerciseOrderAsc(
-                dailyRoutine.getId());
+                        dailyRoutine.getId());
 
         // 4. 운동 목록을 응답 DTO로 변환
         List<TodayWorkoutResponseDto.ExerciseDto> exercises = exerciseRoutines.stream()
@@ -108,8 +108,9 @@ public class WorkoutService {
         // 1. 회원의 오늘 운동 루틴 조회
         DailyRoutine dailyRoutine =
                 dailyRoutineRepository.findByWeeklyRoutine_Member_IdAndRoutineDate(
-                memberId,
-                today).orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
+                                memberId,
+                                today)
+                        .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
         // 2. 오늘 운동 루틴에 설정된 운동 환경 ID 조회
         Long selectedEnvironmentId = dailyRoutine.getWorkoutEnvironment().getId();
@@ -117,10 +118,10 @@ public class WorkoutService {
         // 3. 회원이 등록한 전체 운동 환경 조회 및 DTO 변환
         List<TodayWorkoutEnvironmentResponseDto.EnvironmentDto> environments =
                 workoutEnvironmentRepository.findAllByMemberId(
-                        memberId)
-                .stream()
-                .map(TodayWorkoutEnvironmentResponseDto.EnvironmentDto::from)
-                .toList();
+                                memberId)
+                        .stream()
+                        .map(TodayWorkoutEnvironmentResponseDto.EnvironmentDto::from)
+                        .toList();
 
         // 4. 오늘 선택된 운동 환경과 등록된 운동 환경 목록 반환
         return TodayWorkoutEnvironmentResponseDto.of(selectedEnvironmentId, environments);
@@ -144,8 +145,9 @@ public class WorkoutService {
         // 1. 오늘의 운동 루틴 조회
         DailyRoutine dailyRoutine =
                 dailyRoutineRepository.findByWeeklyRoutine_Member_IdAndRoutineDate(
-                memberId,
-                today).orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
+                                memberId,
+                                today)
+                        .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
         // 2. 현재 루틴의 기준 운동 환경 이름 조회
         String currentRoutineLocationName = getLocationName(dailyRoutine.getWorkoutEnvironment());
@@ -153,14 +155,14 @@ public class WorkoutService {
         // 3. 사용자가 새롭게 선택한 운동 환경 조회
         WorkoutEnvironment selectedEnvironment =
                 workoutEnvironmentRepository.findWithEquipmentByIdAndMemberId(
-                        workoutEnvironmentId,
-                        memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
+                                workoutEnvironmentId,
+                                memberId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.WORKOUT_ENVIRONMENT_NOT_FOUND));
 
         // 4. 오늘의 운동 목록 조회
         List<ExerciseRoutine> exerciseRoutines =
                 exerciseRoutineRepository.findByDailyRoutine_IdOrderByExerciseOrderAsc(
-                dailyRoutine.getId());
+                        dailyRoutine.getId());
 
         // 5. 선택한 운동 환경에서 사용할 수 있는 기구 코드 조회
         Set<String> availableEquipmentCodes = selectedEnvironment.getEquipment()
@@ -191,10 +193,10 @@ public class WorkoutService {
         // 로그인한 회원의 오늘 루틴 조회 및 요청한 루틴 ID 확인
         DailyRoutine dailyRoutine =
                 dailyRoutineRepository.findByWeeklyRoutine_Member_IdAndRoutineDate(
-                        memberId,
-                        today)
-                .filter(routine -> routine.getId().equals(request.getDailyRoutineId()))
-                .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
+                                memberId,
+                                today)
+                        .filter(routine -> routine.getId().equals(request.getDailyRoutineId()))
+                        .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
         // 이미 시작한 운동인지 확인
         if (workoutRecordRepository.existsByDailyRoutine_Id(dailyRoutine.getId())) {
@@ -249,8 +251,9 @@ public class WorkoutService {
 
         DailyRoutine dailyRoutine =
                 dailyRoutineRepository.findByWeeklyRoutine_Member_IdAndRoutineDate(
-                memberId,
-                today).orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
+                                memberId,
+                                today)
+                        .orElseThrow(() -> new CustomException(ErrorCode.TODAY_ROUTINE_NOT_FOUND));
 
         // 이미 운동을 시작했으면 환경 변경 불가
         if (workoutRecordRepository.existsByDailyRoutine_Id(dailyRoutine.getId())) {
@@ -266,7 +269,7 @@ public class WorkoutService {
         // 3. 현재 루틴의 운동 목록 조회
         List<ExerciseRoutine> exerciseRoutines =
                 exerciseRoutineRepository.findByDailyRoutine_IdOrderByExerciseOrderAsc(
-                dailyRoutine.getId());
+                        dailyRoutine.getId());
 
         // 4. 선택한 운동 환경의 기구 목록 조회
         Set<String> availableEquipmentCodes = selectedEnvironment.getEquipment()
@@ -326,7 +329,7 @@ public class WorkoutService {
         // 5. 해당 루틴의 전체 운동을 조회하고 ID를 기준으로 매핑합니다.
         List<ExerciseRoutine> exerciseRoutines =
                 exerciseRoutineRepository.findByDailyRoutine_IdOrderByExerciseOrderAsc(
-                dailyRoutine.getId());
+                        dailyRoutine.getId());
 
         Map<Long, ExerciseRoutine> routineExerciseMap = exerciseRoutines.stream()
                 .collect(Collectors.toMap(ExerciseRoutine::getId, Function.identity()));
@@ -404,7 +407,6 @@ public class WorkoutService {
                                                                   memberProfile.getAge(),
                                                                   request.getPerceivedDifficulty());
 
-
             // 실제 수행한 운동에 한해서 조정 DB 값을 확인합니다.
             // 세트 기반 운동은 완료 세트 수, 시간 기반 운동은 완료 시간을 기준으로 합니다.
             if (completedAmount > 0) {
@@ -415,13 +417,11 @@ public class WorkoutService {
                         .ifPresent(adjustment -> {
 
                             // 중량 비교
-                            BigDecimal routineWeight = exerciseRoutine.getWeight();
-                            BigDecimal adjustmentWeight = adjustment.getWeight();
-
-                            boolean sameWeight =
-                                    (routineWeight == null && adjustmentWeight == null) ||
-                                            (routineWeight != null && adjustmentWeight != null &&
-                                                    routineWeight.compareTo(adjustmentWeight) == 0);
+                            // 루틴 중량과 조정 DB 중량 비교
+                            boolean sameWeight = Objects.equals(
+                                    exerciseRoutine.getWeight(),
+                                    adjustment.getWeight()
+                            );
 
                             // 루틴에 저장된 처방과 조정 DB 처방 전체 비교
                             boolean samePrescription = sameWeight &&
@@ -487,14 +487,14 @@ public class WorkoutService {
 
         List<WorkoutExerciseRecord> exerciseRecords =
                 workoutExerciseRecordRepository.findByWorkoutRecord_IdOrderByExerciseRoutine_ExerciseOrderAsc(
-                workoutRecord.getId());
+                        workoutRecord.getId());
 
         int completionRate = calculateOverallCompletionRate(exerciseRecords);
 
         boolean hasNextRoutine =
                 dailyRoutineRepository.existsNextUnstartedRoutine(dailyRoutine.getWeeklyRoutine()
-                                                                                           .getId(),
-                                                                                   dailyRoutine.getRoutineDate());
+                                                                          .getId(),
+                                                                  dailyRoutine.getRoutineDate());
 
         List<WorkoutRecordResponseDto.ExerciseDto> exercises = exerciseRecords.stream()
                 .map(WorkoutRecordResponseDto.ExerciseDto::from)
@@ -526,9 +526,9 @@ public class WorkoutService {
 
         List<WorkoutRecord> workoutRecords =
                 workoutRecordRepository.findFinishedRecordsByMemberIdAndStartedAtRange(
-                memberId,
-                startOfMonth,
-                startOfNextMonth);
+                        memberId,
+                        startOfMonth,
+                        startOfNextMonth);
 
         if (workoutRecords.isEmpty()) {
             return MonthlyWorkoutRecordResponseDto.of(year, month, List.of());
@@ -538,17 +538,17 @@ public class WorkoutService {
 
         Map<Long, List<WorkoutExerciseRecord>> exerciseRecordsByWorkoutId =
                 workoutExerciseRecordRepository.findAllByWorkoutRecordIds(
-                        workoutRecordIds)
-                .stream()
-                .collect(Collectors.groupingBy(exerciseRecord -> exerciseRecord.getWorkoutRecord()
-                        .getId()));
+                                workoutRecordIds)
+                        .stream()
+                        .collect(Collectors.groupingBy(exerciseRecord -> exerciseRecord.getWorkoutRecord()
+                                .getId()));
 
         List<MonthlyWorkoutRecordResponseDto.RecordDto> records = workoutRecords.stream()
                 .map(workoutRecord -> {
                     List<WorkoutExerciseRecord> exerciseRecords =
                             exerciseRecordsByWorkoutId.getOrDefault(
-                            workoutRecord.getId(),
-                            List.of());
+                                    workoutRecord.getId(),
+                                    List.of());
 
                     List<String> exerciseNames = exerciseRecords.stream()
                             .filter(this::hasPerformedExercise)
