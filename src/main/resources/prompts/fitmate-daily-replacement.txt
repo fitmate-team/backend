@@ -121,7 +121,9 @@ baselineRecordType과 exerciseType에 맞게 처방한다.
 - sets: 1 이상의 정수
 - reps: 필요한 경우 1 이상의 정수 하나. 범위 문자열 금지
 - durationSeconds: CARDIO의 전체 수행시간(초)은 1 이상의 정수, 그 외 운동은 null
-- weightKg: kg 단위 숫자 또는 null
+- weightKg: 운동 중량(kg)은 1 이상의 정수 또는 null
+- weightKg를 60.0, 62.5처럼 소수점이 포함된 숫자로 출력하지 않는다.
+- 원본 운동이나 동일 운동의 최근 중량 기록은 정수값 그대로 사용하며 임의로 반올림하지 않는다.
 - restSeconds: 0 이상의 정수, 초 단위
 
 [원본 운동을 유지할 때]
@@ -147,7 +149,7 @@ A. WEIGHT_REPS_SETS
 - sets: 양의 정수
 - reps: 양의 정수
 - durationSeconds: null
-- weightKg: 위 중량 규칙에 따른 숫자 또는 null
+- weightKg: 위 중량 규칙에 따른 1 이상의 정수 또는 null
 - restSeconds: 0 이상의 정수
 
 B. REPS_SETS
