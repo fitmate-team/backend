@@ -9,7 +9,7 @@ import com.fitmate.backend.routine.service.CustomRoutineService;
 import com.fitmate.backend.routine.service.DailyRoutineService;
 import com.fitmate.backend.routine.service.RoutineWeightService;
 import com.fitmate.backend.routine.service.WeeklyRoutineService;
-import com.fitmate.backend.workout.dto.response.TodayWorkoutResponseDto;
+import com.fitmate.backend.routine.service.WeeklyRoutineRegenerationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,6 +29,7 @@ public class RoutineController {
     private final WeeklyRoutineService weeklyRoutineService;
     private final DailyRoutineService dailyRoutineService;
     private final CustomRoutineService customRoutineService;
+    private final WeeklyRoutineRegenerationService weeklyRoutineRegenerationService;
 
     @Operation(summary = "오늘의 운동 중량 설정", description = "AI가 중량을 추천하지 못한 운동에 대해 사용자가 직접 중량을 설정합니다.")
     @PatchMapping("/weights")
@@ -70,4 +71,23 @@ public class RoutineController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    // AI가 재생성한 주간 루틴 저장
+    @Operation(summary = "주간 루틴 AI 재생성 저장", description = "AI가 다시 생성한 운동 계획을 기존 주간 루틴에 반영합니다. 지난 " +
+            "날짜와 운동 기록이 있는 날짜는 그대로 유지합니다.")
+    @PutMapping("/weekly/regenerate")
+    public ResponseEntity<Void> saveAutoRegeneratedWeeklyRoutine(@AuthenticationPrincipal Long memberId,
+                                                                 @Valid @RequestBody WeeklyRoutineSaveRequestDto requestDto) {
+        weeklyRoutineRegenerationService.saveAutoRegeneratedRoutine(memberId, requestDto);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 사용자가 직접 만든 주간 루틴 재생성 결과 저장
+    @Operation(summary = "직접 만든 주간 루틴 재생성 저장", description =
+            "사용자가 새로 선택한 요일별 운동 환경과 운동 처방을 기존 주간 루틴에 반영합니다. 지난 날짜와 운동 기록이 있는 날짜는 " + "그대로 유지합니다.")
+    @PutMapping("/custom/regenerate")
+    public ResponseEntity<Void> saveCustomRegeneratedWeeklyRoutine(@AuthenticationPrincipal Long memberId,
+                                                                   @Valid @RequestBody CustomRoutineSaveRequestDto requestDto) {
+        weeklyRoutineRegenerationService.saveCustomRegeneratedRoutine(memberId, requestDto);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class WeeklyRoutineRegenerationAiService {
 
-    // 주간 루틴 AI 생성에 필요한 Repository와 Service
     private final MemberProfileRepository memberProfileRepository;
     private final BodyCompositionRepository bodyCompositionRepository;
     private final WorkoutEnvironmentRepository workoutEnvironmentRepository;
@@ -53,8 +52,6 @@ public class WeeklyRoutineRegenerationAiService {
     private final AiPromptBuilder aiPromptBuilder;
     private final OpenAiClient openAiClient;
     private final WeeklyRoutineValidator validator;
-
-    // 재생성 날짜 검사와 기존 운동 기록 조회에 필요한 Service와 Repository
     private final WeeklyRoutineRegenerationService weeklyRoutineRegenerationService;
     private final WorkoutExerciseRecordRepository workoutExerciseRecordRepository;
     private final ExerciseRoutineRepository exerciseRoutineRepository;

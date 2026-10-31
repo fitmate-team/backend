@@ -65,6 +65,8 @@ public enum ErrorCode {
     INVALID_WEEKLY_ROUTINE_PRESCRIPTION("운동 유형에 맞지 않는 주간 루틴 처방 정보입니다.", HttpStatus.BAD_REQUEST),
     INVALID_ROUTINE_WEIGHT_UPDATE("오늘의 운동 중량 설정 요청이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
     ROUTINE_REGENERATION_DAY_PROTECTED("지난 날짜 또는 이미 운동을 시작한 날짜는 재생성할 수 없습니다.", HttpStatus.CONFLICT),
+    INVALID_ROUTINE_REGENERATION_EXERCISE("재생성할 루틴에 추천할 수 없는 운동이 포함되어 있습니다.", HttpStatus.BAD_REQUEST),
+    DUPLICATE_WEEKLY_EXERCISE("같은 주에 비유산소 운동이 중복되어 있습니다.", HttpStatus.BAD_REQUEST),
 
     // 기록
     DUPLICATE_BODY_COMPOSITION("오늘의 신체 기록이 이미 존재합니다.", HttpStatus.CONFLICT),
