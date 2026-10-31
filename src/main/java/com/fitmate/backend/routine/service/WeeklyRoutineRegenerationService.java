@@ -9,10 +9,7 @@ import com.fitmate.backend.global.exception.ErrorCode;
 import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.member.repository.WorkoutEnvironmentRepository;
 import com.fitmate.backend.routine.ai.service.HardFilterService;
-import com.fitmate.backend.routine.domain.DailyRoutine;
-import com.fitmate.backend.routine.domain.ExerciseRoutine;
-import com.fitmate.backend.routine.domain.ExerciseRoutineAdjustment;
-import com.fitmate.backend.routine.domain.WeeklyRoutine;
+import com.fitmate.backend.routine.domain.*;
 import com.fitmate.backend.routine.dto.request.CustomRoutineSaveRequestDto;
 import com.fitmate.backend.routine.dto.request.WeeklyRoutineSaveRequestDto;
 import com.fitmate.backend.routine.repository.DailyRoutineRepository;
@@ -55,7 +52,7 @@ public class WeeklyRoutineRegenerationService {
 
     // AI 자동 재생성한 주간 루틴 저장
     @Transactional
-    public void saveAIRegeneratedRoutine(Long memberId, WeeklyRoutineSaveRequestDto requestDto) {
+    public void saveAiRegeneratedRoutine(Long memberId, WeeklyRoutineSaveRequestDto requestDto) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         LocalDate weekStartDate = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
@@ -351,6 +348,12 @@ public class WeeklyRoutineRegenerationService {
                     dailyDto.getEstimatedMinutes() > requestDto.getSessionMinutes()) {
                 throw new CustomException(ErrorCode.ROUTINE_DURATION_EXCEEDED);
             }
+
+            // 주간 루틴 자동 생성에서 허용하지 않는 대표 운동 부위 검사
+            if (dailyDto.getMainTarget() == MainTarget.CORE) {
+                throw new CustomException(ErrorCode.INVALID_WEEKLY_ROUTINE_PRESCRIPTION);
+            }
+
             // 운동 목록이 없으면 예외
             if (dailyDto.getExercises() == null || dailyDto.getExercises().isEmpty()) {
                 throw new CustomException(ErrorCode.INVALID_WEEKLY_ROUTINE_PRESCRIPTION);

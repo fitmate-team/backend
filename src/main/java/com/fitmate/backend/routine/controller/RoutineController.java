@@ -77,7 +77,7 @@ public class RoutineController {
     @PutMapping("/weekly/regenerate")
     public ResponseEntity<Void> saveAutoRegeneratedWeeklyRoutine(@AuthenticationPrincipal Long memberId,
                                                                  @Valid @RequestBody WeeklyRoutineSaveRequestDto requestDto) {
-        weeklyRoutineRegenerationService.saveAutoRegeneratedRoutine(memberId, requestDto);
+        weeklyRoutineRegenerationService.saveAiRegeneratedRoutine(memberId, requestDto);
         return ResponseEntity.noContent().build();
     }
 
