@@ -13,6 +13,7 @@ import com.fitmate.backend.routine.ai.dto.weekly.WeeklyRoutineOutputDto;
 import com.fitmate.backend.routine.ai.service.CustomRoutineAiService;
 import com.fitmate.backend.routine.ai.service.DailyRoutineAiService;
 import com.fitmate.backend.routine.ai.service.WeeklyRoutineAiService;
+import com.fitmate.backend.routine.ai.service.WeeklyRoutineRegenerationAiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ public class AiRoutineController {
     private final WeeklyRoutineAiService weeklyRoutineAiService;
     private final DailyRoutineAiService dailyRoutineAiService;
     private final CustomRoutineAiService customRoutineAiService;
+    private final WeeklyRoutineRegenerationAiService weeklyRoutineRegenerationAiService;
 
     @Operation(summary = "주간 루틴 AI 생성", description = "선택한 요일과 환경에 맞는 주간 루틴을 생성합니다.")
     @PostMapping("/weekly-routines")
@@ -54,9 +56,8 @@ public class AiRoutineController {
                                                                                         requestDto));
     }
 
-    @Operation(summary = "선택한 운동의 처방값 AI 추천", description = "주간 루틴 직접 만들기 또는 오늘의 루틴 수정 시, "
-            + "선택한 운동들의 실제 수행 기록 또는 Baseline을 참고하여 "
-            + "중량, 횟수, 세트 수, 수행 시간 및 휴식 시간을 추천합니다.")
+    @Operation(summary = "선택한 운동의 처방값 AI 추천", description = "주간 루틴 직접 만들기 또는 오늘의 루틴 수정 시, " +
+            "선택한 운동들의 실제 수행 기록 또는 Baseline을 참고하여 " + "중량, 횟수, 세트 수, 수행 시간 및 휴식 시간을 추천합니다.")
     @PostMapping("/custom-routines/prescription")
     public ResponseEntity<CustomPrescriptionResponseDto> previewCustomPrescription(@AuthenticationPrincipal Long memberId,
                                                                                    @Valid @RequestBody CustomAiPrescriptionRequestDto requestDto) {
@@ -72,4 +73,16 @@ public class AiRoutineController {
 
         return ResponseEntity.ok(customRoutineAiService.generateSummary(memberId, requestDto));
     }
+
+
+    @Operation(summary = "주간 루틴 AI 재생성", description = "기존 주간 루틴에서 변경 가능한 남은 요일의 운동 계획을 AI로 다시 " +
+            "생성합니다. 기존 루틴은 아직 수정하지 않습니다.")
+    @PostMapping("/weekly-routines/regenerate")
+    public ResponseEntity<WeeklyRoutineOutputDto> previewWeeklyRoutineRegeneration(@AuthenticationPrincipal Long memberId,
+                                                                                   @Valid @RequestBody WeeklyAiRoutineRequestDto requestDto) {
+
+        return ResponseEntity.ok(weeklyRoutineRegenerationAiService.regenerateWeeklyRoutine(memberId,
+                                                                                            requestDto));
+    }
+
 }

@@ -58,4 +58,16 @@ public class WeeklyRoutine extends BaseEntity {
         this.workoutEnvironment = workoutEnvironment;
         this.availableDays = availableDays != null ? new HashSet<>(availableDays) : new HashSet<>();
     }
+
+
+    // 주간 루틴 재생성 후 운동 환경, 운동 시간, 선택 요일 수정
+    public void updateRegenerationSettings(WorkoutEnvironment environment,
+                                           Integer sessionMinutes,
+                                           Set<DayOfWeek> availableDays) {
+        this.workoutEnvironment = environment;
+        this.sessionMinutes = sessionMinutes;
+        this.availableDays.clear();
+        this.availableDays.addAll(availableDays);
+    }
+
 }

@@ -88,8 +88,7 @@ public class WeeklyRoutineService {
 
                 Integer exerciseOrder = i + 1;
 
-                // 1. 같은 운동 코드의 모든 날짜에서
-                //    조정값 ID가 일관되는지 확인
+                // 1. 같은 운동 코드의 모든 날짜에서 조정값 ID가 일관되는지 확인
                 String exerciseCode = exerciseDto.getExerciseCode();
                 Long requestedAdjustmentId = exerciseDto.getAppliedAdjustmentId();
 
@@ -135,7 +134,7 @@ public class WeeklyRoutineService {
                     exerciseRoutine.markAppliedAdjustment(adjustment.getId());
                 }
 
-// 5. 운동 루틴 저장
+                // 5. 운동 루틴 저장
                 exerciseRoutineRepository.save(exerciseRoutine);
 
             }
