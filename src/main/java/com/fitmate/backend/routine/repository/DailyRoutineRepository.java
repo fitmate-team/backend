@@ -51,4 +51,19 @@ public interface DailyRoutineRepository extends JpaRepository<DailyRoutine, Long
             Long dailyRoutineId,
             Long memberId
     );
+
+    /**
+     * 연속 운동 횟수 계산을 위해 오늘까지 예정된 운동을 최신순으로 조회합니다.
+     */
+    @Query("""
+        select dailyRoutine
+        from DailyRoutine dailyRoutine
+        where dailyRoutine.weeklyRoutine.member.id = :memberId
+          and dailyRoutine.routineDate <= :today
+        order by dailyRoutine.routineDate desc, dailyRoutine.id desc
+        """)
+    List<DailyRoutine> findRoutinesForConsecutiveWorkoutCount(
+            @Param("memberId") Long memberId,
+            @Param("today") LocalDate today
+    );
 }

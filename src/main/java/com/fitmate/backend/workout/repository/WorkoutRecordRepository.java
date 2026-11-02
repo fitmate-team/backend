@@ -44,4 +44,32 @@ public interface WorkoutRecordRepository extends JpaRepository<WorkoutRecord, Lo
             @Param("startOfMonth") LocalDateTime startOfMonth,
             @Param("startOfNextMonth") LocalDateTime startOfNextMonth
     );
+
+    /**
+     * 이번 주 완료한 운동 횟수를 조회합니다.
+     * 주 시작 일시는 포함하고 다음 주 시작 일시는 제외합니다.
+     */
+    @Query("""
+        select count(record)
+        from WorkoutRecord record
+        join record.dailyRoutine dailyRoutine
+        join dailyRoutine.weeklyRoutine weeklyRoutine
+        where weeklyRoutine.member.id = :memberId
+          and record.isFinished = true
+          and record.startedAt >= :weekStart
+          and record.startedAt < :nextWeekStart
+        """)
+    long countFinishedWorkoutsByMemberIdAndStartedAtRange(
+            @Param("memberId") Long memberId,
+            @Param("weekStart") LocalDateTime weekStart,
+            @Param("nextWeekStart") LocalDateTime nextWeekStart
+    );
+
+    /**
+     * 일일 루틴 ID 목록에 해당하는 운동 기록을 조회합니다.
+     * 시작만 한 기록과 완료한 기록을 모두 포함합니다.
+     */
+    List<WorkoutRecord> findByDailyRoutine_IdIn(
+            List<Long> dailyRoutineIds
+    );
 }
