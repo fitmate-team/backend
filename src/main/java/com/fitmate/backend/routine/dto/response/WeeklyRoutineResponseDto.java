@@ -4,6 +4,7 @@ import com.fitmate.backend.routine.domain.DailyRoutine;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;
 import com.fitmate.backend.routine.domain.MainTarget;
 import com.fitmate.backend.routine.domain.WeeklyRoutine;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -51,6 +52,7 @@ public class WeeklyRoutineResponseDto {
         }
     }
 
+    @Schema(name = "WeeklyRoutineExerciseDto")
     @Getter
     @AllArgsConstructor
     public static class ExerciseDto {
