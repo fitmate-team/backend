@@ -7,6 +7,7 @@ import com.fitmate.backend.member.domain.WorkoutEnvironment;
 import com.fitmate.backend.member.domain.enums.ExerciseLocation;
 import com.fitmate.backend.routine.domain.DailyRoutine;
 import com.fitmate.backend.routine.domain.ExerciseRoutine;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -71,6 +72,7 @@ public class TodayWorkoutResponseDto {
                                            exercises);
     }
 
+    @Schema(name = "TodayWorkoutExerciseDto")
     @Getter
     @AllArgsConstructor
     public static class ExerciseDto {
@@ -80,6 +82,9 @@ public class TodayWorkoutResponseDto {
 
         // 운동 마스터 식별자
         private Long exerciseId;
+
+        // 운동 마스터 코드
+        private String exerciseCode;
 
         // 운동 종류
         private ExerciseType exerciseType;
@@ -123,6 +128,7 @@ public class TodayWorkoutResponseDto {
 
             return new ExerciseDto(exerciseRoutine.getId(),
                                    exercise.getId(),
+                                   exercise.getExerciseCode(),
                                    exercise.getExerciseType(),
                                    baselineRecordType,
                                    exercise.getNameKo(),
