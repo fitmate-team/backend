@@ -119,7 +119,7 @@ GitHub Actions로 코드를 빌드하며, `main` 브랜치에 변경 사항이 �
 ### AI 추천 구조
 
 ```mermaid
-flowchart TD
+flowchart LR
     A["사용자 조건 확인"] --> B["운동 후보 하드 필터링"]
     B --> C["선별된 운동 후보로 AI 추천 요청"]
     C --> D["AI가 운동 루틴 및 처방 생성"]
