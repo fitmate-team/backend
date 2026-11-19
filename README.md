@@ -86,16 +86,9 @@
 Spring Boot 서버와 MySQL은 EC2에서 각각 Docker 컨테이너로 실행합니다. 서버는 앱의 요청을 처리하고, 루틴 생성과 운동량 추천에 OpenAI API를 사용합니다.
 
 <p align="center">
-  <img src="images/system-architecture-2.svg"
-       alt="FitMate System Architecture"
-       width="750" />
-</p>
-
-
-<p align="center">
   <img src="images/system-architecture-transparent.svg"
        alt="FitMate System Architecture"
-       width="750" />
+       width="780" />
 </p>
 
 
