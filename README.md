@@ -85,32 +85,19 @@
 
 Spring Boot 서버와 MySQL은 EC2에서 각각 Docker 컨테이너로 실행합니다. 서버는 앱의 요청을 처리하고, 루틴 생성과 운동량 추천에 OpenAI API를 사용합니다.
 
-```mermaid
-flowchart TB
-    APP["FitMate 앱"]
-    AI["OpenAI API"]
-    ACTIONS["GitHub Actions"]
+<p align="center">
+  <img src="images/system-architecture-2.svg"
+       alt="FitMate System Architecture"
+       width="750" />
+</p>
 
-    subgraph AWS["AWS"]
-        ECR["Amazon ECR"]
-        SSM["AWS SSM"]
 
-        subgraph EC2["EC2 · Docker Compose"]
-            DEPLOY["배포 명령 실행"]
-            SERVER["Spring Boot 서버"]
-            DB[("MySQL")]
-        end
-    end
+<p align="center">
+  <img src="images/system-architecture-transparent.svg"
+       alt="FitMate System Architecture"
+       width="750" />
+</p>
 
-    APP <-->|API 요청 및 응답| SERVER
-    SERVER <-->|데이터 조회 및 저장| DB
-    SERVER <-->|AI 요청 및 응답| AI
-    ACTIONS -->|Docker 이미지 빌드 및 업로드| ECR
-    ACTIONS -->|배포 요청| SSM
-    SSM --> DEPLOY
-    DEPLOY -->|이미지 다운로드| ECR
-    DEPLOY -->|컨테이너 갱신| SERVER
-```
 
 GitHub Actions로 코드를 빌드하며, `main` 브랜치에 변경 사항이 반영되면 Docker 이미지를 ECR에 업로드합니다. SSM으로 EC2에 배포 명령을 전달하고 Docker Compose로 서버 컨테이너를 갱신합니다.
 
