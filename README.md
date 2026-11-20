@@ -6,15 +6,10 @@
 <p><strong>Fitness Should Fit You</strong></p>
 <p>AI 기반 개인 맞춤형 운동 관리 서비스</p>
 
-<!-- 대표 이미지 삽입 위치: 아래 예시의 경로를 실제 이미지 경로로 바꾸고 주석을 해제하세요. -->
-<!-- <img src="images/fitmate-cover.png" alt="FitMate" width="720" /> -->
-
-<p>
-  <a href="https://github.com/fitmate-team/frontend">Frontend</a> |
-  <a href="https://github.com/fitmate-team/backend">Backend</a>
+<p align="center">
+  <img src="images/fitmate-cover.png" alt="대표 이미지" width="100%" />
 </p>
 
-<!-- 시연 영상 링크 추가 위치: <a href="영상_URL">Demo Video</a> -->
 
 </div>
 
