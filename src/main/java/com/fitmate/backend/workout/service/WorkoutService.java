@@ -221,11 +221,20 @@ public class WorkoutService {
                 );
 
         // 이미 시작한 운동인지 확인
-        if (workoutRecordRepository.existsByDailyRoutine_Id(dailyRoutine.getId())) {
-            throw new CustomException(ErrorCode.WORKOUT_ALREADY_STARTED);
+        Optional<WorkoutRecord> existingRecord =
+                workoutRecordRepository.findByDailyRoutine_Id(dailyRoutine.getId());
+
+        if (existingRecord.isPresent()) {
+            WorkoutRecord workoutRecord = existingRecord.get();
+
+            if (workoutRecord.isFinished()) {
+                throw new CustomException(ErrorCode.WORKOUT_ALREADY_FINISHED);
+            }
+
+            return WorkoutStartResponseDto.of(workoutRecord.getId());
         }
 
-        // 서버 시각으로 운동 시작 기록 생성
+        // 최초 시작일 때 운동 기록을 생성합니다.
         WorkoutRecord workoutRecord = WorkoutRecord.of(
                 dailyRoutine,
                 LocalDateTime.now(KOREA_ZONE)
