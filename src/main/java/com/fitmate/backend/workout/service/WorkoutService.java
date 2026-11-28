@@ -83,16 +83,25 @@ public class WorkoutService {
         // 6. 운동 장소 조회
         WorkoutEnvironment environment = dailyRoutine.getWorkoutEnvironment();
 
-        // 7. 운동 완료 여부 조회
-        boolean hasWorkedOut =
-                workoutRecordRepository.existsByDailyRoutine_Id(dailyRoutine.getId());
+        // 7. 운동 기록을 조회해 시작 여부와 상태를 계산합니다.
+        Optional<WorkoutRecord> workoutRecord =
+                workoutRecordRepository.findByDailyRoutine_Id(dailyRoutine.getId());
 
-        // 8. 최종 응답 생성
+        boolean hasWorkedOut = workoutRecord.isPresent();
+
+        TodayWorkoutResponseDto.WorkoutStatus status = workoutRecord
+                .map(record -> record.isFinished()
+                        ? TodayWorkoutResponseDto.WorkoutStatus.COMPLETED
+                        : TodayWorkoutResponseDto.WorkoutStatus.STARTED)
+                .orElse(TodayWorkoutResponseDto.WorkoutStatus.NOT_STARTED);
+
+        // 8. 최종 응답을 생성합니다.
         return TodayWorkoutResponseDto.of(
                 dailyRoutine,
                 getLocationName(environment),
                 averageRestSeconds,
                 hasWorkedOut,
+                status,
                 exercises
         );
     }

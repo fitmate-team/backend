@@ -49,6 +49,15 @@ public class TodayWorkoutResponseDto {
     // 오늘 운동 시작 여부 (WorkoutRecord 존재 여부)
     private Boolean hasWorkedOut;
 
+    @Schema(description = "오늘 운동 상태", example = "STARTED")
+    private WorkoutStatus status;
+
+    public enum WorkoutStatus {
+        NOT_STARTED,
+        STARTED,
+        COMPLETED
+    }
+
     // 오늘의 운동 목록
     private List<ExerciseDto> exercises;
 
@@ -56,20 +65,22 @@ public class TodayWorkoutResponseDto {
                                              String locationName,
                                              int averageRestSeconds,
                                              boolean hasWorkedOut,
+                                             WorkoutStatus status,
                                              List<ExerciseDto> exercises) {
         WorkoutEnvironment environment = dailyRoutine.getWorkoutEnvironment();
 
         return new TodayWorkoutResponseDto(dailyRoutine.getId(),
-                                           dailyRoutine.getRoutineDate(),
-                                           environment.getId(),
-                                           environment.getLocationType(),
-                                           locationName,
-                                           dailyRoutine.getMainTarget().getDisplayTitle(),
-                                           dailyRoutine.getEstimatedDurationMinutes(),
-                                           exercises.size(),
-                                           averageRestSeconds,
-                                           hasWorkedOut,
-                                           exercises);
+                dailyRoutine.getRoutineDate(),
+                environment.getId(),
+                environment.getLocationType(),
+                locationName,
+                dailyRoutine.getMainTarget().getDisplayTitle(),
+                dailyRoutine.getEstimatedDurationMinutes(),
+                exercises.size(),
+                averageRestSeconds,
+                hasWorkedOut,
+                status,
+                exercises);
     }
 
     @Schema(name = "TodayWorkoutExerciseDto")
