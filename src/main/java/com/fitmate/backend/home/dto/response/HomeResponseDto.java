@@ -189,14 +189,14 @@ public class HomeResponseDto {
         }
     }
 
-    @Schema(
-            description = "오늘의 운동 상태",
-            enumAsRef = true
-    )
+    @Schema(description = "오늘의 운동 상태", enumAsRef = true)
     public enum TodayWorkoutStatus {
 
-        @Schema(description = "오늘 운동을 완료하지 않았습니다.")
+        @Schema(description = "오늘 운동을 아직 시작하지 않았습니다.")
         NOT_STARTED,
+
+        @Schema(description = "오늘 운동을 시작했으며 아직 종료하지 않았습니다.")
+        STARTED,
 
         @Schema(description = "오늘 운동을 완료했습니다.")
         COMPLETED
