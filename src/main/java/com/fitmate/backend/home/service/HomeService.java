@@ -136,8 +136,6 @@ public class HomeService {
             Long memberId,
             LocalDate today
     ) {
-
-        // 1. 회원 ID와 오늘 날짜로 예정된 일일 루틴을 조회합니다.
         Optional<DailyRoutine> dailyRoutineOptional =
                 dailyRoutineRepository
                         .findByWeeklyRoutine_Member_IdAndRoutineDate(
@@ -145,49 +143,39 @@ public class HomeService {
                                 today
                         );
 
-        // 오늘 운동이 없는 경우에도 예외 없이 정상 응답합니다.
-        // 이번 주 루틴 자체가 없는지는 weeklyWorkout.hasWeeklyRoutine으로 구분합니다.
         if (dailyRoutineOptional.isEmpty()) {
             return TodayWorkoutResponseDto.empty(today);
         }
 
         DailyRoutine dailyRoutine = dailyRoutineOptional.get();
 
-        // 2. 오늘 루틴에 포함된 운동을 수행 순서대로 조회합니다.
         List<ExerciseRoutine> exerciseRoutines =
                 exerciseRoutineRepository
                         .findByDailyRoutine_IdOrderByExerciseOrderAsc(
                                 dailyRoutine.getId()
                         );
 
-        // 3. 홈 카드에서 표시할 운동명 목록을 만듭니다.
-        // 조회 순서를 유지하므로 프론트에서 앞의 운동명부터 표시할 수 있습니다.
         List<String> exerciseNames = exerciseRoutines.stream()
                 .map(exerciseRoutine ->
                         exerciseRoutine.getExercise().getNameKo()
                 )
                 .toList();
 
-        // 4. 오늘 루틴에 연결된 운동 기록을 조회합니다.
-        // 운동을 시작하지 않았다면 기록이 존재하지 않습니다.
         Optional<WorkoutRecord> workoutRecord =
                 workoutRecordRepository.findByDailyRoutine_Id(
                         dailyRoutine.getId()
                 );
 
-        // 5. 완료된 기록만 COMPLETED로 반환합니다.
-        // 기록이 없거나 시작만 하고 종료하지 않았다면 NOT_STARTED로 반환합니다.
         TodayWorkoutStatus status = workoutRecord
-                .filter(WorkoutRecord::isFinished)
-                .map(record -> TodayWorkoutStatus.COMPLETED)
+                .map(record -> record.isFinished()
+                        ? TodayWorkoutStatus.COMPLETED
+                        : TodayWorkoutStatus.STARTED)
                 .orElse(TodayWorkoutStatus.NOT_STARTED);
 
-        // 운동 기록이 있으면 ID를 전달하고, 없으면 null을 전달합니다.
         Long workoutRecordId = workoutRecord
                 .map(WorkoutRecord::getId)
                 .orElse(null);
 
-        // 6. 루틴 요약, 운동명 목록, 평균 휴식 시간을 응답 DTO로 변환합니다.
         return TodayWorkoutResponseDto.of(
                 status,
                 today,
